@@ -1,0 +1,49 @@
+<RCC>
+    <qresource prefix="/board">
+        <file>res/CANVAS.GIF</file>
+        <file>res/DROPS.GIF</file>
+        <file>res/GREEN.GIF</file>
+        <file>res/QIANHONG.GIF</file>
+        <file>res/SHEET.GIF</file>
+        <file>res/SKELETON.GIF</file>
+        <file>res/WHITE.GIF</file>
+        <file>res/WOOD.GIF</file>
+    </qresource>
+    <qresource prefix="/chessman">
+        <file>res/WOOD/BA.GIF</file>
+        <file>res/WOOD/BAS.GIF</file>
+        <file>res/WOOD/BB.GIF</file>
+        <file>res/WOOD/BBS.GIF</file>
+        <file>res/WOOD/BC.GIF</file>
+        <file>res/WOOD/BCS.GIF</file>
+        <file>res/WOOD/BK.GIF</file>
+        <file>res/WOOD/BKM.GIF</file>
+        <file>res/WOOD/BKS.GIF</file>
+        <file>res/WOOD/BN.GIF</file>
+        <file>res/WOOD/BNS.GIF</file>
+        <file>res/WOOD/BP.GIF</file>
+        <file>res/WOOD/BPS.GIF</file>
+        <file>res/WOOD/BR.GIF</file>
+        <file>res/WOOD/BRS.GIF</file>
+        <file>res/WOOD/OO.GIF</file>
+        <file>res/WOOD/OOS.GIF</file>
+        <file>res/WOOD/RA.GIF</file>
+        <file>res/WOOD/RAS.GIF</file>
+        <file>res/WOOD/RB.GIF</file>
+        <file>res/WOOD/RBS.GIF</file>
+        <file>res/WOOD/RC.GIF</file>
+        <file>res/WOOD/RCS.GIF</file>
+        <file>res/WOOD/RK.GIF</file>
+        <file>res/WOOD/RKM.GIF</file>
+        <file>res/WOOD/RKS.GIF</file>
+        <file>res/WOOD/RN.GIF</file>
+        <file>res/WOOD/RNS.GIF</file>
+        <file>res/WOOD/RP.GIF</file>
+        <file>res/WOOD/RPS.GIF</file>
+        <file>res/WOOD/RR.GIF</file>
+        <file>res/WOOD/RRS.GIF</file>
+    </qresource>
+    <qresource prefix="/icon">
+        <file>res/ICON/XQF.ICO</file>
+    </qresource>
+</RCC>
