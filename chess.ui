@@ -27,29 +27,9 @@
   </property>
   <property name="windowIcon">
    <iconset resource="res.qrc">
-    <normaloff>:/icon/res/ICON/XQF.ICO</normaloff>:/icon/res/ICON/XQF.ICO</iconset>
+    <normaloff>:/icon/res/icon/XQF.ICO</normaloff>:/icon/res/icon/XQF.ICO</iconset>
   </property>
-  <widget class="QWidget" name="centralWidget">
-   <widget class="QLabel" name="label">
-    <property name="geometry">
-     <rect>
-      <x>0</x>
-      <y>0</y>
-      <width>520</width>
-      <height>576</height>
-     </rect>
-    </property>
-    <property name="minimumSize">
-     <size>
-      <width>520</width>
-      <height>576</height>
-     </size>
-    </property>
-    <property name="text">
-     <string>TextLabel</string>
-    </property>
-   </widget>
-  </widget>
+  <widget class="QWidget" name="centralWidget"/>
   <action name="actionStart">
    <property name="text">
     <string>start</string>

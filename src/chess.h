@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+class Palette;
+
 namespace Ui {
 class Chess;
 }
@@ -17,6 +19,7 @@ public:
     
 private:
     Ui::Chess *ui;
+    Palette* palette_;
 };
 
 #endif // CHESS_H

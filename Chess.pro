@@ -19,3 +19,4 @@ FORMS    += chess.ui
 RESOURCES += \
     res.qrc
 
+CONFIG += c++11
