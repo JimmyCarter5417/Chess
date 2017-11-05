@@ -3,6 +3,8 @@
 
 #include <QMainWindow>
 
+class Board;
+class ResMgr;
 class Palette;
 
 namespace Ui {
@@ -19,6 +21,9 @@ public:
     
 private:
     Ui::Chess *ui;
+
+    Board* board_;
+    ResMgr* resMgr_;
     Palette* palette_;
 };
 

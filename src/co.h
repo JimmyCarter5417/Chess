@@ -8,25 +8,25 @@ using def::TPos;
 namespace co
 {
     //二维数组尺寸
-    const int row_ = 10;
-    const int col_ = 9;
+    const int g_row = 10;
+    const int g_col = 9;
     //二维数组在一维数组内的偏移量
-    const int leftEdge_   = 3;
-    const int topEdge_    = 3;
-    const int rightEdge_  = 11;
-    const int bottomEdge_ = 12;
+    const int g_leftEdge   = 3;
+    const int g_topEdge    = 3;
+    const int g_rightEdge  = 11;
+    const int g_bottomEdge = 12;
 
     inline bool isValid2d(TPos pos)
     {
-        return pos.x >= 0 && pos.x < row_ && pos.y >= 0 && pos.y < col_;
+        return pos.x >= 0 && pos.x < g_row && pos.y >= 0 && pos.y < g_col;
     }
 
     inline bool isValid1d(int x)
     {
         int row = x / 16;
         int col = x % 16;
-        return row >= topEdge_ && row <= bottomEdge_ &&
-               col >= leftEdge_ && col <= rightEdge_;
+        return row >= g_topEdge && row <= g_bottomEdge &&
+               col >= g_leftEdge && col <= g_rightEdge;
     }
 
     inline bool xy2x(TPos pos, int& x)
@@ -34,7 +34,7 @@ namespace co
         if (!isValid2d(pos))
             return false;
 
-        x = 16 * (pos.x + topEdge_) + pos.y + leftEdge_;
+        x = 16 * (pos.x + g_topEdge) + pos.y + g_leftEdge;
         return true;
     }
 
@@ -43,8 +43,8 @@ namespace co
         if (!isValid1d(x))
             return false;
 
-        pos.x = x / 16 - topEdge_;
-        pos.y = x % 16 - leftEdge_;
+        pos.x = x / 16 - g_topEdge;
+        pos.y = x % 16 - g_leftEdge;
         return true;
     }
 }

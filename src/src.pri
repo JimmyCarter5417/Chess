@@ -11,6 +11,7 @@ HEADERS += \
     src/def.h \
     src/resmgr.h \
     src/palette.h \
-    src/co.h
+    src/co.h \
+    src/size.h
 
 OTHER_FILES +=

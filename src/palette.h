@@ -5,26 +5,34 @@
 #include <vector>
 
 class Chess;
+class Board;
+class ResMgr;
 class QLabel;
 class QPixmap;
 
-using std::vector;
 using def::TPos;
-using def::TSize;
+using std::vector;
 
 class Palette
 {
 public:
-    explicit Palette(Chess* chess);
+    explicit Palette(Chess* chess, Board* board, ResMgr* resMgr);
     ~Palette();
+
+    void drawBg();
+    void drawPieces();
+    void drawPiece(TPos pos);
+
+    void drawSelect(TPos pos);
 
 private:
     Chess* chess_;
+    Board* board_;
+    ResMgr* resMgr_;
 
-    TSize pieceSize_;
-    TSize boardSize_;
-
-    vector<vector<QLabel*>> palette_;
+    QLabel* bg_;
+    QLabel* select_;
+    vector<vector<QLabel*>> pieces_;
 };
 
 #endif // PALETTE_H

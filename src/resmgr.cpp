@@ -48,9 +48,9 @@ bool ResMgr::loadPieces(EPieceSkin skin)
 
     static TPieceSkinInfo allPieceSkinInfo[] =
     {
-        {EPS_Delicate, ":/piece/delicate/res/piece/delicate/"},
-        {EPS_Polish,   ":/piece/polish/res/polish/delicate/"},
-        {EPS_Wood,     ":/piece/wood/res/wood/delicate/"},
+        {EPS_Delicate, ":/piece/delicate/res/piece/deicate/"},
+        {EPS_Polish,   ":/piece/polish/res/piece/polish/"},
+        {EPS_Wood,     ":/piece/wood/res/piece/wood/"},
     };
 
     static TPieceInfo allPieceInfo[] =

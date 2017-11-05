@@ -10,6 +10,8 @@ class ResMgr
 public:
     enum EPiece
     {
+        EP_Empty = 0,
+
         EP_RedKing = 8,
         EP_RedAdvisor,
         EP_RedBishop,
@@ -26,8 +28,7 @@ public:
         EP_BlackCannon,
         EP_BlackPawn = 22,
 
-        EP_Empty = 32,
-        EP_Select
+        EP_Select = 32
     };
 
     enum EPieceSkin

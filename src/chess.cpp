@@ -8,38 +8,40 @@
 #include <QDebug>
 #include <QDir>
 
-
+#include "board.h"
 #include "resmgr.h"
 #include "palette.h"
 
 Chess::Chess(QWidget *parent) :
     QMainWindow(parent),
-    ui(new Ui::Chess)
+    ui(new Ui::Chess),
+    board_(Board::getInstance()),
+    resMgr_(ResMgr::getInstance()),
+    palette_(new Palette(this, board_, resMgr_))
 {
     //setWindowFlags(Qt::WindowMinimized | Qt::WindowSystemMenuHint);
     ui->setupUi(this);
-    QLabel* label = new QLabel(this);
-    QPixmap* img;
-    if (ResMgr::getInstance()->loadBoard(ResMgr::EBS_Canvas))
-        img = ResMgr::getInstance()->getBoard();
 
-    label->resize(521, 577);
-    label->setPixmap(*img);
+    resMgr_->loadBoard(ResMgr::EBS_Wood);
+    resMgr_->loadPieces(ResMgr::EPS_Wood);
 
-    QPixmap* img2;
-    if (ResMgr::getInstance()->loadPieces(ResMgr::EPS_Delicate))
-        img2 = ResMgr::getInstance()->getPiece(ResMgr::EP_BlackKing);
-    QLabel* ll = new QLabel(this);
-    ll->resize(57, 57);
-    ll->setPixmap(*img2);
-    ll->move(92 - img2->width() / 2, 92 - img2->height() / 2);
-    //ll->hide();
+    palette_->drawBg();
+    palette_->drawPieces();
+    palette_->drawSelect({0,4});
+    palette_->drawSelect({9,4});
 
-    qDebug()<<"current applicationDirPath: "<<QCoreApplication::applicationDirPath();
-    qDebug()<<"current currentPath: "<<QDir::currentPath();
+
+//    qDebug()<<"current applicationDirPath: "<<QCoreApplication::applicationDirPath();
+//    qDebug()<<"current currentPath: "<<QDir::currentPath();
 }
 
 Chess::~Chess()
 {
     delete ui;
+
+    if (palette_)
+    {
+        delete palette_;
+        palette_ = nullptr;
+    }
 }

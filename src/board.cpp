@@ -6,9 +6,16 @@
 using namespace def;
 using namespace co;
 
+Board* Board::getInstance()
+{
+    static Board board;
+    return &board;
+}
+
 Board::Board()
 {
     memset(board_, 0, sizeof(board_));
+    init();
 }
 
 void Board::init()
