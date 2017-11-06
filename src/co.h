@@ -2,8 +2,10 @@
 #define CO_H
 
 #include "def.h"
+#include "size.h"
 
 using def::TPos;
+using def::TClientCo;
 
 namespace co
 {
@@ -18,7 +20,7 @@ namespace co
 
     inline bool isValid2d(TPos pos)
     {
-        return pos.x >= 0 && pos.x < g_row && pos.y >= 0 && pos.y < g_col;
+        return pos.row >= 0 && pos.row < g_row && pos.col >= 0 && pos.col < g_col;
     }
 
     inline bool isValid1d(int x)
@@ -34,7 +36,7 @@ namespace co
         if (!isValid2d(pos))
             return false;
 
-        x = 16 * (pos.x + g_topEdge) + pos.y + g_leftEdge;
+        x = 16 * (pos.row + g_topEdge) + pos.col + g_leftEdge;
         return true;
     }
 
@@ -43,9 +45,21 @@ namespace co
         if (!isValid1d(x))
             return false;
 
-        pos.x = x / 16 - g_topEdge;
-        pos.y = x % 16 - g_leftEdge;
+        pos.row = x / 16 - g_topEdge;
+        pos.col = x % 16 - g_leftEdge;
         return true;
+    }
+
+    inline void clientCo2xy(TClientCo clientCo, TPos& pos)
+    {
+        pos.row = clientCo.y / size::g_pieceSize.height;
+        pos.col = clientCo.x / size::g_pieceSize.width;
+    }
+
+    inline void xy2ClientCo(TPos pos, TClientCo& clientCo)
+    {
+        clientCo.x = size::g_boardLeftTopPos.col + size::g_pieceSize.height * pos.col - size::g_pieceSize.height / 2;
+        clientCo.y = size::g_boardLeftTopPos.row + size::g_pieceSize.width * pos.row - size::g_pieceSize.width / 2;
     }
 }
 

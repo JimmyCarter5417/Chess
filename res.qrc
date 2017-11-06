@@ -2,15 +2,15 @@
     <qresource prefix="/icon">
         <file>res/icon/XQF.ICO</file>
     </qresource>
-    <qresource prefix="/board">
-        <file>res/board/CANVAS.GIF</file>
-        <file>res/board/DROPS.GIF</file>
-        <file>res/board/GREEN.GIF</file>
-        <file>res/board/QIANHONG.GIF</file>
-        <file>res/board/SHEET.GIF</file>
-        <file>res/board/SKELETON.GIF</file>
-        <file>res/board/WHITE.GIF</file>
-        <file>res/board/WOOD.GIF</file>
+    <qresource prefix="/bg">
+        <file>res/bg/CANVAS.GIF</file>
+        <file>res/bg/DROPS.GIF</file>
+        <file>res/bg/GREEN.GIF</file>
+        <file>res/bg/QIANHONG.GIF</file>
+        <file>res/bg/SHEET.GIF</file>
+        <file>res/bg/SKELETON.GIF</file>
+        <file>res/bg/WHITE.GIF</file>
+        <file>res/bg/WOOD.GIF</file>
     </qresource>
     <qresource prefix="/piece/wood">
         <file>res/piece/wood/BA.GIF</file>

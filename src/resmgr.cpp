@@ -9,17 +9,17 @@ ResMgr* ResMgr::getInstance()
 }
 
 ResMgr::ResMgr()
-    :board_(nullptr)
+    :bg_(nullptr)
 {
 
 }
 
 ResMgr::~ResMgr()
 {
-    if (board_)
+    if (bg_)
     {
-        delete board_;
-        board_ = nullptr;
+        delete bg_;
+        bg_ = nullptr;
     }
 
     for (auto& elem: pieces_)
@@ -55,6 +55,8 @@ bool ResMgr::loadPieces(EPieceSkin skin)
 
     static TPieceInfo allPieceInfo[] =
     {
+        {EP_Empty,        "OO.GIF"},
+
         {EP_RedKing,      "RK.GIF"},
         {EP_RedAdvisor,   "RA.GIF"},
         {EP_RedBishop,    "RB.GIF"},
@@ -71,7 +73,6 @@ bool ResMgr::loadPieces(EPieceSkin skin)
         {EP_BlackCannon,  "BC.GIF"},
         {EP_BlackPawn,    "BP.GIF"},
 
-        {EP_Empty,        "OO.GIF"},
         {EP_Select,       "OOS.GIF"},
     };
 
@@ -109,38 +110,38 @@ bool ResMgr::loadPieces(EPieceSkin skin)
     return true;
 }
 
-bool ResMgr::loadBoard(EBoardSkin skin)
+bool ResMgr::loadBg(EBgSkin skin)
 {
-    struct TBoardSkinInfo
+    struct TBgSkinInfo
     {
-        EBoardSkin skin;
+        EBgSkin skin;
         const char* path;
     };
 
-    static TBoardSkinInfo allBoardSkinInfo[] =
+    static TBgSkinInfo allBgSkinInfo[] =
     {
-        {EBS_Canvas,   ":/board/res/board/CANVAS.GIF"},
-        {EBS_Drops,    ":/board/res/board/DROPS.GIF"},
-        {EBS_Green,    ":/board/res/board/GREEN.GIF"},
-        {EBS_Qianhong, ":/board/res/board/QIANHONG.GIF"},
-        {EBS_Sheet,    ":/board/res/board/SHEET.GIF"},
-        {EBS_Skeleton, ":/board/res/board/SKELETON.GIF"},
-        {EBS_White,    ":/board/res/board/WHITE.GIF"},
-        {EBS_Wood,     ":/board/res/board/WOOD.GIF"}
+        {EBS_Canvas,   ":/bg/res/bg/CANVAS.GIF"},
+        {EBS_Drops,    ":/bg/res/bg/DROPS.GIF"},
+        {EBS_Green,    ":/bg/res/bg/GREEN.GIF"},
+        {EBS_Qianhong, ":/bg/res/bg/QIANHONG.GIF"},
+        {EBS_Sheet,    ":/bg/res/bg/SHEET.GIF"},
+        {EBS_Skeleton, ":/bg/res/bg/SKELETON.GIF"},
+        {EBS_White,    ":/bg/res/bg/WHITE.GIF"},
+        {EBS_Wood,     ":/bg/res/bg/WOOD.GIF"}
     };
 
     bool ret = false;
 
-    for (int i = 0; i < sizeof(allBoardSkinInfo) / sizeof(TBoardSkinInfo); i++)
+    for (int i = 0; i < sizeof(allBgSkinInfo) / sizeof(TBgSkinInfo); i++)
     {
-        if (allBoardSkinInfo[i].skin == i)
+        if (allBgSkinInfo[i].skin == i)
         {
-            if (board_ == nullptr)
+            if (bg_ == nullptr)
             {
-                board_ = new QPixmap;
+                bg_ = new QPixmap;
             }
 
-            ret = board_->load(allBoardSkinInfo[skin].path);
+            ret = bg_->load(allBgSkinInfo[skin].path);
             break;
         }
     }
@@ -148,9 +149,9 @@ bool ResMgr::loadBoard(EBoardSkin skin)
     return ret;
 }
 
-QPixmap* ResMgr::getBoard()
+QPixmap* ResMgr::getBg()
 {
-    return board_;
+    return bg_;
 }
 
 QPixmap* ResMgr::getPiece(EPiece piece)

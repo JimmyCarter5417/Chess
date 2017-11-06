@@ -2,6 +2,7 @@
 #define CHESS_H
 
 #include <QMainWindow>
+#include "def.h"
 
 class Board;
 class ResMgr;
@@ -18,6 +19,9 @@ class Chess : public QMainWindow
 public:
     explicit Chess(QWidget *parent = 0);
     ~Chess();
+
+protected:
+    void mousePressEvent(QMouseEvent *e);
     
 private:
     Ui::Chess *ui;
@@ -25,6 +29,8 @@ private:
     Board* board_;
     ResMgr* resMgr_;
     Palette* palette_;
+
+    def::TPos oldPos_;
 };
 
 #endif // CHESS_H

@@ -38,7 +38,7 @@ void Palette::drawBg()
     }
 
     bg_->resize(size::g_boardSize.width, size::g_boardSize.height);
-    bg_->setPixmap(*resMgr_->getBoard());
+    bg_->setPixmap(*resMgr_->getBg());
 }
 
 void Palette::drawPieces()
@@ -60,15 +60,16 @@ void Palette::drawPiece(TPos pos)
     ResMgr::EPiece pieceType = board_->getPiece(pos);
     if (pieceType != ResMgr::EP_Empty)
     {
-        if (pieces_[pos.x][pos.y] == nullptr)
-            pieces_[pos.x][pos.y] = new QLabel(chess_);
+        if (pieces_[pos.row][pos.col] == nullptr)
+            pieces_[pos.row][pos.col] = new QLabel(chess_);
 
-        pieces_[pos.x][pos.y]->resize(size::g_pieceSize.width, size::g_pieceSize.height);
-        pieces_[pos.x][pos.y]->setPixmap(*resMgr_->getPiece(pieceType));
+        pieces_[pos.row][pos.col]->resize(size::g_pieceSize.width, size::g_pieceSize.height);
+        if (QPixmap* pic = resMgr_->getPiece(pieceType))
+            pieces_[pos.row][pos.col]->setPixmap(*pic);
 
-        int x = size::g_boardLeftTopPos.y + size::g_pieceSize.height * pos.y - std::floor(size::g_pieceSize.height / 2.0);
-        int y = size::g_boardLeftTopPos.x + size::g_pieceSize.width * pos.x - std::floor(size::g_pieceSize.width / 2.0);
-        pieces_[pos.x][pos.y]->move(x, y);
+        TClientCo clientCo;
+        co::xy2ClientCo(pos, clientCo);
+        pieces_[pos.row][pos.col]->move(clientCo.x, clientCo.y);
     }
 }
 
@@ -83,9 +84,22 @@ void Palette::drawSelect(TPos pos)
     }
 
     select_->resize(size::g_pieceSize.width, size::g_pieceSize.height);
-    select_->setPixmap(*resMgr_->getPiece(ResMgr::EP_Select));
+    if (QPixmap* pic = resMgr_->getPiece(ResMgr::EP_Select))
+        select_->setPixmap(*pic);
 
-    int x = size::g_boardLeftTopPos.y + size::g_pieceSize.height * pos.y - std::floor(size::g_pieceSize.height / 2.0);
-    int y = size::g_boardLeftTopPos.x + size::g_pieceSize.width * pos.x - std::floor(size::g_pieceSize.width / 2.0);
-    select_->move(x, y);
+    TClientCo clientCo;
+    co::xy2ClientCo(pos, clientCo);
+    select_->move(clientCo.x, clientCo.y);
+}
+
+void Palette::move(TPos curPos, TPos newPos)
+{
+    if (pieces_[curPos.row][curPos.col] != nullptr)
+    {
+        std::swap(pieces_[curPos.row][curPos.col], pieces_[newPos.row][newPos.col]);
+
+        TClientCo clientCo;
+        co::xy2ClientCo(newPos, clientCo);
+        pieces_[newPos.row][newPos.col]->move(clientCo.x, clientCo.y);
+    }
 }

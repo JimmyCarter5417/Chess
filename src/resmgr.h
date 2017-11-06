@@ -12,21 +12,21 @@ public:
     {
         EP_Empty = 0,
 
-        EP_RedKing = 8,
+        EP_RedKing = 9,
         EP_RedAdvisor,
         EP_RedBishop,
         EP_RedKnight,
         EP_RedRook,
         EP_RedCannon,
-        EP_RedPawn = 14,
+        EP_RedPawn = 15,
 
-        EP_BlackKing = 16,
+        EP_BlackKing = 17,
         EP_BlackAdvisor,
         EP_BlackBishop,
         EP_BlackKnight,
         EP_BlackRook,
         EP_BlackCannon,
-        EP_BlackPawn = 22,
+        EP_BlackPawn = 23,
 
         EP_Select = 32
     };
@@ -40,7 +40,7 @@ public:
         EPS_End
     };
 
-    enum EBoardSkin
+    enum EBgSkin
     {
         EBS_Canvas,
         EBS_Drops,
@@ -59,16 +59,16 @@ public:
     ~ResMgr();
 
     bool loadPieces(EPieceSkin skin);
-    bool loadBoard(EBoardSkin skin);
+    bool loadBg(EBgSkin skin);
 
-    QPixmap* getBoard();
+    QPixmap* getBg();
     QPixmap* getPiece(EPiece piece);
 
 private:
     ResMgr();
 
     std::unordered_map<int, QPixmap*> pieces_;
-    QPixmap* board_;
+    QPixmap* bg_;
 };
 
 #endif // RESMGR_H

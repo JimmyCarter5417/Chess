@@ -22,8 +22,9 @@ public:
     void drawBg();
     void drawPieces();
     void drawPiece(TPos pos);
-
     void drawSelect(TPos pos);
+
+    void move(TPos curPos, TPos newPos);
 
 private:
     Chess* chess_;
