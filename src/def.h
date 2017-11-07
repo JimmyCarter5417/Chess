@@ -6,6 +6,46 @@ namespace def
     typedef unsigned char byte;
     typedef unsigned int uint;
 
+    struct TTag
+    {
+
+    };
+
+    struct TKingTag : public TTag
+    {
+
+    };
+
+    struct TAdvisorTag : public TTag
+    {
+
+    };
+
+    struct TBishopTag : public TTag
+    {
+
+    };
+
+    struct TKnightTag : public TTag
+    {
+
+    };
+
+    struct TRookTag : public TTag
+    {
+
+    };
+
+    struct TCannonTag : public TTag
+    {
+
+    };
+
+    struct TPawnTag : public TTag
+    {
+
+    };
+
     struct TDelta
     {
         int deltaRow;
@@ -35,6 +75,11 @@ namespace def
         bool operator==(const TPos& rhs) const
         {
             return row == rhs.row && col == rhs.col;
+        }
+
+        bool operator!=(const TPos& rhs) const
+        {
+            return row != rhs.row || col != rhs.col;
         }
 
         TDelta operator-(const TPos& rhs) const

@@ -27,12 +27,11 @@ Chess::Chess(QWidget *parent) :
     //setWindowFlags(Qt::WindowMinimized | Qt::WindowSystemMenuHint);
     ui->setupUi(this);
 
-    resMgr_->loadBg(ResMgr::EBS_Skeleton);
+    resMgr_->loadBg(ResMgr::EBS_Wood);
     resMgr_->loadPieces(ResMgr::EPS_Wood);
 
     palette_->drawBg();
     palette_->drawPieces();
-    palette_->drawSelect({0,4});
     palette_->drawSelect({9,4});
 
 
@@ -49,39 +48,56 @@ void Chess::mousePressEvent(QMouseEvent *e)
 {
     if (Qt::LeftButton == e->button())
     {
-        TPos pos = g_nullPos;
-        co::clientCo2Pos({e->x(), e->y()}, pos);
+        TPos nextPos = g_nullPos;
+        co::clientCo2Pos({e->x(), e->y()}, nextPos);
 
         if (prevPos_ == g_nullPos)
         {
-            prevPos_ = pos;
+            if ((board_->getPiece(nextPos) & g_pieceMask) != g_empty)
+            {
+                prevPos_ = nextPos;
+                palette_->drawSelect(nextPos);
+            }
+        }
+        else
+        {
+            bool flag = false;
+            switch (board_->getPiece(prevPos_) & g_pieceMask)
+            {
+            case g_king:
+                flag = board_->isValidKingMove(prevPos_, nextPos);
+                break;
+            case g_advisor:
+                flag = board_->isValidAdvisorMove(prevPos_, nextPos);
+                break;
+            case g_bishop:
+                flag = board_->isValidBishopMove(prevPos_, nextPos);
+                break;
+            case g_knight:
+                flag = board_->isValidKnightMove(prevPos_, nextPos);
+                break;
+            case g_rook:
+                flag = board_->isValidRookMove(prevPos_, nextPos);
+                break;
+            case g_cannon:
+                flag = board_->isValidCannonMove(prevPos_, nextPos);
+                break;
+            case g_pawn:
+                flag = board_->isValidPawnMove(prevPos_, nextPos);
+                break;
+            default:
+                flag = false;
+                break;
+            }
 
+            if (flag)
+            {
+                palette_->drawSelect(nextPos);
+                //palette_->move(prevPos_, pos);
+                prevPos_ = nextPos;
+            }
         }
 
-            palette_->drawSelect(pos);
-            palette_->move(prevPos_, pos);
-            prevPos_ = pos;
-
-
-
-
-        /*if (board_->isValidKnightMove(pos, {pos.row - 1, pos.col + 2}))
-            palette_->drawSelect(pos);
-
-        if (board_->isValidBishopMove(pos, {pos.row - 2, pos.col + 2}))
-            palette_->drawSelect(pos);
-
-        if (board_->isValidCannonMove(pos, {pos.row, pos.col + 1}))
-            palette_->drawSelect(pos);
-
-        if (board_->isValidRookMove(pos, {pos.row - 3, pos.col}))
-            palette_->drawSelect(pos);
-
-        if (board_->isValidAdvisorMove(pos, {pos.row + 1, pos.col - 1}))
-            palette_->drawSelect(pos);
-
-        if (board_->isValidKingMove(pos, {pos.row + 1, pos.col - 1}))
-            palette_->drawSelect(pos);*/
     }
 //    if (Qt ::RightButton == e->button())
 //    {

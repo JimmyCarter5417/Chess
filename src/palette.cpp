@@ -18,7 +18,7 @@ Palette::Palette(Chess* chess, Board* board, ResMgr* resMgr)
     assert(board_ != nullptr);
     assert(resMgr_ != nullptr);
 
-    pieces_.assign(co::g_row, vector<QLabel*>(co::g_col, nullptr));
+    pieces_.assign(co::g_rowNum, vector<QLabel*>(co::g_colNum, nullptr));
 }
 
 Palette::~Palette()
@@ -43,9 +43,9 @@ void Palette::drawBg()
 
 void Palette::drawPieces()
 {
-    for (int i = 0; i < co::g_row; i++)
+    for (int i = 0; i < co::g_rowNum; i++)
     {
-        for (int j = 0; j < co::g_col; j++)
+        for (int j = 0; j < co::g_colNum; j++)
         {
             drawPiece({i, j});
         }
@@ -75,21 +75,21 @@ void Palette::drawPiece(TPos pos)
 
 void Palette::drawSelect(TPos pos)
 {
-    if (!co::isValidPos(pos))
-        return;
-
-    if (select_ == nullptr)
+    if (co::isValidPos(pos))
     {
-        select_ = new QLabel(chess_);
+        if (select_ == nullptr)
+        {
+            select_ = new QLabel(chess_);
+
+            select_->resize(size::g_pieceSize.width, size::g_pieceSize.height);
+            if (QPixmap* pic = resMgr_->getPiece(ResMgr::EP_Select))
+                select_->setPixmap(*pic);
+        }
+
+        TClientCo clientCo;
+        co::pos2ClientCo(pos, clientCo);
+        select_->move(clientCo.x, clientCo.y);
     }
-
-    select_->resize(size::g_pieceSize.width, size::g_pieceSize.height);
-    if (QPixmap* pic = resMgr_->getPiece(ResMgr::EP_Select))
-        select_->setPixmap(*pic);
-
-    TClientCo clientCo;
-    co::pos2ClientCo(pos, clientCo);
-    select_->move(clientCo.x, clientCo.y);
 }
 
 void Palette::move(TPos curPos, TPos newPos)
