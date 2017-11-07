@@ -6,14 +6,40 @@ namespace def
     typedef unsigned char byte;
     typedef unsigned int uint;
 
+    struct TDelta
+    {
+        int deltaRow;
+        int deltaCol;
+
+        TDelta(int row, int col)
+            : deltaRow(row)
+            , deltaCol(col)
+        {}
+
+        bool operator==(const TDelta& rhs) const
+        {
+            return deltaRow == rhs.deltaRow && deltaCol == rhs.deltaCol;
+        }
+    };
+
     struct TPos
     {
         int row;
         int col;
 
-        bool operator==(const TPos& rhs)
+        TPos(int row1, int col1)
+            : row(row1)
+            , col(col1)
+        {}
+
+        bool operator==(const TPos& rhs) const
         {
-            return rhs.row == row && rhs.col == col;
+            return row == rhs.row && col == rhs.col;
+        }
+
+        TDelta operator-(const TPos& rhs) const
+        {
+            return {row - rhs.row, col - rhs.col};
         }
     };
 

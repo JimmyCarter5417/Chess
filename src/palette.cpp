@@ -54,7 +54,7 @@ void Palette::drawPieces()
 
 void Palette::drawPiece(TPos pos)
 {
-    if (!co::isValid2d(pos))
+    if (!co::isValidPos(pos))
         return;
 
     ResMgr::EPiece pieceType = board_->getPiece(pos);
@@ -68,14 +68,14 @@ void Palette::drawPiece(TPos pos)
             pieces_[pos.row][pos.col]->setPixmap(*pic);
 
         TClientCo clientCo;
-        co::xy2ClientCo(pos, clientCo);
+        co::pos2ClientCo(pos, clientCo);
         pieces_[pos.row][pos.col]->move(clientCo.x, clientCo.y);
     }
 }
 
 void Palette::drawSelect(TPos pos)
 {
-    if (!co::isValid2d(pos))
+    if (!co::isValidPos(pos))
         return;
 
     if (select_ == nullptr)
@@ -88,7 +88,7 @@ void Palette::drawSelect(TPos pos)
         select_->setPixmap(*pic);
 
     TClientCo clientCo;
-    co::xy2ClientCo(pos, clientCo);
+    co::pos2ClientCo(pos, clientCo);
     select_->move(clientCo.x, clientCo.y);
 }
 
@@ -99,7 +99,7 @@ void Palette::move(TPos curPos, TPos newPos)
         std::swap(pieces_[curPos.row][curPos.col], pieces_[newPos.row][newPos.col]);
 
         TClientCo clientCo;
-        co::xy2ClientCo(newPos, clientCo);
+        co::pos2ClientCo(newPos, clientCo);
         pieces_[newPos.row][newPos.col]->move(clientCo.x, clientCo.y);
     }
 }

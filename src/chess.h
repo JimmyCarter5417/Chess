@@ -2,6 +2,7 @@
 #define CHESS_H
 
 #include <QMainWindow>
+#include <memory>
 #include "def.h"
 
 class Board;
@@ -26,11 +27,11 @@ protected:
 private:
     Ui::Chess *ui;
 
-    Board* board_;
+    std::shared_ptr<Board> board_;
     ResMgr* resMgr_;
-    Palette* palette_;
+    std::shared_ptr<Palette> palette_;
 
-    def::TPos oldPos_;
+    def::TPos prevPos_;
 };
 
 #endif // CHESS_H

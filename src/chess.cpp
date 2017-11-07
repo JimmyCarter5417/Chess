@@ -21,8 +21,8 @@ Chess::Chess(QWidget *parent) :
     ui(new Ui::Chess),
     board_(new Board),
     resMgr_(ResMgr::getInstance()),
-    palette_(new Palette(this, board_, resMgr_)),
-    oldPos_(g_nullPos)
+    palette_(new Palette(this, board_.get(), resMgr_)),
+    prevPos_(g_nullPos)
 {
     //setWindowFlags(Qt::WindowMinimized | Qt::WindowSystemMenuHint);
     ui->setupUi(this);
@@ -43,12 +43,6 @@ Chess::Chess(QWidget *parent) :
 Chess::~Chess()
 {
     delete ui;
-
-    if (palette_)
-    {
-        delete palette_;
-        palette_ = nullptr;
-    }
 }
 
 void Chess::mousePressEvent(QMouseEvent *e)
@@ -56,17 +50,17 @@ void Chess::mousePressEvent(QMouseEvent *e)
     if (Qt::LeftButton == e->button())
     {
         TPos pos = g_nullPos;
-        co::clientCo2xy({e->x(), e->y()}, pos);
+        co::clientCo2Pos({e->x(), e->y()}, pos);
 
-        if (oldPos_ == g_nullPos)
+        if (prevPos_ == g_nullPos)
         {
-            oldPos_ = pos;
+            prevPos_ = pos;
 
         }
 
             palette_->drawSelect(pos);
-            palette_->move(oldPos_, pos);
-            oldPos_ = pos;
+            palette_->move(prevPos_, pos);
+            prevPos_ = pos;
 
 
 
