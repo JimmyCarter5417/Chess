@@ -25,15 +25,10 @@ Chess::Chess(QWidget *parent) :
     prevPos_(g_nullPos)
 {
     //setWindowFlags(Qt::WindowMinimized | Qt::WindowSystemMenuHint);
-    ui->setupUi(this);
+    ui->setupUi(this);   
 
-    resMgr_->loadBg(ResMgr::EBS_Wood);
-    resMgr_->loadPieces(ResMgr::EPS_Wood);
-
-    palette_->drawBg();
-    palette_->drawPieces();
-    palette_->drawSelect({0,0}, true);
-    palette_->drawSelect({0,0}, false);
+    palette_->open();
+    palette_->drawSelect(g_nullPos, g_nullPos);
 
 //    qDebug()<<"current applicationDirPath: "<<QCoreApplication::applicationDirPath();
 //    qDebug()<<"current currentPath: "<<QDir::currentPath();
@@ -53,49 +48,30 @@ void Chess::mousePressEvent(QMouseEvent *e)
 
         if (prevPos_ == g_nullPos)
         {
-            if ((board_->getPiece(currPos) & g_pieceMask) != g_empty)
-            {
+            // 若prevPos_为无效位置，且新位置非空，更新prevPos_，并显示当前点
+            if (palette_->getPiece(currPos) != ResMgr::EP_Empty)
+            {                
+                palette_->drawSelect(g_nullPos, currPos);
                 prevPos_ = currPos;
-                palette_->drawSelect(currPos, false);
             }
         }
         else
         {
-            bool flag = false;
-            switch (board_->getPiece(prevPos_) & g_pieceMask)
+            // 可以移动棋子
+            if (palette_->movePiece(prevPos_, currPos))
             {
-            case g_king:
-                flag = board_->isValidKingMove(prevPos_, currPos);
-                break;
-            case g_advisor:
-                flag = board_->isValidAdvisorMove(prevPos_, currPos);
-                break;
-            case g_bishop:
-                flag = board_->isValidBishopMove(prevPos_, currPos);
-                break;
-            case g_knight:
-                flag = board_->isValidKnightMove(prevPos_, currPos);
-                break;
-            case g_rook:
-                flag = board_->isValidRookMove(prevPos_, currPos);
-                break;
-            case g_cannon:
-                flag = board_->isValidCannonMove(prevPos_, currPos);
-                break;
-            case g_pawn:
-                flag = board_->isValidPawnMove(prevPos_, currPos);
-                break;
-            default:
-                flag = false;
-                break;
+                //显示两个选择框，prevPos_清空
+                palette_->drawSelect(prevPos_, currPos);
+                prevPos_ = g_nullPos;
             }
-
-            if (flag)
+            else// 不能移动棋子
             {
-                palette_->drawSelect(prevPos_, true);
-                palette_->drawSelect(currPos, false);
-                //palette_->move(prevPos_, pos);
-                prevPos_ = currPos;
+                // 当前选择位置与原位置同色，才能更新prevPos_，并绘制选择框
+                if ((palette_->getPiece(prevPos_) & def::g_clrMask) == (palette_->getPiece(currPos) & def::g_clrMask))
+                {
+                    palette_->drawSelect(g_nullPos, currPos);
+                    prevPos_ = currPos;
+                }
             }
         }
 

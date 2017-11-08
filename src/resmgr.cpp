@@ -1,6 +1,10 @@
 #include "resmgr.h"
 #include <QString>
 #include <QPixmap>
+#include <memory>
+#include <string>
+
+using namespace std;
 
 ResMgr* ResMgr::getInstance()
 {
@@ -9,7 +13,9 @@ ResMgr* ResMgr::getInstance()
 }
 
 ResMgr::ResMgr()
-    :bg_(nullptr)
+    : bg_(nullptr)
+    , initBg_(false)
+    , initPieces_(false)
 {
 
 }
@@ -34,26 +40,14 @@ ResMgr::~ResMgr()
 
 bool ResMgr::loadPieces(EPieceSkin skin)
 {
-    struct TPieceSkinInfo
-    {
-        EPieceSkin skin;
-        const char* path;
-    };
-
-    struct TPieceInfo
-    {
-        EPiece piece;
-        const char* name;
-    };
-
-    static TPieceSkinInfo allPieceSkinInfo[] =
+    static unordered_map<int, string> allPieceSkinInfo =
     {
         {EPS_Delicate, ":/piece/delicate/res/piece/deicate/"},
         {EPS_Polish,   ":/piece/polish/res/piece/polish/"},
         {EPS_Wood,     ":/piece/wood/res/piece/wood/"},
     };
 
-    static TPieceInfo allPieceInfo[] =
+    static unordered_map<int, string> allPieceInfo =
     {
         {EP_Empty,        "OO.GIF"},
 
@@ -76,49 +70,30 @@ bool ResMgr::loadPieces(EPieceSkin skin)
         {EP_Select,       "OOS.GIF"},
     };
 
-    QString strPrefix;//get prefix first
-    for (int i = 0; i < sizeof(allPieceSkinInfo) / sizeof(TPieceSkinInfo); i++)
-    {
-        if (allPieceSkinInfo[i].skin == i)
-        {
-            strPrefix = allPieceSkinInfo[skin].path;
-            break;
-        }
-    }
-
-    if (strPrefix.isEmpty())
-    {
+    unordered_map<int, string>::iterator itr = allPieceSkinInfo.find(skin);
+    if (itr == allPieceSkinInfo.end())
         return false;
-    }
 
     //初始化棋子
-    for (int i = 0; i < sizeof(allPieceInfo) / sizeof(TPieceInfo); i++)
+    for (pair<const int, string>& pieceInfo: allPieceInfo)
     {
-        EPiece piece = allPieceInfo[i].piece;
+        EPiece pieceType = static_cast<EPiece>(pieceInfo.first);
 
-        if (pieces_[piece] == nullptr)
-        {
-            pieces_[piece] = new QPixmap;
-        }
+        if (pieces_[pieceType] == nullptr)
+            pieces_[pieceType] = new QPixmap;
 
-        if (!pieces_[piece]->load(strPrefix + allPieceInfo[i].name))
-        {
+        string path = allPieceSkinInfo[skin] + pieceInfo.second;
+        if (!pieces_[pieceType]->load(QString(path.c_str())))
             return false;
-        }
     }
 
+    initBg_ = true;
     return true;
 }
 
 bool ResMgr::loadBg(EBgSkin skin)
 {
-    struct TBgSkinInfo
-    {
-        EBgSkin skin;
-        const char* path;
-    };
-
-    static TBgSkinInfo allBgSkinInfo[] =
+    static unordered_map<int, string> allBgSkinInfo =
     {
         {EBS_Canvas,   ":/bg/res/bg/CANVAS.GIF"},
         {EBS_Drops,    ":/bg/res/bg/DROPS.GIF"},
@@ -130,31 +105,32 @@ bool ResMgr::loadBg(EBgSkin skin)
         {EBS_Wood,     ":/bg/res/bg/WOOD.GIF"}
     };
 
-    bool ret = false;
+    unordered_map<int, string>::iterator itr = allBgSkinInfo.find(skin);
+    if (itr == allBgSkinInfo.end())
+        return false;
 
-    for (int i = 0; i < sizeof(allBgSkinInfo) / sizeof(TBgSkinInfo); i++)
-    {
-        if (allBgSkinInfo[i].skin == i)
-        {
-            if (bg_ == nullptr)
-            {
-                bg_ = new QPixmap;
-            }
+    if (bg_ == nullptr)
+        bg_ = new QPixmap;
 
-            ret = bg_->load(allBgSkinInfo[skin].path);
-            break;
-        }
-    }
+    if (!bg_->load(itr->second.c_str()))
+        return false;
 
-    return ret;
+    initBg_ = true;
+    return true;
 }
 
 QPixmap* ResMgr::getBg()
 {
+    if (!initBg_)
+        loadBg(ResMgr::EBS_Wood);
+
     return bg_;
 }
 
 QPixmap* ResMgr::getPiece(EPiece piece)
 {
+    if (!initPieces_)
+        loadPieces(ResMgr::EPS_Wood);
+
     return pieces_[piece];
 }

@@ -4,10 +4,35 @@
 #include <assert.h>
 #include <math.h>
 #include <memory.h>
+#include <unordered_set>
+#include <unordered_map>
 
 using namespace def;
 using namespace co;
 using namespace std;
+
+namespace std
+{
+    // TPos散列函数
+    template <>
+    struct hash<TPos>
+    {
+        size_t operator()(const TPos& k) const
+        {
+            return ((hash<int>()(k.row) ^ (hash<int>()(k.col) << 1)) >> 1);
+        }
+    };
+
+    // TDelta散列函数
+    template <>
+    struct hash<TDelta>
+    {
+        size_t operator()(const TDelta& k) const
+        {
+            return ((hash<int>()(k.deltaRow) ^ (hash<int>()(k.deltaCol) << 1)) >> 1);
+        }
+    };
+}
 
 Board::Board()
 {
@@ -49,59 +74,59 @@ ResMgr::EPiece Board::getPiece(TPos pos) const
 
 bool Board::isValidKingPos(TPos pos, bool red)
 { 
-    static TPos redPos[] =
+    static unordered_set<TPos> redPos =
     {
         {7, 3}, {7, 4}, {7, 5},
         {8, 3}, {8, 4}, {8, 5},
         {9, 3}, {9, 4}, {9, 5}
     };
 
-    static TPos blackPos[] =
+    static unordered_set<TPos> blackPos =
     {
         {0, 3}, {0, 4}, {0, 5},
         {1, 3}, {1, 4}, {1, 5},
         {2, 3}, {2, 4}, {2, 5}
     };
 
-    return findPos(pos, red ? redPos : blackPos, sizeof (redPos) / sizeof (TPos));
+    return red ? (redPos.find(pos) != redPos.end()) : (blackPos.find(pos) != blackPos.end());
 }
 
 bool Board::isValidAdvisorPos(TPos pos, bool red)
 {
-    static TPos redPos[] =
+    static unordered_set<TPos> redPos =
     {
         {7, 3}, {7, 5},
         {8, 4},
         {9, 3}, {9, 5}
     };
 
-    static TPos blackPos[] =
+    static unordered_set<TPos> blackPos =
     {
         {0, 3}, {0, 5},
         {1, 4},
         {2, 3}, {2, 5}
     };
 
-    return findPos(pos, red ? redPos : blackPos, sizeof (redPos) / sizeof (TPos));
+    return red ? (redPos.find(pos) != redPos.end()) : (blackPos.find(pos) != blackPos.end());
 }
 
 bool Board::isValidBishopPos(TPos pos, bool red)
 {
-    static TPos redPos[] =
+    static unordered_set<TPos> redPos =
     {
         {5, 2}, {5, 6},
         {7, 0}, {7, 4}, {7, 8},
         {9, 2}, {9, 6}
     };
 
-    static TPos blackPos[] =
+    static unordered_set<TPos> blackPos =
     {
         {0, 2}, {0, 6},
         {2, 0}, {2, 4}, {2, 8},
         {3, 2}, {3, 6}
     };
 
-    return findPos(pos, red ? redPos : blackPos, sizeof (redPos) / sizeof (TPos));
+    return red ? (redPos.find(pos) != redPos.end()) : (blackPos.find(pos) != blackPos.end());
 }
 
 bool Board::isValidKnightPos(TPos pos, bool red)
@@ -136,7 +161,7 @@ bool Board::isValidPawnPos(TPos pos, bool red)
 // 单格
 bool Board::isValidKingDelta(TDelta delta, bool red)
 {
-    static TDelta deltas[] =
+    static unordered_set<TDelta> deltas =
     {
         {-1,  0},
         { 1,  0},
@@ -144,13 +169,13 @@ bool Board::isValidKingDelta(TDelta delta, bool red)
         { 0,  1}
     };
 
-    return findDelta(delta, deltas, sizeof (deltas) / sizeof (TDelta));
+    return deltas.find(delta) != deltas.end();
 }
 
 // 单格对角线
 bool Board::isValidAdvisorDelta(TDelta delta, bool red)
 {
-    static TDelta deltas[] =
+    static unordered_set<TDelta> deltas =
     {
         {-1, -1},
         {-1,  1},
@@ -158,13 +183,13 @@ bool Board::isValidAdvisorDelta(TDelta delta, bool red)
         { 1,  1}
     };
 
-    return findDelta(delta, deltas, sizeof (deltas) / sizeof (TDelta));
+    return deltas.find(delta) != deltas.end();
 }
 
 // 田字
 bool Board::isValidBishopDelta(TDelta delta, bool red)
 {
-    static TDelta deltas[] =
+    static unordered_set<TDelta> deltas =
     {
         {-2, -2},
         {-2,  2},
@@ -172,13 +197,13 @@ bool Board::isValidBishopDelta(TDelta delta, bool red)
         { 2,  2}
     };
 
-    return findDelta(delta, deltas, sizeof (deltas) / sizeof (TDelta));
+    return deltas.find(delta) != deltas.end();
 }
 
 // 日字
 bool Board::isValidKnightDelta(TDelta delta, bool red)
 {
-    static TDelta deltas[] =
+    static unordered_set<TDelta> deltas =
     {
         {-2, -1},
         {-2,  1},
@@ -190,7 +215,7 @@ bool Board::isValidKnightDelta(TDelta delta, bool red)
         { 2,  1}
     };
 
-    return findDelta(delta, deltas, sizeof (deltas) / sizeof (TDelta));
+    return deltas.find(delta) != deltas.end();
 }
 
 // 共线
@@ -239,16 +264,29 @@ bool Board::isValidAdvisorRule(TPos prevPos, TPos currPos)
 // 不再检查pos及delta，默认前面已检查
 bool Board::isValidBishopRule(TPos prevPos, TPos currPos)
 {
-    // 不能塞象眼
+    // 计算象眼位置
     TPos buddyPos = {(prevPos.row + currPos.row) / 2, (prevPos.col + currPos.col) / 2};
+
+    // 不能塞象眼
     return !isBishopEye(prevPos, buddyPos);
 }
 
 // 不再检查pos及delta，默认前面已检查
 bool Board::isValidKnightRule(TPos prevPos, TPos currPos)
 {
+    // 计算马腿位置
+    TPos buddyPos = g_nullPos;
+    TDelta delta = currPos - prevPos;
+    if (delta == TDelta(-1, 2) || delta == TDelta(1, 2))
+        buddyPos = TPos(prevPos.row, prevPos.col + 1);
+    else if (delta == TDelta(-2, -1) || delta == TDelta(-2, 1))
+        buddyPos = TPos(prevPos.row - 1, prevPos.col);
+    else if (delta == TDelta(-1, -2) || delta == TDelta(1, -2))
+        buddyPos = TPos(prevPos.row, prevPos.col - 1);
+    else if (delta == TDelta(2, -1) || delta == TDelta(2, 1))
+        buddyPos = TPos(prevPos.row + 1, prevPos.col);
+
     // 不能蹩马腿
-    TPos buddyPos = {(prevPos.row + currPos.row) / 2, (prevPos.col + currPos.col) / 2};
     return !isKnightFoot(prevPos, buddyPos);
 }
 
@@ -300,6 +338,8 @@ bool Board::isValidCannonRule(TPos prevPos, TPos currPos)
 
                 cur++;
             }
+
+            return true;
         }
         else// 同一列
         {
@@ -312,6 +352,8 @@ bool Board::isValidCannonRule(TPos prevPos, TPos currPos)
 
                 cur++;
             }
+
+            return true;
         }
     }
     else// 目的位置非空，则中间有且仅有一个棋子
@@ -333,6 +375,8 @@ bool Board::isValidCannonRule(TPos prevPos, TPos currPos)
 
                 cur++;
             }
+
+            return flag;
         }
         else// 同一列
         {
@@ -351,10 +395,12 @@ bool Board::isValidCannonRule(TPos prevPos, TPos currPos)
 
                 cur++;
             }
+
+            return flag;
         }
     }
 
-    return true;
+    return false;
 }
 
 // 不再检查pos及delta，默认前面已检查
@@ -512,28 +558,36 @@ bool Board::isPiece(TPos pos, int piece)
     return piece == (getPiece(pos) & g_pieceMask);
 }
 
-bool Board::findPos(TPos pos, TPos* poss, int count)
+bool Board::isValidMove(TPos prevPos, TPos currPos)
 {
-    assert(poss != nullptr && count > 0);
-
-    for (int i = 0; i < count; ++i)
+    typedef bool (Board::*MoveFunc)(TPos prevPos, TPos currPos);
+    static unordered_map<int, MoveFunc> allMoveFunc =
     {
-        if (poss[i] == pos)
-            return true;
-    }
+        {g_king,    &Board::isValidKingMove},
+        {g_advisor, &Board::isValidAdvisorMove},
+        {g_bishop,  &Board::isValidBishopMove},
+        {g_knight,  &Board::isValidKnightMove},
+        {g_rook,    &Board::isValidRookMove},
+        {g_cannon,  &Board::isValidCannonMove},
+        {g_pawn,    &Board::isValidPawnMove},
+    };
 
-    return false;
+    unordered_map<int, MoveFunc>::iterator itr = allMoveFunc.find(getPiece(prevPos) & g_pieceMask);
+    if (itr == allMoveFunc.end())
+        return false;
+
+    return (this->*(itr->second))(prevPos, currPos);
 }
 
-bool Board::findDelta(TDelta delta, TDelta* deltas, int count)
+bool Board::movePiece(TPos prevPos, TPos currPos)
 {
-    assert(deltas != nullptr && count > 0);
+    if (!isValidMove(prevPos, currPos))
+        return false;
 
-    for (int i = 0; i < count; i++)
-    {
-        if (deltas[i] == delta)
-            return true;
-    }
+    board_[currPos.row][currPos.col] = board_[prevPos.row][prevPos.col];// 移动原棋子至当前位置
+    board_[prevPos.row][prevPos.col] = ResMgr::EP_Empty;// 删除原位置棋子
 
-    return false;
+    return true;
 }
+
+

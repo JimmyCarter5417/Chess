@@ -86,6 +86,11 @@ namespace def
         {
             return {row - rhs.row, col - rhs.col};
         }
+
+        bool operator()()
+        {
+            return row != -1 && col != -1;// g_nullPos
+        }
     };
 
     struct TClientCo

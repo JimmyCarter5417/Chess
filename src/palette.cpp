@@ -7,39 +7,73 @@
 #include <assert.h>
 #include <QLabel>
 
+using namespace std;
+
 Palette::Palette(Chess* chess, Board* board, ResMgr* resMgr)
     : chess_(chess)
     , board_(board)
-    , resMgr_(resMgr)
-    , bg_(nullptr)
-    , prevSelect_(nullptr)
-    , currSelect_(nullptr)
+    , resMgr_(resMgr)   
 {
     assert(chess_ != nullptr);
     assert(board_ != nullptr);
-    assert(resMgr_ != nullptr);
-
-    pieces_.assign(co::g_rowNum, vector<QLabel*>(co::g_colNum, nullptr));
+    assert(resMgr_ != nullptr);    
 }
 
 Palette::~Palette()
 {
-//    for (QLabel*& label: pieces_)
-//    {
-//        delete label;
-//        label = nullptr;
-//    }
+
 }
 
-void Palette::drawBg()
+ResMgr::EPiece Palette::getPiece(TPos pos) const
 {
-    if (bg_ == nullptr)
+    return board_->getPiece(pos);
+}
+
+// 初始化背景图片、两个选择图标
+void Palette::initLabel()
+{
+    bg_ = make_shared<QLabel>(chess_);
+    bg_->resize(size::g_boardSize.width, size::g_boardSize.height);
+    if (QPixmap* pic = resMgr_->getBg())
+        bg_->setPixmap(*pic);
+
+    prevSelect_ = make_shared<QLabel>(chess_);
+    prevSelect_->resize(size::g_pieceSize.width, size::g_pieceSize.height);
+    if (QPixmap* pic = resMgr_->getPiece(ResMgr::EP_Select))
+        prevSelect_->setPixmap(*pic);
+
+    currSelect_ = make_shared<QLabel>(chess_);
+    currSelect_->resize(size::g_pieceSize.width, size::g_pieceSize.height);
+    if (QPixmap* pic = resMgr_->getPiece(ResMgr::EP_Select))
+        currSelect_->setPixmap(*pic);
+}
+
+// 每一个位置一个label
+void Palette::initPieces()
+{
+    pieces_.assign(co::g_rowNum, vector<shared_ptr<QLabel>>(co::g_colNum));
+
+    for (int i = 0; i < co::g_rowNum; i++)
     {
-        bg_ = new QLabel(chess_);
+        for (int j = 0; j < co::g_colNum; j++)
+        {
+            pieces_[i][j] = make_shared<QLabel>(chess_);
+            pieces_[i][j]->resize(size::g_pieceSize.width, size::g_pieceSize.height);
+        }
+    }
+}
+
+void Palette::open()
+{
+    if (!init_)
+    {
+        initLabel();
+        initPieces();
+        init_ = true;
     }
 
-    bg_->resize(size::g_boardSize.width, size::g_boardSize.height);
-    bg_->setPixmap(*resMgr_->getBg());
+    board_->init();
+    drawPieces();
 }
 
 void Palette::drawPieces()
@@ -53,55 +87,53 @@ void Palette::drawPieces()
     }
 }
 
+// 将board的pos位置棋子绘制到palette上
 void Palette::drawPiece(TPos pos)
 {
-    if (!co::isValidPos(pos))
-        return;
+    if (QPixmap* pic = resMgr_->getPiece(board_->getPiece(pos)))
+        pieces_[pos.row][pos.col]->setPixmap(*pic);
 
-    ResMgr::EPiece pieceType = board_->getPiece(pos);
-    if (pieceType != ResMgr::EP_Empty)
+    TClientCo clientCo;
+    co::pos2ClientCo(pos, clientCo);
+    pieces_[pos.row][pos.col]->move(clientCo.x, clientCo.y);
+}
+
+void Palette::drawSelect(TPos prevPos, TPos currPos)
+{
+    if (co::isValidPos(prevPos))
     {
-        if (pieces_[pos.row][pos.col] == nullptr)
-            pieces_[pos.row][pos.col] = new QLabel(chess_);
-
-        pieces_[pos.row][pos.col]->resize(size::g_pieceSize.width, size::g_pieceSize.height);
-        if (QPixmap* pic = resMgr_->getPiece(pieceType))
-            pieces_[pos.row][pos.col]->setPixmap(*pic);
+        prevSelect_->show();
 
         TClientCo clientCo;
-        co::pos2ClientCo(pos, clientCo);
-        pieces_[pos.row][pos.col]->move(clientCo.x, clientCo.y);
+        co::pos2ClientCo(prevPos, clientCo);
+        prevSelect_->move(clientCo.x, clientCo.y);
+    }
+    else
+    {
+        prevSelect_->hide();
+    }
+
+    if (co::isValidPos(currPos))
+    {
+        currSelect_->show();
+
+        TClientCo clientCo;
+        co::pos2ClientCo(currPos, clientCo);
+        currSelect_->move(clientCo.x, clientCo.y);
+    }
+    else
+    {
+        currSelect_->hide();
     }
 }
 
-void Palette::drawSelect(TPos pos, bool isPrev)
+bool Palette::movePiece(TPos curPos, TPos newPos)
 {
-    if (co::isValidPos(pos))
-    {
-        QLabel*& select = isPrev ? prevSelect_ : currSelect_;
+    if (!board_->movePiece(curPos, newPos))
+        return false;
 
-        if (select == nullptr)
-        {
-            select = new QLabel(chess_);
-            select->resize(size::g_pieceSize.width, size::g_pieceSize.height);
-            if (QPixmap* pic = resMgr_->getPiece(ResMgr::EP_Select))
-                select->setPixmap(*pic);
-        }
+    drawPiece(curPos);
+    drawPiece(newPos);
 
-        TClientCo clientCo;
-        co::pos2ClientCo(pos, clientCo);
-        select->move(clientCo.x, clientCo.y);
-    }
-}
-
-void Palette::movePiece(TPos curPos, TPos newPos)
-{
-    if (pieces_[curPos.row][curPos.col] != nullptr)
-    {
-        std::swap(pieces_[curPos.row][curPos.col], pieces_[newPos.row][newPos.col]);
-
-        TClientCo clientCo;
-        co::pos2ClientCo(newPos, clientCo);
-        pieces_[newPos.row][newPos.col]->move(clientCo.x, clientCo.y);
-    }
+    return true;
 }

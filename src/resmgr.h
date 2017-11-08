@@ -55,7 +55,6 @@ public:
     };
 
     static ResMgr* getInstance();
-
     ~ResMgr();
 
     bool loadPieces(EPieceSkin skin);
@@ -67,8 +66,12 @@ public:
 private:
     ResMgr();
 
+private:
     std::unordered_map<int, QPixmap*> pieces_;
     QPixmap* bg_;
+
+    bool initBg_;
+    bool initPieces_;
 };
 
 #endif // RESMGR_H

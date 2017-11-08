@@ -2,39 +2,49 @@
 #define PALETTE_H
 
 #include "def.h"
+#include "resmgr.h"
 #include <vector>
+#include <memory>
 
 class Chess;
 class Board;
-class ResMgr;
 class QLabel;
 class QPixmap;
 
+
 using def::TPos;
 using std::vector;
+using std::shared_ptr;
 
 class Palette
 {
 public:
-    explicit Palette(Chess* chess, Board* board, ResMgr* resMgr);
+    Palette(Chess* chess, Board* board, ResMgr* resMgr);
     ~Palette();
 
-    void drawBg();
+    ResMgr::EPiece getPiece(TPos pos) const;
+    void open();// 开局
+    void drawSelect(TPos prevPos, TPos currPos);
+    bool movePiece(TPos curPos, TPos newPos);
+
+protected:
+    void initLabel();
+    void initPieces();
+
     void drawPieces();
     void drawPiece(TPos pos);
-    void drawSelect(TPos pos, bool isPrev);
-
-    void movePiece(TPos curPos, TPos newPos);
 
 private:
+    bool init_;
+
     Chess* chess_;
     Board* board_;
     ResMgr* resMgr_;
 
-    QLabel* bg_;
-    QLabel* prevSelect_;
-    QLabel* currSelect_;
-    vector<vector<QLabel*>> pieces_;
+    shared_ptr<QLabel> bg_;
+    shared_ptr<QLabel> prevSelect_;
+    shared_ptr<QLabel> currSelect_;
+    vector<vector<shared_ptr<QLabel>>> pieces_;
 };
 
 #endif // PALETTE_H

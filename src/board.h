@@ -20,15 +20,15 @@ public:
     ResMgr::EPiece getPiece(TPos pos) const;
     ResMgr::EPiece operator[](TPos Pos) const;
 
-    bool isValidKingMove(TPos prevPos, TPos currPos);
-    bool isValidAdvisorMove(TPos prevPos, TPos currPos);
-    bool isValidBishopMove(TPos prevPos, TPos currPos);
-    bool isValidKnightMove(TPos prevPos, TPos currPos);
-    bool isValidRookMove(TPos prevPos, TPos currPos);
-    bool isValidCannonMove(TPos prevPos, TPos currPos);
-    bool isValidPawnMove(TPos prevPos, TPos currPos);
+    bool movePiece(TPos prevPos, TPos currPos);
 
 protected:
+    bool isValidMove(TPos prevPos, TPos currPos);
+    typedef bool (Board::*PosFunc)(TPos pos, bool red);// 判断位置是否合法
+    typedef bool (Board::*DeltaFunc)(TDelta delta, bool red);// 判断偏移量是否合法
+    typedef bool (Board::*RuleFunc)(TPos prevPos, TPos currPos);// 棋子特定的规则
+    bool isValidMove(TPos prevPos, TPos currPos, PosFunc isValidPos, DeltaFunc isValidDelta, RuleFunc isValidRule);
+
     bool isValidKingPos(TPos pos, bool red);
     bool isValidAdvisorPos(TPos pos, bool red);
     bool isValidBishopPos(TPos pos, bool red);
@@ -54,18 +54,18 @@ protected:
     bool isValidCannonRule(TPos prevPos, TPos currPos);
     bool isValidPawnRule(TPos prevPos, TPos currPos);
 
-    typedef bool (Board::*PosFunc)(TPos pos, bool red);// 判断位置是否合法
-    typedef bool (Board::*DeltaFunc)(TDelta delta, bool red);// 判断偏移量是否合法
-    typedef bool (Board::*RuleFunc)(TPos prevPos, TPos currPos);// 棋子特定的规则
-    bool isValidMove(TPos prevPos, TPos currPos,
-                     PosFunc isValidPos, DeltaFunc isValidDelta, RuleFunc isValidRule);
+    bool isValidKingMove(TPos prevPos, TPos currPos);
+    bool isValidAdvisorMove(TPos prevPos, TPos currPos);
+    bool isValidBishopMove(TPos prevPos, TPos currPos);
+    bool isValidKnightMove(TPos prevPos, TPos currPos);
+    bool isValidRookMove(TPos prevPos, TPos currPos);
+    bool isValidCannonMove(TPos prevPos, TPos currPos);
+    bool isValidPawnMove(TPos prevPos, TPos currPos);
 
     bool isKnightFoot(TPos prevPos, TPos buddyPos);// 马腿
     bool isBishopEye(TPos prevPos, TPos buddyPos);// 象眼
 
-    inline bool isPiece(TPos pos, int piece);// 判断pos位置是否为特定棋子（不分颜色）
-    inline bool findPos(TPos pos, TPos* poss, int count);
-    inline bool findDelta(TDelta delta, TDelta* deltas, int count);
+    inline bool isPiece(TPos pos, int piece);// 判断pos位置是否为特定棋子（不分颜色）    
     
 private:
     std::vector<std::vector<byte>> board_;
