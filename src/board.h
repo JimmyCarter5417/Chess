@@ -20,13 +20,13 @@ public:
     ResMgr::EPiece getPiece(TPos pos) const;
     ResMgr::EPiece operator[](TPos Pos) const;
 
-    bool isValidKingMove(TPos prevPos, TPos nextPos);
-    bool isValidAdvisorMove(TPos prevPos, TPos nextPos);
-    bool isValidBishopMove(TPos prevPos, TPos nextPos);
-    bool isValidKnightMove(TPos prevPos, TPos nextPos);
-    bool isValidRookMove(TPos prevPos, TPos nextPos);
-    bool isValidCannonMove(TPos prevPos, TPos nextPos);
-    bool isValidPawnMove(TPos prevPos, TPos nextPos);
+    bool isValidKingMove(TPos prevPos, TPos currPos);
+    bool isValidAdvisorMove(TPos prevPos, TPos currPos);
+    bool isValidBishopMove(TPos prevPos, TPos currPos);
+    bool isValidKnightMove(TPos prevPos, TPos currPos);
+    bool isValidRookMove(TPos prevPos, TPos currPos);
+    bool isValidCannonMove(TPos prevPos, TPos currPos);
+    bool isValidPawnMove(TPos prevPos, TPos currPos);
 
 protected:
     bool isValidKingPos(TPos pos, bool red);
@@ -46,18 +46,18 @@ protected:
     bool isValidPawnDelta(TDelta delta, bool red);
 
     // 不再检查pos及delta，默认前面已检查
-    bool isValidKingRule(TPos prevPos, TPos nextPos);
-    bool isValidAdvisorRule(TPos prevPos, TPos nextPos);
-    bool isValidBishopRule(TPos prevPos, TPos nextPos);
-    bool isValidKnightRule(TPos prevPos, TPos nextPos);
-    bool isValidRookRule(TPos prevPos, TPos nextPos);
-    bool isValidCannonRule(TPos prevPos, TPos nextPos);
-    bool isValidPawnRule(TPos prevPos, TPos nextPos);
+    bool isValidKingRule(TPos prevPos, TPos currPos);
+    bool isValidAdvisorRule(TPos prevPos, TPos currPos);
+    bool isValidBishopRule(TPos prevPos, TPos currPos);
+    bool isValidKnightRule(TPos prevPos, TPos currPos);
+    bool isValidRookRule(TPos prevPos, TPos currPos);
+    bool isValidCannonRule(TPos prevPos, TPos currPos);
+    bool isValidPawnRule(TPos prevPos, TPos currPos);
 
     typedef bool (Board::*PosFunc)(TPos pos, bool red);// 判断位置是否合法
     typedef bool (Board::*DeltaFunc)(TDelta delta, bool red);// 判断偏移量是否合法
-    typedef bool (Board::*RuleFunc)(TPos prevPos, TPos nextPos);// 棋子特定的规则
-    bool isValidMove(TPos prevPos, TPos nextPos,
+    typedef bool (Board::*RuleFunc)(TPos prevPos, TPos currPos);// 棋子特定的规则
+    bool isValidMove(TPos prevPos, TPos currPos,
                      PosFunc isValidPos, DeltaFunc isValidDelta, RuleFunc isValidRule);
 
     bool isKnightFoot(TPos prevPos, TPos buddyPos);// 马腿

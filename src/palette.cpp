@@ -12,7 +12,8 @@ Palette::Palette(Chess* chess, Board* board, ResMgr* resMgr)
     , board_(board)
     , resMgr_(resMgr)
     , bg_(nullptr)
-    , select_(nullptr)
+    , prevSelect_(nullptr)
+    , currSelect_(nullptr)
 {
     assert(chess_ != nullptr);
     assert(board_ != nullptr);
@@ -73,26 +74,27 @@ void Palette::drawPiece(TPos pos)
     }
 }
 
-void Palette::drawSelect(TPos pos)
+void Palette::drawSelect(TPos pos, bool isPrev)
 {
     if (co::isValidPos(pos))
     {
-        if (select_ == nullptr)
-        {
-            select_ = new QLabel(chess_);
+        QLabel*& select = isPrev ? prevSelect_ : currSelect_;
 
-            select_->resize(size::g_pieceSize.width, size::g_pieceSize.height);
+        if (select == nullptr)
+        {
+            select = new QLabel(chess_);
+            select->resize(size::g_pieceSize.width, size::g_pieceSize.height);
             if (QPixmap* pic = resMgr_->getPiece(ResMgr::EP_Select))
-                select_->setPixmap(*pic);
+                select->setPixmap(*pic);
         }
 
         TClientCo clientCo;
         co::pos2ClientCo(pos, clientCo);
-        select_->move(clientCo.x, clientCo.y);
+        select->move(clientCo.x, clientCo.y);
     }
 }
 
-void Palette::move(TPos curPos, TPos newPos)
+void Palette::movePiece(TPos curPos, TPos newPos)
 {
     if (pieces_[curPos.row][curPos.col] != nullptr)
     {

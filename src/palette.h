@@ -22,9 +22,9 @@ public:
     void drawBg();
     void drawPieces();
     void drawPiece(TPos pos);
-    void drawSelect(TPos pos);
+    void drawSelect(TPos pos, bool isPrev);
 
-    void move(TPos curPos, TPos newPos);
+    void movePiece(TPos curPos, TPos newPos);
 
 private:
     Chess* chess_;
@@ -32,7 +32,8 @@ private:
     ResMgr* resMgr_;
 
     QLabel* bg_;
-    QLabel* select_;
+    QLabel* prevSelect_;
+    QLabel* currSelect_;
     vector<vector<QLabel*>> pieces_;
 };
 

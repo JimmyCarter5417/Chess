@@ -32,8 +32,8 @@ Chess::Chess(QWidget *parent) :
 
     palette_->drawBg();
     palette_->drawPieces();
-    palette_->drawSelect({9,4});
-
+    palette_->drawSelect({0,0}, true);
+    palette_->drawSelect({0,0}, false);
 
 //    qDebug()<<"current applicationDirPath: "<<QCoreApplication::applicationDirPath();
 //    qDebug()<<"current currentPath: "<<QDir::currentPath();
@@ -48,15 +48,15 @@ void Chess::mousePressEvent(QMouseEvent *e)
 {
     if (Qt::LeftButton == e->button())
     {
-        TPos nextPos = g_nullPos;
-        co::clientCo2Pos({e->x(), e->y()}, nextPos);
+        TPos currPos = g_nullPos;
+        co::clientCo2Pos({e->x(), e->y()}, currPos);
 
         if (prevPos_ == g_nullPos)
         {
-            if ((board_->getPiece(nextPos) & g_pieceMask) != g_empty)
+            if ((board_->getPiece(currPos) & g_pieceMask) != g_empty)
             {
-                prevPos_ = nextPos;
-                palette_->drawSelect(nextPos);
+                prevPos_ = currPos;
+                palette_->drawSelect(currPos, false);
             }
         }
         else
@@ -65,25 +65,25 @@ void Chess::mousePressEvent(QMouseEvent *e)
             switch (board_->getPiece(prevPos_) & g_pieceMask)
             {
             case g_king:
-                flag = board_->isValidKingMove(prevPos_, nextPos);
+                flag = board_->isValidKingMove(prevPos_, currPos);
                 break;
             case g_advisor:
-                flag = board_->isValidAdvisorMove(prevPos_, nextPos);
+                flag = board_->isValidAdvisorMove(prevPos_, currPos);
                 break;
             case g_bishop:
-                flag = board_->isValidBishopMove(prevPos_, nextPos);
+                flag = board_->isValidBishopMove(prevPos_, currPos);
                 break;
             case g_knight:
-                flag = board_->isValidKnightMove(prevPos_, nextPos);
+                flag = board_->isValidKnightMove(prevPos_, currPos);
                 break;
             case g_rook:
-                flag = board_->isValidRookMove(prevPos_, nextPos);
+                flag = board_->isValidRookMove(prevPos_, currPos);
                 break;
             case g_cannon:
-                flag = board_->isValidCannonMove(prevPos_, nextPos);
+                flag = board_->isValidCannonMove(prevPos_, currPos);
                 break;
             case g_pawn:
-                flag = board_->isValidPawnMove(prevPos_, nextPos);
+                flag = board_->isValidPawnMove(prevPos_, currPos);
                 break;
             default:
                 flag = false;
@@ -92,9 +92,10 @@ void Chess::mousePressEvent(QMouseEvent *e)
 
             if (flag)
             {
-                palette_->drawSelect(nextPos);
+                palette_->drawSelect(prevPos_, true);
+                palette_->drawSelect(currPos, false);
                 //palette_->move(prevPos_, pos);
-                prevPos_ = nextPos;
+                prevPos_ = currPos;
             }
         }
 

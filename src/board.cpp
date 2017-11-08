@@ -225,41 +225,41 @@ bool Board::isValidPawnDelta(TDelta delta, bool red)
 }
 
 // 不再检查pos及delta，默认前面已检查
-bool Board::isValidKingRule(TPos prevPos, TPos nextPos)
+bool Board::isValidKingRule(TPos prevPos, TPos currPos)
 {
     return true;
 }
 
 // 不再检查pos及delta，默认前面已检查
-bool Board::isValidAdvisorRule(TPos prevPos, TPos nextPos)
+bool Board::isValidAdvisorRule(TPos prevPos, TPos currPos)
 {
     return true;
 }
 
 // 不再检查pos及delta，默认前面已检查
-bool Board::isValidBishopRule(TPos prevPos, TPos nextPos)
+bool Board::isValidBishopRule(TPos prevPos, TPos currPos)
 {
     // 不能塞象眼
-    TPos buddyPos = {(prevPos.row + nextPos.row) / 2, (prevPos.col + nextPos.col) / 2};
+    TPos buddyPos = {(prevPos.row + currPos.row) / 2, (prevPos.col + currPos.col) / 2};
     return !isBishopEye(prevPos, buddyPos);
 }
 
 // 不再检查pos及delta，默认前面已检查
-bool Board::isValidKnightRule(TPos prevPos, TPos nextPos)
+bool Board::isValidKnightRule(TPos prevPos, TPos currPos)
 {
     // 不能蹩马腿
-    TPos buddyPos = {(prevPos.row + nextPos.row) / 2, (prevPos.col + nextPos.col) / 2};
+    TPos buddyPos = {(prevPos.row + currPos.row) / 2, (prevPos.col + currPos.col) / 2};
     return !isKnightFoot(prevPos, buddyPos);
 }
 
 // 不再检查pos及delta，默认前面已检查
-bool Board::isValidRookRule(TPos prevPos, TPos nextPos)
+bool Board::isValidRookRule(TPos prevPos, TPos currPos)
 {
     // 中间不能有棋子
-    if (prevPos.row == nextPos.row)// 同一行
+    if (prevPos.row == currPos.row)// 同一行
     {
-        int cur = min(prevPos.col, nextPos.col) + 1;
-        int end = max(prevPos.col, nextPos.col) - 1;
+        int cur = min(prevPos.col, currPos.col) + 1;
+        int end = max(prevPos.col, currPos.col) - 1;
         while (cur <= end)
         {
             if (ResMgr::EP_Empty != getPiece({prevPos.row, cur}))
@@ -270,8 +270,8 @@ bool Board::isValidRookRule(TPos prevPos, TPos nextPos)
     }
     else// 同一列
     {
-        int cur = min(prevPos.row, nextPos.row) + 1;
-        int end = max(prevPos.row, nextPos.row) - 1;
+        int cur = min(prevPos.row, currPos.row) + 1;
+        int end = max(prevPos.row, currPos.row) - 1;
         while (cur <= end)
         {
             if (ResMgr::EP_Empty != getPiece({cur, prevPos.col}))
@@ -285,14 +285,14 @@ bool Board::isValidRookRule(TPos prevPos, TPos nextPos)
 }
 
 // 不再检查pos及delta，默认前面已检查
-bool Board::isValidCannonRule(TPos prevPos, TPos nextPos)
+bool Board::isValidCannonRule(TPos prevPos, TPos currPos)
 {
-    if (getPiece(nextPos) == ResMgr::EP_Empty)// 目的位置为空，则中间不能有棋子
+    if (getPiece(currPos) == ResMgr::EP_Empty)// 目的位置为空，则中间不能有棋子
     {
-        if (prevPos.row == nextPos.row)// 同一行
+        if (prevPos.row == currPos.row)// 同一行
         {
-            int cur = min(prevPos.col, nextPos.col) + 1;
-            int end = max(prevPos.col, nextPos.col) - 1;
+            int cur = min(prevPos.col, currPos.col) + 1;
+            int end = max(prevPos.col, currPos.col) - 1;
             while (cur <= end)
             {
                 if (ResMgr::EP_Empty != getPiece({prevPos.row, cur}))
@@ -303,8 +303,8 @@ bool Board::isValidCannonRule(TPos prevPos, TPos nextPos)
         }
         else// 同一列
         {
-            int cur = min(prevPos.row, nextPos.row) + 1;
-            int end = max(prevPos.row, nextPos.row) - 1;
+            int cur = min(prevPos.row, currPos.row) + 1;
+            int end = max(prevPos.row, currPos.row) - 1;
             while (cur <= end)
             {
                 if (ResMgr::EP_Empty != getPiece({cur, prevPos.col}))
@@ -316,11 +316,11 @@ bool Board::isValidCannonRule(TPos prevPos, TPos nextPos)
     }
     else// 目的位置非空，则中间有且仅有一个棋子
     {
-        if (prevPos.row == nextPos.row)// 同一行
+        if (prevPos.row == currPos.row)// 同一行
         {
             bool flag = false;
-            int cur = min(prevPos.col, nextPos.col) + 1;
-            int end = max(prevPos.col, nextPos.col) - 1;
+            int cur = min(prevPos.col, currPos.col) + 1;
+            int end = max(prevPos.col, currPos.col) - 1;
             while (cur <= end)
             {
                 if (ResMgr::EP_Empty != getPiece({prevPos.row, cur}))
@@ -337,8 +337,8 @@ bool Board::isValidCannonRule(TPos prevPos, TPos nextPos)
         else// 同一列
         {
             bool flag = false;
-            int cur = min(prevPos.row, nextPos.row) + 1;
-            int end = max(prevPos.row, nextPos.row) - 1;
+            int cur = min(prevPos.row, currPos.row) + 1;
+            int end = max(prevPos.row, currPos.row) - 1;
             while (cur <= end)
             {
                 if (ResMgr::EP_Empty != getPiece({cur, prevPos.col}))
@@ -358,83 +358,83 @@ bool Board::isValidCannonRule(TPos prevPos, TPos nextPos)
 }
 
 // 不再检查pos及delta，默认前面已检查
-bool Board::isValidPawnRule(TPos prevPos, TPos nextPos)
+bool Board::isValidPawnRule(TPos prevPos, TPos currPos)
 {
     if ((getPiece(prevPos) & g_clrMask) == g_redFlag)// 红卒
     {
         if (prevPos.row >= 5)// 未过河，只能向前走一步
-            return nextPos.row - prevPos.row == -1;
+            return currPos.row - prevPos.row == -1;
     }
     else
     {
         if (prevPos.row <= 4)// 未过河，只能向前走一步
-            return nextPos.row - prevPos.row == 1;
+            return currPos.row - prevPos.row == 1;
     }
 
     return true;
 }
 
-bool Board::isValidKingMove(TPos prevPos, TPos nextPos)
+bool Board::isValidKingMove(TPos prevPos, TPos currPos)
 {
    //检查输入
     if (!isPiece(prevPos, g_king))
         return false;
 
-    return isValidMove(prevPos, nextPos, &Board::isValidKingPos, &Board::isValidKingDelta, &Board::isValidKingRule);
+    return isValidMove(prevPos, currPos, &Board::isValidKingPos, &Board::isValidKingDelta, &Board::isValidKingRule);
 }
 
-bool Board::isValidKnightMove(TPos prevPos, TPos nextPos)
+bool Board::isValidKnightMove(TPos prevPos, TPos currPos)
 {    
     //检查输入
     if (!isPiece(prevPos, g_knight))
         return false;
 
-    return isValidMove(prevPos, nextPos, &Board::isValidKnightPos, &Board::isValidKnightDelta, &Board::isValidKnightRule);
+    return isValidMove(prevPos, currPos, &Board::isValidKnightPos, &Board::isValidKnightDelta, &Board::isValidKnightRule);
 }
 
-bool Board::isValidBishopMove(TPos prevPos, TPos nextPos)
+bool Board::isValidBishopMove(TPos prevPos, TPos currPos)
 {   
     //检查输入
     if (!isPiece(prevPos, g_bishop))
         return false;
 
-    return isValidMove(prevPos, nextPos, &Board::isValidBishopPos, &Board::isValidBishopDelta, &Board::isValidBishopRule);
+    return isValidMove(prevPos, currPos, &Board::isValidBishopPos, &Board::isValidBishopDelta, &Board::isValidBishopRule);
 }
 
-bool Board::isValidAdvisorMove(TPos prevPos, TPos nextPos)
+bool Board::isValidAdvisorMove(TPos prevPos, TPos currPos)
 {
     //检查输入
     if (!isPiece(prevPos, g_advisor))
         return false;
 
-    return isValidMove(prevPos, nextPos, &Board::isValidAdvisorPos, &Board::isValidAdvisorDelta, &Board::isValidAdvisorRule);
+    return isValidMove(prevPos, currPos, &Board::isValidAdvisorPos, &Board::isValidAdvisorDelta, &Board::isValidAdvisorRule);
 }
 
-bool Board::isValidRookMove(TPos prevPos, TPos nextPos)
+bool Board::isValidRookMove(TPos prevPos, TPos currPos)
 { 
     //检查输入
     if (!isPiece(prevPos, g_rook))
         return false;
 
-    return isValidMove(prevPos, nextPos, &Board::isValidRookPos, &Board::isValidRookDelta, &Board::isValidRookRule);
+    return isValidMove(prevPos, currPos, &Board::isValidRookPos, &Board::isValidRookDelta, &Board::isValidRookRule);
 }
 
-bool Board::isValidCannonMove(TPos prevPos, TPos nextPos)
+bool Board::isValidCannonMove(TPos prevPos, TPos currPos)
 {   
     //检查输入
     if (!isPiece(prevPos, g_cannon))
         return false;
 
-    return isValidMove(prevPos, nextPos, &Board::isValidCannonPos, &Board::isValidCannonDelta, &Board::isValidCannonRule);
+    return isValidMove(prevPos, currPos, &Board::isValidCannonPos, &Board::isValidCannonDelta, &Board::isValidCannonRule);
 }
 
-bool Board::isValidPawnMove(TPos prevPos, TPos nextPos)
+bool Board::isValidPawnMove(TPos prevPos, TPos currPos)
 {
     //检查输入
     if (!isPiece(prevPos, g_pawn))
         return false;
 
-    return isValidMove(prevPos, nextPos, &Board::isValidPawnPos, &Board::isValidPawnDelta, &Board::isValidPawnRule);
+    return isValidMove(prevPos, currPos, &Board::isValidPawnPos, &Board::isValidPawnDelta, &Board::isValidPawnRule);
 }
 
 bool Board::isKnightFoot(TPos knightPos, TPos buddyPos)
@@ -473,10 +473,10 @@ bool Board::isBishopEye(TPos bishopPos, TPos buddyPos)
            (buddyPos.row == bishopPos.row + 1 && buddyPos.col == bishopPos.col + 1);
 }
 
-bool Board::isValidMove(TPos prevPos, TPos nextPos, PosFunc isValidPos, DeltaFunc isValidDelta, RuleFunc isValidRule)
+bool Board::isValidMove(TPos prevPos, TPos currPos, PosFunc isValidPos, DeltaFunc isValidDelta, RuleFunc isValidRule)
 {
     ResMgr::EPiece prevPiece = getPiece(prevPos);
-    ResMgr::EPiece nextPiece = getPiece(nextPos);
+    ResMgr::EPiece nextPiece = getPiece(currPos);
     bool red = ((prevPiece & g_clrMask) == g_redFlag);
 
     // 目的位置与原位置棋子同色，则不能走
@@ -486,21 +486,21 @@ bool Board::isValidMove(TPos prevPos, TPos nextPos, PosFunc isValidPos, DeltaFun
     // 走法前后的位置要有效
     if (isValidPos != nullptr)
     {
-        if (!(this->*isValidPos)(prevPos, red) || !(this->*isValidPos)(nextPos, red))
+        if (!(this->*isValidPos)(prevPos, red) || !(this->*isValidPos)(currPos, red))
             return false;
     }
 
     // delta是否符合规则
     if (isValidDelta != nullptr)
     {
-        if (!(this->*isValidDelta)(nextPos - prevPos, red))
+        if (!(this->*isValidDelta)(currPos - prevPos, red))
             return false;
     }
 
     // 额外规则
     if (isValidRule != nullptr)
     {
-        if (!(this->*isValidRule)(prevPos, nextPos))
+        if (!(this->*isValidRule)(prevPos, currPos))
             return false;
     }
 
