@@ -8,6 +8,7 @@
 #include <QLabel>
 
 using namespace std;
+using namespace def;
 
 Palette::Palette(Chess* chess, Board* board, ResMgr* resMgr)
     : chess_(chess)
@@ -22,11 +23,6 @@ Palette::Palette(Chess* chess, Board* board, ResMgr* resMgr)
 Palette::~Palette()
 {
 
-}
-
-ResMgr::EPiece Palette::getPiece(TPos pos) const
-{
-    return board_->getPiece(pos);
 }
 
 // 初始化背景图片、两个选择图标
@@ -74,6 +70,9 @@ void Palette::open()
 
     board_->init();
     drawPieces();
+
+    prevPos_ = g_nullPos;
+    drawSelect(g_nullPos);
 }
 
 void Palette::drawPieces()
@@ -98,14 +97,14 @@ void Palette::drawPiece(TPos pos)
     pieces_[pos.row][pos.col]->move(clientCo.x, clientCo.y);
 }
 
-void Palette::drawSelect(TPos prevPos, TPos currPos)
+void Palette::drawSelect(TPos currPos)
 {
-    if (co::isValidPos(prevPos))
+    if (co::isValidPos(prevPos_))
     {
         prevSelect_->show();
 
         TClientCo clientCo;
-        co::pos2ClientCo(prevPos, clientCo);
+        co::pos2ClientCo(prevPos_, clientCo);
         prevSelect_->move(clientCo.x, clientCo.y);
     }
     else
@@ -127,13 +126,52 @@ void Palette::drawSelect(TPos prevPos, TPos currPos)
     }
 }
 
-bool Palette::movePiece(TPos curPos, TPos newPos)
+bool Palette::makeMove(TPos currPos)
 {
-    if (!board_->movePiece(curPos, newPos))
+    if (!board_->movePiece(prevPos_, currPos))
         return false;
 
-    drawPiece(curPos);
-    drawPiece(newPos);
+    drawPiece(prevPos_);
+    drawPiece(currPos);
 
     return true;
+}
+
+void Palette::rotate()
+{
+    board_->rotate();
+    drawPieces();
+}
+
+void Palette::click(TPos currPos)
+{
+    if (prevPos_ == g_nullPos)
+    {
+        // 若prevPos_为无效位置，且新位置棋子属于下一步走棋的玩家，则更新prevPos_，并显示当前选择的棋子
+        if (board_->getPieceOwner(currPos) == board_->getNextPlayer())
+        {
+            drawSelect(currPos);
+            prevPos_ = currPos;
+        }
+    }
+    else
+    {
+        // 可以移动棋子
+        if (makeMove(currPos))
+        {
+            //显示两个选择框，prevPos_清空
+            drawSelect(currPos);
+            prevPos_ = g_nullPos;
+        }
+        else// 不能移动棋子
+        {
+            // 当前选择位置与原位置同色，才能更新prevPos_，并绘制选择框
+            if (board_->getPieceOwner(prevPos_) == board_->getPieceOwner(currPos))
+            {
+                prevPos_ = g_nullPos;//不标记上次选中的位置
+                drawSelect(currPos);
+                prevPos_ = currPos;
+            }
+        }
+    }
 }

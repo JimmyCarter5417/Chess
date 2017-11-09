@@ -22,10 +22,10 @@ public:
     Palette(Chess* chess, Board* board, ResMgr* resMgr);
     ~Palette();
 
-    ResMgr::EPiece getPiece(TPos pos) const;
+    void click(TPos currPos);
+
     void open();// 开局
-    void drawSelect(TPos prevPos, TPos currPos);
-    bool movePiece(TPos curPos, TPos newPos);
+    void rotate();// 翻转棋盘
 
 protected:
     void initLabel();
@@ -33,6 +33,9 @@ protected:
 
     void drawPieces();
     void drawPiece(TPos pos);
+
+    void drawSelect(TPos currPos);
+    bool makeMove(TPos currPos);
 
 private:
     bool init_;
@@ -45,6 +48,8 @@ private:
     shared_ptr<QLabel> prevSelect_;
     shared_ptr<QLabel> currSelect_;
     vector<vector<shared_ptr<QLabel>>> pieces_;
+
+    TPos prevPos_;
 };
 
 #endif // PALETTE_H

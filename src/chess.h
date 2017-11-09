@@ -3,7 +3,6 @@
 
 #include <QMainWindow>
 #include <memory>
-#include "def.h"
 
 class Board;
 class ResMgr;
@@ -22,16 +21,15 @@ public:
     ~Chess();
 
 protected:
-    void mousePressEvent(QMouseEvent *e);
+    void mousePressEvent(QMouseEvent *event);
+    void keyPressEvent(QKeyEvent *event);
     
 private:
     Ui::Chess *ui;
 
     std::shared_ptr<Board> board_;
     ResMgr* resMgr_;
-    std::shared_ptr<Palette> palette_;
-
-    def::TPos prevPos_;
+    std::shared_ptr<Palette> palette_;   
 };
 
 #endif // CHESS_H

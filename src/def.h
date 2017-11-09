@@ -1,6 +1,8 @@
 #ifndef DEF_H
 #define DEF_H
 
+#include <functional>
+
 namespace def
 {
     typedef unsigned char byte;
@@ -27,10 +29,10 @@ namespace def
         int row;
         int col;
 
-        TPos(int row1, int col1)
-            : row(row1)
-            , col(col1)
-        {}
+//        TPos(int row1, int col1)
+//            : row(row1)
+//            , col(col1)
+//        {}
 
         bool operator==(const TPos& rhs) const
         {
@@ -71,10 +73,6 @@ namespace def
     const byte g_scopeMask = 0x18;
     const byte g_pieceMask = 0x7;
     
-    //第四位和第五位表示上下部分
-    const byte g_downFlag = 0x8;// 默认下面为红色
-    const byte g_upFlag   = 0x10;// 默认上面为黑色
-    
     //七种棋子用低三位表示
     const byte g_empty   = 0x0;
 
@@ -85,6 +83,29 @@ namespace def
     const byte g_rook    = 0x5;
     const byte g_cannon  = 0x6;
     const byte g_pawn    = 0x7;
+}
+
+namespace std
+{
+    // TPos散列函数
+    template <>
+    struct hash<def::TPos>
+    {
+        size_t operator()(const def::TPos& k) const
+        {
+            return ((hash<int>()(k.row) ^ (hash<int>()(k.col) << 1)) >> 1);
+        }
+    };
+
+    // TDelta散列函数
+    template <>
+    struct hash<def::TDelta>
+    {
+        size_t operator()(const def::TDelta& k) const
+        {
+            return ((hash<int>()(k.deltaRow) ^ (hash<int>()(k.deltaCol) << 1)) >> 1);
+        }
+    };
 }
 
 #endif // DEF_H
