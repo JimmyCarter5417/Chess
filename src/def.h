@@ -6,46 +6,6 @@ namespace def
     typedef unsigned char byte;
     typedef unsigned int uint;
 
-    struct TTag
-    {
-
-    };
-
-    struct TKingTag : public TTag
-    {
-
-    };
-
-    struct TAdvisorTag : public TTag
-    {
-
-    };
-
-    struct TBishopTag : public TTag
-    {
-
-    };
-
-    struct TKnightTag : public TTag
-    {
-
-    };
-
-    struct TRookTag : public TTag
-    {
-
-    };
-
-    struct TCannonTag : public TTag
-    {
-
-    };
-
-    struct TPawnTag : public TTag
-    {
-
-    };
-
     struct TDelta
     {
         int deltaRow;
@@ -108,12 +68,12 @@ namespace def
     const TPos g_nullPos = {-1, -1};
 
     //掩码
-    const byte g_clrMask   = 0x18;
+    const byte g_scopeMask = 0x18;
     const byte g_pieceMask = 0x7;
     
-    //第四位和第五位表示颜色
-    const byte g_redFlag   = 0x8;
-    const byte g_blackFlag = 0x10;
+    //第四位和第五位表示上下部分
+    const byte g_downFlag = 0x8;// 默认下面为红色
+    const byte g_upFlag   = 0x10;// 默认上面为黑色
     
     //七种棋子用低三位表示
     const byte g_empty   = 0x0;

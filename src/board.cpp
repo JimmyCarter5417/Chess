@@ -46,12 +46,12 @@ void Board::init()
              /*  0   1   2   3   4   5   6   7   8  */
       /* 0 */ { 21, 20, 19, 18, 17, 18, 19, 20, 21 }, /*  edge */
       /* 1 */ {  0,  0,  0,  0,  0,  0,  0,  0,  0 },
-      /* 2 */ {  0, 22,  0,  0,  0,  0,  0, 22,  0 }, /* black */
+      /* 2 */ {  0, 22,  0,  0,  0,  0,  0, 22,  0 }, /*  up   */
       /* 3 */ { 23,  0, 23,  0, 23,  0, 23,  0, 23 },
       /* 4 */ {  0,  0,  0,  0,  0,  0,  0,  0,  0 }, /*  mid  */
       /* 5 */ {  0,  0,  0,  0,  0,  0,  0,  0,  0 }, /*  mid  */
       /* 6 */ { 15,  0, 15,  0, 15,  0, 15,  0, 15 },
-      /* 7 */ {  0, 14,  0,  0,  0,  0,  0, 14,  0 }, /*  red  */
+      /* 7 */ {  0, 14,  0,  0,  0,  0,  0, 14,  0 }, /*  down */
       /* 8 */ {  0,  0,  0,  0,  0,  0,  0,  0,  0 },
       /* 9 */ { 13, 12, 11, 10,  9, 10, 11, 12, 13 }, /*  edge */
     };
@@ -72,81 +72,81 @@ ResMgr::EPiece Board::getPiece(TPos pos) const
     return (*this)[pos];
 }
 
-bool Board::isValidKingPos(TPos pos, bool red)
+bool Board::isValidKingPos(TPos pos, bool down)
 { 
-    static unordered_set<TPos> redPos =
+    static unordered_set<TPos> downPos =
     {
         {7, 3}, {7, 4}, {7, 5},
         {8, 3}, {8, 4}, {8, 5},
         {9, 3}, {9, 4}, {9, 5}
     };
 
-    static unordered_set<TPos> blackPos =
+    static unordered_set<TPos> upPos =
     {
         {0, 3}, {0, 4}, {0, 5},
         {1, 3}, {1, 4}, {1, 5},
         {2, 3}, {2, 4}, {2, 5}
     };
 
-    return red ? (redPos.find(pos) != redPos.end()) : (blackPos.find(pos) != blackPos.end());
+    return down ? (downPos.find(pos) != downPos.end()) : (upPos.find(pos) != upPos.end());
 }
 
-bool Board::isValidAdvisorPos(TPos pos, bool red)
+bool Board::isValidAdvisorPos(TPos pos, bool down)
 {
-    static unordered_set<TPos> redPos =
+    static unordered_set<TPos> downPos =
     {
         {7, 3}, {7, 5},
         {8, 4},
         {9, 3}, {9, 5}
     };
 
-    static unordered_set<TPos> blackPos =
+    static unordered_set<TPos> upPos =
     {
         {0, 3}, {0, 5},
         {1, 4},
         {2, 3}, {2, 5}
     };
 
-    return red ? (redPos.find(pos) != redPos.end()) : (blackPos.find(pos) != blackPos.end());
+    return down ? (downPos.find(pos) != downPos.end()) : (upPos.find(pos) != upPos.end());
 }
 
-bool Board::isValidBishopPos(TPos pos, bool red)
+bool Board::isValidBishopPos(TPos pos, bool down)
 {
-    static unordered_set<TPos> redPos =
+    static unordered_set<TPos> downPos =
     {
         {5, 2}, {5, 6},
         {7, 0}, {7, 4}, {7, 8},
         {9, 2}, {9, 6}
     };
 
-    static unordered_set<TPos> blackPos =
+    static unordered_set<TPos> upPos =
     {
         {0, 2}, {0, 6},
         {2, 0}, {2, 4}, {2, 8},
         {3, 2}, {3, 6}
     };
 
-    return red ? (redPos.find(pos) != redPos.end()) : (blackPos.find(pos) != blackPos.end());
+    return down ? (downPos.find(pos) != downPos.end()) : (upPos.find(pos) != upPos.end());
 }
 
-bool Board::isValidKnightPos(TPos pos, bool red)
+bool Board::isValidKnightPos(TPos pos, bool down)
 {
     return co::isValidPos(pos);
 }
 
-bool Board::isValidRookPos(TPos pos, bool red)
+bool Board::isValidRookPos(TPos pos, bool down)
 {
     return co::isValidPos(pos);
 }
 
-bool Board::isValidCannonPos(TPos pos, bool red)
+bool Board::isValidCannonPos(TPos pos, bool down)
 {
     return co::isValidPos(pos);
 }
 
-bool Board::isValidPawnPos(TPos pos, bool red)
+bool Board::isValidPawnPos(TPos pos, bool down)
 {
-    if (red)
+    if (down)
     {
         return ((pos.row == 5 || pos.row == 6) && (pos.col % 2 == 0)) ||
                (pos.row >= 0 && pos.row <= 4 && pos.col >= 0 && pos.col <= 8);
@@ -159,7 +159,7 @@ bool Board::isValidPawnPos(TPos pos, bool red)
 }
 
 // 单格
-bool Board::isValidKingDelta(TDelta delta, bool red)
+bool Board::isValidKingDelta(TDelta delta, bool down)
 {
     static unordered_set<TDelta> deltas =
     {
@@ -173,7 +173,7 @@ bool Board::isValidKingDelta(TDelta delta, bool red)
 }
 
 // 单格对角线
-bool Board::isValidAdvisorDelta(TDelta delta, bool red)
+bool Board::isValidAdvisorDelta(TDelta delta, bool down)
 {
     static unordered_set<TDelta> deltas =
     {
@@ -187,7 +187,7 @@ bool Board::isValidAdvisorDelta(TDelta delta, bool red)
 }
 
 // 田字
-bool Board::isValidBishopDelta(TDelta delta, bool red)
+bool Board::isValidBishopDelta(TDelta delta, bool down)
 {
     static unordered_set<TDelta> deltas =
     {
@@ -201,7 +201,7 @@ bool Board::isValidBishopDelta(TDelta delta, bool red)
 }
 
 // 日字
-bool Board::isValidKnightDelta(TDelta delta, bool red)
+bool Board::isValidKnightDelta(TDelta delta, bool down)
 {
     static unordered_set<TDelta> deltas =
     {
@@ -219,23 +219,23 @@ bool Board::isValidKnightDelta(TDelta delta, bool red)
 }
 
 // 共线
-bool Board::isValidRookDelta(TDelta delta, bool red)
+bool Board::isValidRookDelta(TDelta delta, bool down)
 {
     return (delta.deltaRow == 0 && delta.deltaCol != 0) ||
            (delta.deltaRow != 0 && delta.deltaCol == 0);
 }
 
 // 共线
-bool Board::isValidCannonDelta(TDelta delta, bool red)
+bool Board::isValidCannonDelta(TDelta delta, bool down)
 {
     return (delta.deltaRow == 0 && delta.deltaCol != 0) ||
            (delta.deltaRow != 0 && delta.deltaCol == 0);
 }
 
 // 前、左、右
-bool Board::isValidPawnDelta(TDelta delta, bool red)
+bool Board::isValidPawnDelta(TDelta delta, bool down)
 {
-    if (red)
+    if (down)
     {
         return delta == TDelta(-1,  0) ||
                delta == TDelta( 0, -1) ||
@@ -268,7 +268,7 @@ bool Board::isValidBishopRule(TPos prevPos, TPos currPos)
     TPos buddyPos = {(prevPos.row + currPos.row) / 2, (prevPos.col + currPos.col) / 2};
 
     // 不能塞象眼
-    return !isBishopEye(prevPos, buddyPos);
+    return getPiece(buddyPos) == ResMgr::EP_Empty;
 }
 
 // 不再检查pos及delta，默认前面已检查
@@ -287,7 +287,7 @@ bool Board::isValidKnightRule(TPos prevPos, TPos currPos)
         buddyPos = TPos(prevPos.row + 1, prevPos.col);
 
     // 不能蹩马腿
-    return !isKnightFoot(prevPos, buddyPos);
+    return getPiece(buddyPos) == ResMgr::EP_Empty;
 }
 
 // 不再检查pos及delta，默认前面已检查
@@ -406,14 +406,14 @@ bool Board::isValidCannonRule(TPos prevPos, TPos currPos)
 // 不再检查pos及delta，默认前面已检查
 bool Board::isValidPawnRule(TPos prevPos, TPos currPos)
 {
-    if ((getPiece(prevPos) & g_clrMask) == g_redFlag)// 红卒
+    if ((getPiece(prevPos) & g_scopeMask) == g_downFlag)// 下方卒
     {
-        if (prevPos.row >= 5)// 未过河，只能向前走一步
+        if (prevPos.row >= 5)// 未过河，只能向前走一步，row减一
             return currPos.row - prevPos.row == -1;
     }
     else
     {
-        if (prevPos.row <= 4)// 未过河，只能向前走一步
+        if (prevPos.row <= 4)// 未过河，只能向前走一步，row加一
             return currPos.row - prevPos.row == 1;
     }
 
@@ -483,63 +483,27 @@ bool Board::isValidPawnMove(TPos prevPos, TPos currPos)
     return isValidMove(prevPos, currPos, &Board::isValidPawnPos, &Board::isValidPawnDelta, &Board::isValidPawnRule);
 }
 
-bool Board::isKnightFoot(TPos knightPos, TPos buddyPos)
-{
-    //马位置非马，则为假
-    ResMgr::EPiece piece = getPiece(knightPos);
-    if (g_knight != (piece & g_pieceMask))
-        return false;
-
-    //马腿位置为空，则为假
-    piece = getPiece(buddyPos);
-    if (piece == ResMgr::EP_Empty)
-        return false;
-
-    return (buddyPos.row == knightPos.row && buddyPos.col == knightPos.col - 1) ||
-           (buddyPos.row == knightPos.row && buddyPos.col == knightPos.col + 1) ||
-           (buddyPos.row == knightPos.row - 1 && buddyPos.col == knightPos.col) ||
-           (buddyPos.row == knightPos.row + 1 && buddyPos.col == knightPos.col);
-}
-
-bool Board::isBishopEye(TPos bishopPos, TPos buddyPos)
-{
-    //马位置非马，则为假
-    ResMgr::EPiece piece = getPiece(bishopPos);
-    if (g_bishop != (piece & g_pieceMask))
-        return false;
-
-    //象眼位置为空，则为假
-    piece = getPiece(buddyPos);
-    if (piece == ResMgr::EP_Empty)
-        return false;
-
-    return (buddyPos.row == bishopPos.row - 1 && buddyPos.col == bishopPos.col - 1) ||
-           (buddyPos.row == bishopPos.row - 1 && buddyPos.col == bishopPos.col + 1) ||
-           (buddyPos.row == bishopPos.row + 1 && buddyPos.col == bishopPos.col - 1) ||
-           (buddyPos.row == bishopPos.row + 1 && buddyPos.col == bishopPos.col + 1);
-}
-
 bool Board::isValidMove(TPos prevPos, TPos currPos, PosFunc isValidPos, DeltaFunc isValidDelta, RuleFunc isValidRule)
 {
     ResMgr::EPiece prevPiece = getPiece(prevPos);
     ResMgr::EPiece nextPiece = getPiece(currPos);
-    bool red = ((prevPiece & g_clrMask) == g_redFlag);
+    bool down = ((prevPiece & g_scopeMask) == g_downFlag);
 
     // 目的位置与原位置棋子同色，则不能走
-    if ((prevPiece & g_clrMask) == (nextPiece & g_clrMask))
+    if ((prevPiece & g_scopeMask) == (nextPiece & g_scopeMask))
         return false;
 
     // 走法前后的位置要有效
     if (isValidPos != nullptr)
     {
-        if (!(this->*isValidPos)(prevPos, red) || !(this->*isValidPos)(currPos, red))
+        if (!(this->*isValidPos)(prevPos, down) || !(this->*isValidPos)(currPos, down))
             return false;
     }
 
     // delta是否符合规则
     if (isValidDelta != nullptr)
     {
-        if (!(this->*isValidDelta)(currPos - prevPos, red))
+        if (!(this->*isValidDelta)(currPos - prevPos, down))
             return false;
     }
 

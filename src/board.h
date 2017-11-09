@@ -9,6 +9,7 @@
 using def::TPos;
 using def::TDelta;
 using def::byte;
+using std::vector;
 
 class Board
 {
@@ -60,15 +61,14 @@ protected:
     bool isValidKnightMove(TPos prevPos, TPos currPos);
     bool isValidRookMove(TPos prevPos, TPos currPos);
     bool isValidCannonMove(TPos prevPos, TPos currPos);
-    bool isValidPawnMove(TPos prevPos, TPos currPos);
-
-    bool isKnightFoot(TPos prevPos, TPos buddyPos);// 马腿
-    bool isBishopEye(TPos prevPos, TPos buddyPos);// 象眼
+    bool isValidPawnMove(TPos prevPos, TPos currPos); 
 
     inline bool isPiece(TPos pos, int piece);// 判断pos位置是否为特定棋子（不分颜色）    
     
 private:
-    std::vector<std::vector<byte>> board_;
+    vector<vector<byte>> board_;
+
+
 };
 
 #endif // BOARD_H

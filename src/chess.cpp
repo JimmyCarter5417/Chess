@@ -67,7 +67,7 @@ void Chess::mousePressEvent(QMouseEvent *e)
             else// 不能移动棋子
             {
                 // 当前选择位置与原位置同色，才能更新prevPos_，并绘制选择框
-                if ((palette_->getPiece(prevPos_) & def::g_clrMask) == (palette_->getPiece(currPos) & def::g_clrMask))
+                if ((palette_->getPiece(prevPos_) & def::g_scopeMask) == (palette_->getPiece(currPos) & def::g_scopeMask))
                 {
                     palette_->drawSelect(g_nullPos, currPos);
                     prevPos_ = currPos;
