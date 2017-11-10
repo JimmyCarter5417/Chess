@@ -49,6 +49,13 @@ namespace def
             return {row - rhs.row, col - rhs.col};
         }
 
+        TPos& operator+(const TDelta& delta)
+        {
+            row += delta.deltaRow;
+            col += delta.deltaCol;
+            return *this;
+        }
+
         bool operator()()
         {
             return row != -1 && col != -1;// g_nullPos

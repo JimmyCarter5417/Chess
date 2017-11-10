@@ -44,6 +44,13 @@ void Board::init()
     player_ = Board::EP_Down;// 下方先走
 
     upPieceSet_.king = {0, 4};
+    upPieceSet_.defenders =
+    {
+        {0, 2},
+        {0, 3},
+        {0, 5},
+        {0, 6},
+    };
     upPieceSet_.attackers =
     {
         {0, 0},
@@ -60,6 +67,13 @@ void Board::init()
     };
 
     downPieceSet_.king = {9, 4};
+    downPieceSet_.defenders =
+    {
+        {9, 2},
+        {9, 3},
+        {9, 5},
+        {9, 6},
+    };
     downPieceSet_.attackers =
     {
         {9, 0},
@@ -228,10 +242,9 @@ bool Board::isValidPawnPos(TPos pos, EPlayer player)
     }
 }
 
-// 单格
-bool Board::isValidKingDelta(TDelta delta, EPlayer player)
+const unordered_set<TDelta>& Board::getValidKingDelta(EPlayer player) const
 {
-    static unordered_set<TDelta> deltas =
+    static const unordered_set<TDelta> deltas =
     {
         {-1,  0},
         { 1,  0},
@@ -239,13 +252,12 @@ bool Board::isValidKingDelta(TDelta delta, EPlayer player)
         { 0,  1}
     };
 
-    return deltas.find(delta) != deltas.end();
+    return deltas;
 }
 
-// 单格对角线
-bool Board::isValidAdvisorDelta(TDelta delta, EPlayer player)
+const unordered_set<TDelta>& Board::getValidAdvisorDelta(EPlayer player) const
 {
-    static unordered_set<TDelta> deltas =
+    static const unordered_set<TDelta> deltas =
     {
         {-1, -1},
         {-1,  1},
@@ -253,13 +265,12 @@ bool Board::isValidAdvisorDelta(TDelta delta, EPlayer player)
         { 1,  1}
     };
 
-    return deltas.find(delta) != deltas.end();
+    return deltas;
 }
 
-// 田字
-bool Board::isValidBishopDelta(TDelta delta, EPlayer player)
+const unordered_set<TDelta>& Board::getValidBishopDelta(EPlayer player) const
 {
-    static unordered_set<TDelta> deltas =
+    static const unordered_set<TDelta> deltas =
     {
         {-2, -2},
         {-2,  2},
@@ -267,13 +278,11 @@ bool Board::isValidBishopDelta(TDelta delta, EPlayer player)
         { 2,  2}
     };
 
-    return deltas.find(delta) != deltas.end();
+    return deltas;
 }
-
-// 日字
-bool Board::isValidKnightDelta(TDelta delta, EPlayer player)
+const unordered_set<TDelta>& Board::getValidKnightDelta(EPlayer player) const
 {
-    static unordered_set<TDelta> deltas =
+    static const unordered_set<TDelta> deltas =
     {
         {-2, -1},
         {-2,  1},
@@ -285,42 +294,100 @@ bool Board::isValidKnightDelta(TDelta delta, EPlayer player)
         { 2,  1}
     };
 
+    return deltas;
+}
+const unordered_set<TDelta>& Board::getValidRookDelta(EPlayer player) const
+{
+    static const unordered_set<TDelta> deltas =
+    {
+        {0, -8}, {0, -7}, {0, -6}, {0, -5}, {0, -4}, {0, -3}, {0, -2}, {0, -1},
+        {0,  8}, {0,  7}, {0,  6}, {0,  5}, {0,  4}, {0,  3}, {0,  2}, {0,  1},
+
+        {-9, 0}, {-8, 0}, {-7, 0}, {-6, 0}, {-5, 0}, {-4, 0}, {-3, 0}, {-2, 0}, {-1, 0},
+        { 9, 0}, { 8, 0}, { 7, 0}, { 6, 0}, { 5, 0}, { 4, 0}, { 3, 0}, { 2, 0}, { 1, 0},
+    };
+
+    return deltas;
+}
+const unordered_set<TDelta>& Board::getValidCannonDelta(EPlayer player) const
+{
+    static const unordered_set<TDelta> deltas =
+    {
+        {0, -8}, {0, -7}, {0, -6}, {0, -5}, {0, -4}, {0, -3}, {0, -2}, {0, -1},
+        {0,  8}, {0,  7}, {0,  6}, {0,  5}, {0,  4}, {0,  3}, {0,  2}, {0,  1},
+
+        {-9, 0}, {-8, 0}, {-7, 0}, {-6, 0}, {-5, 0}, {-4, 0}, {-3, 0}, {-2, 0}, {-1, 0},
+        { 9, 0}, { 8, 0}, { 7, 0}, { 6, 0}, { 5, 0}, { 4, 0}, { 3, 0}, { 2, 0}, { 1, 0},
+    };
+
+    return deltas;
+}
+const unordered_set<TDelta>& Board::getValidPawnDelta(EPlayer player) const
+{
+    static const unordered_set<TDelta> downDeltas =
+    {
+        {-1,  0},
+        { 0, -1},
+        { 0,  1},
+    };
+
+    static const unordered_set<TDelta> upDeltas =
+    {
+        { 1,  0},
+        { 0, -1},
+        { 0,  1},
+    };
+
+    return player == Board::EP_Down ? downDeltas : upDeltas;
+}
+
+// 单格
+bool Board::isValidKingDelta(TDelta delta, EPlayer player)
+{
+    const unordered_set<TDelta> deltas = getValidKingDelta(player);
+    return deltas.find(delta) != deltas.end();
+}
+
+// 单格对角线
+bool Board::isValidAdvisorDelta(TDelta delta, EPlayer player)
+{
+    const unordered_set<TDelta> deltas = getValidAdvisorDelta(player);
+    return deltas.find(delta) != deltas.end();
+}
+
+// 田字
+bool Board::isValidBishopDelta(TDelta delta, EPlayer player)
+{
+    const unordered_set<TDelta> deltas = getValidBishopDelta(player);
+    return deltas.find(delta) != deltas.end();
+}
+
+// 日字
+bool Board::isValidKnightDelta(TDelta delta, EPlayer player)
+{
+    const unordered_set<TDelta> deltas = getValidKnightDelta(player);
     return deltas.find(delta) != deltas.end();
 }
 
 // 共线
 bool Board::isValidRookDelta(TDelta delta, EPlayer player)
 {
-    return (delta.deltaRow == 0 && delta.deltaCol != 0) ||
-           (delta.deltaRow != 0 && delta.deltaCol == 0);
+    const unordered_set<TDelta> deltas = getValidRookDelta(player);
+    return deltas.find(delta) != deltas.end();
 }
 
 // 共线
 bool Board::isValidCannonDelta(TDelta delta, EPlayer player)
 {
-    return (delta.deltaRow == 0 && delta.deltaCol != 0) ||
-           (delta.deltaRow != 0 && delta.deltaCol == 0);
+    const unordered_set<TDelta> deltas = getValidCannonDelta(player);
+    return deltas.find(delta) != deltas.end();
 }
 
 // 前、左、右
 bool Board::isValidPawnDelta(TDelta delta, EPlayer player)
 {
-    if (player == Board::EP_Down)
-    {
-        return delta == TDelta(-1,  0) ||
-               delta == TDelta( 0, -1) ||
-               delta == TDelta( 0,  1);
-    }
-    else if (player == Board::EP_Up)
-    {
-        return delta == TDelta( 1,  0) ||
-               delta == TDelta( 0, -1) ||
-               delta == TDelta( 0,  1);
-    }
-    else
-    {
-        return false;
-    }
+    const unordered_set<TDelta> deltas = getValidPawnDelta(player);
+    return deltas.find(delta) != deltas.end();
 }
 
 // 不再检查pos及delta，默认前面已检查
@@ -494,75 +561,75 @@ bool Board::isValidPawnRule(TPos prevPos, TPos currPos)
     return true;
 }
 
-bool Board::isValidKingMove(TPos prevPos, TPos currPos)
+bool Board::isValidKingMove(TPos prevPos, TPos currPos, Board::EPlayer player)
 {
    //检查输入
     if (!isPiece(prevPos, g_king))
         return false;
 
-    return isValidMove(prevPos, currPos, &Board::isValidKingPos, &Board::isValidKingDelta, &Board::isValidKingRule);
+    return isValidMove(prevPos, currPos, player, &Board::isValidKingPos, &Board::isValidKingDelta, &Board::isValidKingRule);
 }
 
-bool Board::isValidKnightMove(TPos prevPos, TPos currPos)
+bool Board::isValidKnightMove(TPos prevPos, TPos currPos, Board::EPlayer player)
 {    
     //检查输入
     if (!isPiece(prevPos, g_knight))
         return false;
 
-    return isValidMove(prevPos, currPos, &Board::isValidKnightPos, &Board::isValidKnightDelta, &Board::isValidKnightRule);
+    return isValidMove(prevPos, currPos, player, &Board::isValidKnightPos, &Board::isValidKnightDelta, &Board::isValidKnightRule);
 }
 
-bool Board::isValidBishopMove(TPos prevPos, TPos currPos)
+bool Board::isValidBishopMove(TPos prevPos, TPos currPos, Board::EPlayer player)
 {   
     //检查输入
     if (!isPiece(prevPos, g_bishop))
         return false;
 
-    return isValidMove(prevPos, currPos, &Board::isValidBishopPos, &Board::isValidBishopDelta, &Board::isValidBishopRule);
+    return isValidMove(prevPos, currPos, player, &Board::isValidBishopPos, &Board::isValidBishopDelta, &Board::isValidBishopRule);
 }
 
-bool Board::isValidAdvisorMove(TPos prevPos, TPos currPos)
+bool Board::isValidAdvisorMove(TPos prevPos, TPos currPos, Board::EPlayer player)
 {
     //检查输入
     if (!isPiece(prevPos, g_advisor))
         return false;
 
-    return isValidMove(prevPos, currPos, &Board::isValidAdvisorPos, &Board::isValidAdvisorDelta, &Board::isValidAdvisorRule);
+    return isValidMove(prevPos, currPos, player, &Board::isValidAdvisorPos, &Board::isValidAdvisorDelta, &Board::isValidAdvisorRule);
 }
 
-bool Board::isValidRookMove(TPos prevPos, TPos currPos)
+bool Board::isValidRookMove(TPos prevPos, TPos currPos, Board::EPlayer player)
 { 
     //检查输入
     if (!isPiece(prevPos, g_rook))
         return false;
 
-    return isValidMove(prevPos, currPos, &Board::isValidRookPos, &Board::isValidRookDelta, &Board::isValidRookRule);
+    return isValidMove(prevPos, currPos, player, &Board::isValidRookPos, &Board::isValidRookDelta, &Board::isValidRookRule);
 }
 
-bool Board::isValidCannonMove(TPos prevPos, TPos currPos)
+bool Board::isValidCannonMove(TPos prevPos, TPos currPos, Board::EPlayer player)
 {   
     //检查输入
     if (!isPiece(prevPos, g_cannon))
         return false;
 
-    return isValidMove(prevPos, currPos, &Board::isValidCannonPos, &Board::isValidCannonDelta, &Board::isValidCannonRule);
+    return isValidMove(prevPos, currPos, player, &Board::isValidCannonPos, &Board::isValidCannonDelta, &Board::isValidCannonRule);
 }
 
-bool Board::isValidPawnMove(TPos prevPos, TPos currPos)
+bool Board::isValidPawnMove(TPos prevPos, TPos currPos, Board::EPlayer player)
 {
     //检查输入
     if (!isPiece(prevPos, g_pawn))
         return false;
 
-    return isValidMove(prevPos, currPos, &Board::isValidPawnPos, &Board::isValidPawnDelta, &Board::isValidPawnRule);
+    return isValidMove(prevPos, currPos, player, &Board::isValidPawnPos, &Board::isValidPawnDelta, &Board::isValidPawnRule);
 }
 
-bool Board::isValidMove(TPos prevPos, TPos currPos, PosFunc isValidPos, DeltaFunc isValidDelta, RuleFunc isValidRule)
+bool Board::isValidMove(TPos prevPos, TPos currPos, Board::EPlayer player, PosFunc isValidPos, DeltaFunc isValidDelta, RuleFunc isValidRule)
 {
     Board::EPlayer prevOwner = getPieceOwner(prevPos);
     Board::EPlayer currOwner = getPieceOwner(currPos);
     // 确认原位置棋子属于应走棋的玩家
-    if (player_ != prevOwner)
+    if (player != prevOwner)
         return false;
 
     // 目的位置与原位置棋子同色，则不能走
@@ -599,15 +666,24 @@ bool Board::isPiece(TPos pos, int piece)
     return piece == (getPiece(pos) & g_pieceMask);
 }
 
-bool Board::isAttactivePiece(TPos pos)
+bool Board::isKing(TPos pos)
 {
-    int piece = (getPiece(pos) & g_pieceMask);
-    return piece >= g_knight && piece <= g_pawn;
+    return isPiece(pos, g_king);
 }
 
-bool Board::isValidMove(TPos prevPos, TPos currPos)
+bool Board::isDefensivePiece(TPos pos)
 {
-    typedef bool (Board::*MoveFunc)(TPos prevPos, TPos currPos);
+    return isPiece(pos, g_advisor) || isPiece(pos, g_bishop);
+}
+
+bool Board::isAttactivePiece(TPos pos)
+{
+    return isPiece(pos, g_knight) || isPiece(pos, g_rook) || isPiece(pos, g_cannon) || isPiece(pos, g_pawn);
+}
+
+bool Board::isValidMove(TPos prevPos, TPos currPos, Board::EPlayer player)
+{
+    typedef bool (Board::*MoveFunc)(TPos prevPos, TPos currPos, Board::EPlayer player);
     static unordered_map<int, MoveFunc> allMoveFunc =
     {
         {g_king,    &Board::isValidKingMove},
@@ -623,52 +699,98 @@ bool Board::isValidMove(TPos prevPos, TPos currPos)
     if (itr == allMoveFunc.end())
         return false;
 
-    if (!(this->*(itr->second))(prevPos, currPos))
+    if (!(this->*(itr->second))(prevPos, currPos, player))
         return false;
 
     return true;
 }
 
-bool Board::movePiece(TPos prevPos, TPos currPos)
+byte Board::movePiece(TPos prevPos, TPos currPos)
 {
-    if (!isValidMove(prevPos, currPos) || isSuicide(prevPos, currPos))
-        return false;
+    byte ret = EMR_ok;
 
-    if (player_ == Board::EP_Up)
+    // pos/delta/rule是否合法
+    if (!isValidMove(prevPos, currPos, player_))
     {
-        if (isAttactivePiece(prevPos))
-        {
-            upPieceSet_.attackers.erase(prevPos);// 移除原位置
-            upPieceSet_.attackers.insert(currPos);// 插入新位置
-        }
+        ret = EMR_null;
+        return ret;
+    }
 
-        if (isAttactivePiece(currPos))
+    // 会自杀？
+    if (isSuicide(prevPos, currPos, player_))
+    {
+        ret = EMR_suicide;// 设置SUICIDE位
+        return ret;
+    }
+
+    updatePieceSet(prevPos, currPos, player_);// 更新玩家棋子位置集合
+
+    changePlayer();//另一玩家走棋
+
+    board_[currPos.row][currPos.col] = board_[prevPos.row][prevPos.col];// 移动原棋子至当前位置
+    board_[prevPos.row][prevPos.col] = ResMgr::EP_Empty;// 删除原位置棋子
+
+    // 将军？
+    if (check(player_))
+    {
+        ret = EMR_ok & EMR_check;// 设置OK位/CHECK位
+
+        // 将死？
+        if (checkmate(player_))
         {
-            downPieceSet_.attackers.erase(currPos);// 如果被吃掉，从列表删除
+            ret &= EMR_dead;// 设置DEAD位
         }
     }
-    else if (player_ == Board::EP_Down)
-    {
-        if (isAttactivePiece(prevPos))
-        {
-            downPieceSet_.attackers.erase(prevPos);// 移除原位置
-            downPieceSet_.attackers.insert(currPos);// 插入新位置
-        }
 
-        if (isAttactivePiece(currPos))
-        {
-            upPieceSet_.attackers.erase(currPos);// 如果被吃掉，从列表删除
-        }
+    return ret;
+}
+
+// 前提是isValidMove(prevPos, currPos, player) && !isSuicide(prevPos, currPos, player)
+bool Board::updatePieceSet(TPos prevPos, TPos currPos, Board::EPlayer player)
+{
+    if (player == Board::EP_None)
+        return false;
+
+    Board::TPieceSet& activePieceSet = (player == Board::EP_Up ? upPieceSet_ : downPieceSet_);// 走棋一方
+    Board::TPieceSet& passivePieceSet = (player == Board::EP_Up ? downPieceSet_ : upPieceSet_);// 对方
+
+    // 由prevPos更新activePieceSet
+    if (isKing(prevPos))
+    {
+        activePieceSet.king = currPos;// 更新将位置
+    }
+    else if (isDefensivePiece(prevPos))
+    {
+        activePieceSet.defenders.erase(prevPos);// 移除原位置
+        activePieceSet.defenders.insert(currPos);// 插入新位置
+    }
+    else if (isAttactivePiece(prevPos))
+    {
+        activePieceSet.attackers.erase(prevPos);// 移除原位置
+        activePieceSet.attackers.insert(currPos);// 插入新位置
     }
     else
     {
         return false;
     }
 
-    changePlayer();//另一玩家走棋
-
-    board_[currPos.row][currPos.col] = board_[prevPos.row][prevPos.col];// 移动原棋子至当前位置
-    board_[prevPos.row][prevPos.col] = ResMgr::EP_Empty;// 删除原位置棋子
+    // 由currPos更新passivePieceSet
+    if (isKing(currPos))
+    {
+        return false;// 不允许吃将
+    }
+    else if (isDefensivePiece(currPos))
+    {
+        passivePieceSet.defenders.erase(currPos);// 如果被吃掉，从列表删除
+    }
+    else if (isAttactivePiece(currPos))
+    {
+        passivePieceSet.attackers.erase(currPos);// 如果被吃掉，从列表删除
+    }
+    else
+    {
+        return false;
+    }
 
     return true;
 }
@@ -706,38 +828,7 @@ bool Board::changePlayer()
     return true;
 }
 
-// 检查player是否被将军
-bool Board::isChecked(Board::EPlayer player)
-{
-    if (player == Board::EP_Up)
-    {
-        TPos kingPos = upPieceSet_.king;
-        unordered_set<TPos>& attackers = downPieceSet_.attackers;
-
-        for (TPos pos: attackers)
-        {
-            if (isValidMove(pos, kingPos))
-                return true;
-        }
-    }
-    else if (player == Board::EP_Up)
-    {
-        TPos kingPos = downPieceSet_.king;
-        unordered_set<TPos>& attackers = upPieceSet_.attackers;
-
-        for (TPos pos: attackers)
-        {
-            if (isValidMove(pos, kingPos))
-                return true;
-        }
-    }
-    else
-    {
-        return false;
-    }
-}
-
-bool Board::isSuicide(TPos prevPos, TPos currPos)
+bool Board::isSuicide(TPos prevPos, TPos currPos, Board::EPlayer player)
 {
     struct TAutoSwapPiece
     {
@@ -763,5 +854,105 @@ bool Board::isSuicide(TPos prevPos, TPos currPos)
 
     TAutoSwapPiece obj(board_[prevPos.row][prevPos.col], board_[currPos.row][currPos.col]);
 
-    return isChecked(player_);//导致自己被将军，则为自杀
+    return check(player == Board::EP_Up ? Board::EP_Down : Board::EP_Up);//导致自己被将军，则为自杀
+}
+
+// 检查player是否将对方
+bool Board::check(Board::EPlayer player)
+{
+    if (player == Board::EP_None)
+        return false;
+
+    Board::TPieceSet& activePieceSet = (player == Board::EP_Up ? upPieceSet_ : downPieceSet_);// 将军一方
+    Board::TPieceSet& passivePieceSet = (player == Board::EP_Up ? downPieceSet_ : upPieceSet_);// 对方
+
+    TPos kingPos = passivePieceSet.king;
+    unordered_set<TPos>& attackers = activePieceSet.attackers;
+
+    for (TPos pos: attackers)
+    {
+        if (isValidMove(pos, kingPos, player) && !isSuicide(pos, kingPos, player))// 不能自杀
+            return true;
+    }
+
+    return false;
+}
+
+// 检查player是否把对方将死
+bool Board::checkmate(Board::EPlayer player)
+{
+    // 默认对方已处于被将军状态，不再检查
+    if (player == Board::EP_None)
+        return false;
+
+    Board::EPlayer otherPlayer = (player == Board::EP_Up ? Board::EP_Down : Board::EP_Up);
+    Board::TPieceSet& activePieceSet = (player == Board::EP_Up ? upPieceSet_ : downPieceSet_);// 将军一方
+    Board::TPieceSet& passivePieceSet = (player == Board::EP_Up ? downPieceSet_ : upPieceSet_);// 对方
+
+    // 检查
+    auto handleCheckmate = [this](TPos pos, const unordered_set<TDelta>& deltas, Board::EPlayer player)
+    {
+        for (TDelta delta: deltas)
+        {
+            if (this->isValidMove(pos, pos + delta, player) &&
+                !this->isSuicide(pos, pos + delta, player))
+                return true;
+        }
+
+        return false;
+    };
+
+    // 尝试被将军方的所有走法，一旦发现应将招法即结束搜索
+    // 尝试移动将
+    const unordered_set<TDelta>& deltas = getValidKingDelta(otherPlayer);
+    if (handleCheckmate(passivePieceSet.king, deltas, otherPlayer))
+        return false;
+
+    // 尝试移动防御棋子
+    for (TPos pos: passivePieceSet.defenders)
+    {
+        const unordered_set<TDelta>* pDeltas;
+        switch (getPiece(pos) & g_pieceMask)
+        {
+        case g_advisor:
+            pDeltas = &getValidKingDelta(otherPlayer);
+            break;
+        case g_bishop:
+            pDeltas = &getValidBishopDelta(otherPlayer);
+            break;
+        default:
+            break;
+        }
+
+        if (handleCheckmate(pos, deltas, otherPlayer))
+            return false;
+    }
+
+    // 尝试移动进攻棋子
+    for (TPos pos: passivePieceSet.attackers)
+    {
+        const unordered_set<TDelta>* pDeltas;
+        switch (getPiece(pos) & g_pieceMask)
+        {
+        case g_knight:
+            pDeltas = &getValidKnightDelta(otherPlayer);
+            break;
+        case g_rook:
+            pDeltas = &getValidRookDelta(otherPlayer);
+            break;
+        case g_cannon:
+            pDeltas = &getValidCannonDelta(otherPlayer);
+            break;
+        case g_pawn:
+            pDeltas = &getValidPawnDelta(otherPlayer);
+            break;
+        default:
+            break;
+        }
+
+        if (handleCheckmate(pos, deltas, otherPlayer))
+            return false;
+    }
+
+    return true;
 }

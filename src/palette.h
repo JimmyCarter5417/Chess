@@ -13,6 +13,7 @@ class QPixmap;
 
 
 using def::TPos;
+using def::byte;
 using std::vector;
 using std::shared_ptr;
 
@@ -35,7 +36,7 @@ protected:
     void drawPiece(TPos pos);
 
     void drawSelect(TPos currPos);
-    bool makeMove(TPos currPos);
+    byte movePiece(TPos currPos);
 
 private:
     bool init_;

@@ -6,6 +6,7 @@
 #include "size.h"
 #include <assert.h>
 #include <QLabel>
+#include <QMessageBox>
 
 using namespace std;
 using namespace def;
@@ -126,15 +127,17 @@ void Palette::drawSelect(TPos currPos)
     }
 }
 
-bool Palette::makeMove(TPos currPos)
+byte Palette::movePiece(TPos currPos)
 {
-    if (!board_->movePiece(prevPos_, currPos))
-        return false;
+    byte ret = board_->movePiece(prevPos_, currPos);
 
-    drawPiece(prevPos_);
-    drawPiece(currPos);
+    if (ret & Board::EMR_ok)
+    {
+        drawPiece(prevPos_);
+        drawPiece(currPos);
+    }
 
-    return true;
+    return ret;
 }
 
 void Palette::rotate()
@@ -157,14 +160,28 @@ void Palette::click(TPos currPos)
     else
     {
         // 可以移动棋子
-        if (makeMove(currPos))
-        {
+        byte ret = movePiece(currPos);
+
+        if (ret & Board::EMR_ok)
+        {QMessageBox::information(NULL, "ok", "ok");
             //显示两个选择框，prevPos_清空
             drawSelect(currPos);
             prevPos_ = g_nullPos;
         }
-        else// 不能移动棋子
+        else // 不能移动棋子
         {
+            if (ret & Board::EMR_suicide)
+            {
+                QMessageBox::information(NULL, "suicide", "suicide");
+            }
+            if (ret & Board::EMR_check)
+            {
+                QMessageBox::information(NULL, "check", "check");
+            }
+            if (ret & Board::EMR_dead)
+            {
+                QMessageBox::information(NULL, "dead", "dead");
+            }
             // 当前选择位置与原位置同色，才能更新prevPos_，并绘制选择框
             if (board_->getPieceOwner(prevPos_) == board_->getPieceOwner(currPos))
             {
