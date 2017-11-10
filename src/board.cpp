@@ -854,7 +854,7 @@ bool Board::isSuicide(TPos prevPos, TPos currPos, Board::EPlayer player)
 
     TAutoSwapPiece obj(board_[prevPos.row][prevPos.col], board_[currPos.row][currPos.col]);
 
-    return check(player == Board::EP_Up ? Board::EP_Down : Board::EP_Up);//导致自己被将军，则为自杀
+    return check(player == Board::EP_Up ? Board::EP_Down : Board::EP_Up);// 导致自己被将军，则为自杀
 }
 
 // 检查player是否将对方
@@ -871,7 +871,7 @@ bool Board::check(Board::EPlayer player)
 
     for (TPos pos: attackers)
     {
-        if (isValidMove(pos, kingPos, player) && !isSuicide(pos, kingPos, player))// 不能自杀
+        if (isValidMove(pos, kingPos, player)/* && !isSuicide(pos, kingPos, player)*/)// 这里不需要判断自杀！否则会递归出错
             return true;
     }
 
@@ -894,7 +894,7 @@ bool Board::checkmate(Board::EPlayer player)
     {
         for (TDelta delta: deltas)
         {
-            if (this->isValidMove(pos, pos + delta, player) &&
+            if (/*this->isValidMove(pos, pos + delta, player) &&*/
                 !this->isSuicide(pos, pos + delta, player))
                 return true;
         }
