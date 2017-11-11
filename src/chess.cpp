@@ -11,7 +11,6 @@
 #include <QKeyEvent>
 #include <QMessageBox>
 
-#include "board.h"
 #include "resmgr.h"
 #include "palette.h"
 #include "co.h"
@@ -21,9 +20,7 @@ using namespace def;
 Chess::Chess(QWidget *parent) :
     QMainWindow(parent),
     ui(new Ui::Chess),
-    board_(new Board),
-    resMgr_(ResMgr::getInstance()),
-    palette_(new Palette(this, board_.get(), resMgr_))
+    palette_(new Palette(this, ResMgr::getInstance()))
 {
     //setWindowFlags(Qt::WindowMinimized | Qt::WindowSystemMenuHint);
     ui->setupUi(this);   
@@ -66,8 +63,20 @@ void Chess::keyPressEvent(QKeyEvent *event)
     {
         QMessageBox::aboutQt(NULL, "aboutQt");
     }
-    else if ((event->key() == Qt::Key_R))
+    else if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_R)
     {
         palette_->rotate();
     }
+    else if (event->key() == Qt::Key_O)
+    {
+        palette_->open();
+    }
+    else if (event->key() == Qt::Key_U)
+    {
+        palette_->undo();
+    }
+    /*else if (event->key() == Qt::Key_R)
+    {
+        palette_->redo();
+    }*/
 }

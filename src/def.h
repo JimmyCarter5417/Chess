@@ -49,11 +49,9 @@ namespace def
             return {row - rhs.row, col - rhs.col};
         }
 
-        TPos& operator+(const TDelta& delta)
+        TPos operator+(const TDelta& delta)
         {
-            row += delta.deltaRow;
-            col += delta.deltaCol;
-            return *this;
+            return {row + delta.deltaRow, col + delta.deltaCol};
         }
 
         bool operator()()
@@ -74,11 +72,43 @@ namespace def
         uint height;
     };
 
+    enum EPlayer
+    {
+        EP_up,
+        EP_down,
+        EP_none,
+    };
+
+    // 切换玩家
+    static void switchPlayer(EPlayer& player)
+    {
+        if (player == EP_up)
+            player = EP_down;
+        else if (player == EP_down)
+            player = EP_up;
+        else
+            player = EP_none;
+    }
+
+    static EPlayer getOtherPlayer(EPlayer player)
+    {
+        if (player == EP_up)
+            return EP_down;
+        else if (player == EP_down)
+            return EP_up;
+        else
+            return EP_none;
+    }
+
     const TPos g_nullPos = {-1, -1};
 
     //掩码
     const byte g_scopeMask = 0x18;
     const byte g_pieceMask = 0x7;
+
+    // 颜色标识
+    const byte g_redFlag   = 0x8;// 默认下面为红色
+    const byte g_blackFlag = 0x10;// 默认上面为黑色
     
     //七种棋子用低三位表示
     const byte g_empty   = 0x0;

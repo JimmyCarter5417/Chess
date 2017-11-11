@@ -49,7 +49,7 @@ bool ResMgr::loadPieces(EPieceSkin skin)
 
     static unordered_map<int, string> allPieceInfo =
     {
-        {EP_Empty,        "OO.GIF"},
+        {EP_empty,        "OO.GIF"},
 
         {EP_RedKing,      "RK.GIF"},
         {EP_RedAdvisor,   "RA.GIF"},

@@ -20,13 +20,14 @@ using std::shared_ptr;
 class Palette
 {
 public:
-    Palette(Chess* chess, Board* board, ResMgr* resMgr);
+    Palette(Chess* chess, ResMgr* resMgr);
     ~Palette();
 
     void click(TPos currPos);
 
     void open();// 开局
     void rotate();// 翻转棋盘
+    void undo();// 悔棋
 
 protected:
     void initLabel();
@@ -41,9 +42,9 @@ protected:
 private:
     bool init_;
 
-    Chess* chess_;
-    Board* board_;
+    Chess* chess_;   
     ResMgr* resMgr_;
+    shared_ptr<Board> board_;
 
     shared_ptr<QLabel> bg_;
     shared_ptr<QLabel> prevSelect_;

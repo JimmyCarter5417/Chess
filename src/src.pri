@@ -1,17 +1,17 @@
-SOURCES += \
-    src/main.cpp \
-    src/chess.cpp \
-    src/board.cpp \
-    src/resmgr.cpp \
-    src/palette.cpp
-
 HEADERS += \
-    src/chess.h \
-    src/board.h \
-    src/def.h \
-    src/resmgr.h \
-    src/palette.h \
-    src/co.h \
-    src/size.h
+    $$PWD/chess.h \
+    $$PWD/co.h \
+    $$PWD/debug.h \
+    $$PWD/def.h \
+    $$PWD/palette.h \
+    $$PWD/resmgr.h \
+    $$PWD/size.h
 
-OTHER_FILES +=
+SOURCES += \
+    $$PWD/chess.cpp \
+    $$PWD/debug.cpp \
+    $$PWD/main.cpp \
+    $$PWD/palette.cpp \
+    $$PWD/resmgr.cpp
+
+include(model/model.pri)

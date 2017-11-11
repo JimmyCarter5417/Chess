@@ -27,8 +27,6 @@ protected:
 private:
     Ui::Chess *ui;
 
-    std::shared_ptr<Board> board_;
-    ResMgr* resMgr_;
     std::shared_ptr<Palette> palette_;   
 };
 

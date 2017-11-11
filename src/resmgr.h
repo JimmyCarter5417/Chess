@@ -10,7 +10,7 @@ class ResMgr
 public:
     enum EPiece
     {
-        EP_Empty = 0,
+        EP_empty = 0,
 
         EP_RedKing = 9,
         EP_RedAdvisor,

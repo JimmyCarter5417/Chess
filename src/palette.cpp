@@ -1,24 +1,26 @@
 #include "palette.h"
 #include "chess.h"
-#include "board.h"
+#include "model/board.h"
 #include "resmgr.h"
 #include "co.h"
 #include "size.h"
 #include <assert.h>
 #include <QLabel>
 #include <QMessageBox>
+#include <functional>
+#include "debug.h"
 
 using namespace std;
 using namespace def;
 
-Palette::Palette(Chess* chess, Board* board, ResMgr* resMgr)
+Palette::Palette(Chess* chess, ResMgr* resMgr)
     : chess_(chess)
-    , board_(board)
-    , resMgr_(resMgr)   
+    , resMgr_(resMgr)
 {
-    assert(chess_ != nullptr);
-    assert(board_ != nullptr);
+    assert(chess_ != nullptr);   
     assert(resMgr_ != nullptr);    
+
+    board_ = std::make_shared<Board>();
 }
 
 Palette::~Palette()
@@ -142,8 +144,18 @@ byte Palette::movePiece(TPos currPos)
 
 void Palette::rotate()
 {
-    board_->rotate();
-    drawPieces();
+    if (board_->rotate())
+    {
+        drawPieces();
+    }
+}
+
+void Palette::undo()
+{
+    if (board_->undo())
+    {
+        drawPieces();
+    }
 }
 
 void Palette::click(TPos currPos)
@@ -161,27 +173,35 @@ void Palette::click(TPos currPos)
     {
         // 可以移动棋子
         byte ret = movePiece(currPos);
+//        if (ret & Board::EMR_ok)
+//        {
+//            QMessageBox::information(NULL, "ok", "ok");
+//        }
+//        if (ret & Board::EMR_suicide)
+//        {
+//            QMessageBox::information(NULL, "suicide", "suicide");
+//        }
+//        if (ret & Board::EMR_check)
+//        {
+//            QMessageBox::information(NULL, "check", "check");
+//        }
+//        if (ret & Board::EMR_dead)
+//        {
+//            QMessageBox::information(NULL, "dead", "dead");
+//        }
+//        if (ret & Board::EMR_null)
+//        {
+//            QMessageBox::information(NULL, "null", "null");
+//        }
 
         if (ret & Board::EMR_ok)
-        {QMessageBox::information(NULL, "ok", "ok");
+        {
             //显示两个选择框，prevPos_清空
             drawSelect(currPos);
             prevPos_ = g_nullPos;
         }
         else // 不能移动棋子
-        {
-            if (ret & Board::EMR_suicide)
-            {
-                QMessageBox::information(NULL, "suicide", "suicide");
-            }
-            if (ret & Board::EMR_check)
-            {
-                QMessageBox::information(NULL, "check", "check");
-            }
-            if (ret & Board::EMR_dead)
-            {
-                QMessageBox::information(NULL, "dead", "dead");
-            }
+        {            
             // 当前选择位置与原位置同色，才能更新prevPos_，并绘制选择框
             if (board_->getPieceOwner(prevPos_) == board_->getPieceOwner(currPos))
             {
