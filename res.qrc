@@ -1,103 +1,105 @@
 <RCC>
-    <qresource prefix="/icon">
-        <file>res/icon/XQF.ICO</file>
+    <qresource prefix="/pic/icon">
+        <file>res/pic/icon/XQF.ICO</file>
     </qresource>
-    <qresource prefix="/bg">
-        <file>res/bg/CANVAS.GIF</file>
-        <file>res/bg/DROPS.GIF</file>
-        <file>res/bg/GREEN.GIF</file>
-        <file>res/bg/QIANHONG.GIF</file>
-        <file>res/bg/SHEET.GIF</file>
-        <file>res/bg/SKELETON.GIF</file>
-        <file>res/bg/WHITE.GIF</file>
-        <file>res/bg/WOOD.GIF</file>
+    <qresource prefix="/pic/bg">
+        <file>res/pic/bg/CANVAS.GIF</file>
+        <file>res/pic/bg/DROPS.GIF</file>
+        <file>res/pic/bg/GREEN.GIF</file>
+        <file>res/pic/bg/SHEET.GIF</file>
+        <file>res/pic/bg/SKELETON.GIF</file>
+        <file>res/pic/bg/WOOD.GIF</file>
+        <file>res/pic/bg/STONE.GIF</file>
     </qresource>
-    <qresource prefix="/piece/wood">
-        <file>res/piece/wood/BA.GIF</file>
-        <file>res/piece/wood/BAS.GIF</file>
-        <file>res/piece/wood/BB.GIF</file>
-        <file>res/piece/wood/BBS.GIF</file>
-        <file>res/piece/wood/BC.GIF</file>
-        <file>res/piece/wood/BCS.GIF</file>
-        <file>res/piece/wood/BK.GIF</file>
-        <file>res/piece/wood/BKM.GIF</file>
-        <file>res/piece/wood/BKS.GIF</file>
-        <file>res/piece/wood/BN.GIF</file>
-        <file>res/piece/wood/BNS.GIF</file>
-        <file>res/piece/wood/BP.GIF</file>
-        <file>res/piece/wood/BPS.GIF</file>
-        <file>res/piece/wood/BR.GIF</file>
-        <file>res/piece/wood/BRS.GIF</file>
-        <file>res/piece/wood/OO.GIF</file>
-        <file>res/piece/wood/OOS.GIF</file>
-        <file>res/piece/wood/RA.GIF</file>
-        <file>res/piece/wood/RAS.GIF</file>
-        <file>res/piece/wood/RB.GIF</file>
-        <file>res/piece/wood/RBS.GIF</file>
-        <file>res/piece/wood/RC.GIF</file>
-        <file>res/piece/wood/RCS.GIF</file>
-        <file>res/piece/wood/RK.GIF</file>
-        <file>res/piece/wood/RKM.GIF</file>
-        <file>res/piece/wood/RKS.GIF</file>
-        <file>res/piece/wood/RN.GIF</file>
-        <file>res/piece/wood/RNS.GIF</file>
-        <file>res/piece/wood/RP.GIF</file>
-        <file>res/piece/wood/RPS.GIF</file>
-        <file>res/piece/wood/RR.GIF</file>
-        <file>res/piece/wood/RRS.GIF</file>
+    <qresource prefix="/pic/piece/comic">
+        <file>res/pic/piece/comic/BA.GIF</file>
+        <file>res/pic/piece/comic/BB.GIF</file>
+        <file>res/pic/piece/comic/BC.GIF</file>
+        <file>res/pic/piece/comic/BK.GIF</file>
+        <file>res/pic/piece/comic/BKM.GIF</file>
+        <file>res/pic/piece/comic/BN.GIF</file>
+        <file>res/pic/piece/comic/BP.GIF</file>
+        <file>res/pic/piece/comic/BR.GIF</file>
+        <file>res/pic/piece/comic/OO.GIF</file>
+        <file>res/pic/piece/comic/OOS.GIF</file>
+        <file>res/pic/piece/comic/RA.GIF</file>
+        <file>res/pic/piece/comic/RB.GIF</file>
+        <file>res/pic/piece/comic/RC.GIF</file>
+        <file>res/pic/piece/comic/RK.GIF</file>
+        <file>res/pic/piece/comic/RKM.GIF</file>
+        <file>res/pic/piece/comic/RN.GIF</file>
+        <file>res/pic/piece/comic/RP.GIF</file>
+        <file>res/pic/piece/comic/RR.GIF</file>
     </qresource>
-    <qresource prefix="/piece/polish">
-        <file>res/piece/polish/BA.GIF</file>
-        <file>res/piece/polish/BAS.GIF</file>
-        <file>res/piece/polish/BB.GIF</file>
-        <file>res/piece/polish/BBS.GIF</file>
-        <file>res/piece/polish/BC.GIF</file>
-        <file>res/piece/polish/BCS.GIF</file>
-        <file>res/piece/polish/BK.GIF</file>
-        <file>res/piece/polish/BKM.GIF</file>
-        <file>res/piece/polish/BKS.GIF</file>
-        <file>res/piece/polish/BN.GIF</file>
-        <file>res/piece/polish/BNS.GIF</file>
-        <file>res/piece/polish/BP.GIF</file>
-        <file>res/piece/polish/BPS.GIF</file>
-        <file>res/piece/polish/BR.GIF</file>
-        <file>res/piece/polish/BRS.GIF</file>
-        <file>res/piece/polish/OO.GIF</file>
-        <file>res/piece/polish/OOS.GIF</file>
-        <file>res/piece/polish/RA.GIF</file>
-        <file>res/piece/polish/RAS.GIF</file>
-        <file>res/piece/polish/RB.GIF</file>
-        <file>res/piece/polish/RBS.GIF</file>
-        <file>res/piece/polish/RC.GIF</file>
-        <file>res/piece/polish/RCS.GIF</file>
-        <file>res/piece/polish/RK.GIF</file>
-        <file>res/piece/polish/RKM.GIF</file>
-        <file>res/piece/polish/RKS.GIF</file>
-        <file>res/piece/polish/RN.GIF</file>
-        <file>res/piece/polish/RNS.GIF</file>
-        <file>res/piece/polish/RP.GIF</file>
-        <file>res/piece/polish/RPS.GIF</file>
-        <file>res/piece/polish/RR.GIF</file>
-        <file>res/piece/polish/RRS.GIF</file>
+    <qresource prefix="/pic/piece/wood">
+        <file>res/pic/piece/wood/BA.GIF</file>
+        <file>res/pic/piece/wood/BB.GIF</file>
+        <file>res/pic/piece/wood/BC.GIF</file>
+        <file>res/pic/piece/wood/BK.GIF</file>
+        <file>res/pic/piece/wood/BKM.GIF</file>
+        <file>res/pic/piece/wood/BN.GIF</file>
+        <file>res/pic/piece/wood/BP.GIF</file>
+        <file>res/pic/piece/wood/BR.GIF</file>
+        <file>res/pic/piece/wood/OO.GIF</file>
+        <file>res/pic/piece/wood/OOS.GIF</file>
+        <file>res/pic/piece/wood/RA.GIF</file>
+        <file>res/pic/piece/wood/RB.GIF</file>
+        <file>res/pic/piece/wood/RC.GIF</file>
+        <file>res/pic/piece/wood/RKM.GIF</file>
+        <file>res/pic/piece/wood/RN.GIF</file>
+        <file>res/pic/piece/wood/RP.GIF</file>
+        <file>res/pic/piece/wood/RR.GIF</file>
+        <file>res/pic/piece/wood/RK.GIF</file>
     </qresource>
-    <qresource prefix="/piece/delicate">
-        <file>res/piece/delicate/BA.GIF</file>
-        <file>res/piece/delicate/BB.GIF</file>
-        <file>res/piece/delicate/BC.GIF</file>
-        <file>res/piece/delicate/BK.GIF</file>
-        <file>res/piece/delicate/BKM.GIF</file>
-        <file>res/piece/delicate/BN.GIF</file>
-        <file>res/piece/delicate/BP.GIF</file>
-        <file>res/piece/delicate/BR.GIF</file>
-        <file>res/piece/delicate/OOS.GIF</file>
-        <file>res/piece/delicate/RA.GIF</file>
-        <file>res/piece/delicate/RB.GIF</file>
-        <file>res/piece/delicate/RC.GIF</file>
-        <file>res/piece/delicate/RK.GIF</file>
-        <file>res/piece/delicate/RKM.GIF</file>
-        <file>res/piece/delicate/RN.GIF</file>
-        <file>res/piece/delicate/RP.GIF</file>
-        <file>res/piece/delicate/RR.GIF</file>
-        <file>res/piece/delicate/OO.GIF</file>
+    <qresource prefix="/pic/piece/polish">
+        <file>res/pic/piece/polish/BA.GIF</file>
+        <file>res/pic/piece/polish/BB.GIF</file>
+        <file>res/pic/piece/polish/BC.GIF</file>
+        <file>res/pic/piece/polish/BK.GIF</file>
+        <file>res/pic/piece/polish/BKM.GIF</file>
+        <file>res/pic/piece/polish/BN.GIF</file>
+        <file>res/pic/piece/polish/BP.GIF</file>
+        <file>res/pic/piece/polish/BR.GIF</file>
+        <file>res/pic/piece/polish/OO.GIF</file>
+        <file>res/pic/piece/polish/OOS.GIF</file>
+        <file>res/pic/piece/polish/RA.GIF</file>
+        <file>res/pic/piece/polish/RB.GIF</file>
+        <file>res/pic/piece/polish/RC.GIF</file>
+        <file>res/pic/piece/polish/RK.GIF</file>
+        <file>res/pic/piece/polish/RKM.GIF</file>
+        <file>res/pic/piece/polish/RN.GIF</file>
+        <file>res/pic/piece/polish/RP.GIF</file>
+        <file>res/pic/piece/polish/RR.GIF</file>
+    </qresource>
+    <qresource prefix="/pic/piece/delicate">
+        <file>res/pic/piece/delicate/BA.GIF</file>
+        <file>res/pic/piece/delicate/BB.GIF</file>
+        <file>res/pic/piece/delicate/BC.GIF</file>
+        <file>res/pic/piece/delicate/BK.GIF</file>
+        <file>res/pic/piece/delicate/BKM.GIF</file>
+        <file>res/pic/piece/delicate/BN.GIF</file>
+        <file>res/pic/piece/delicate/BP.GIF</file>
+        <file>res/pic/piece/delicate/BR.GIF</file>
+        <file>res/pic/piece/delicate/OOS.GIF</file>
+        <file>res/pic/piece/delicate/RA.GIF</file>
+        <file>res/pic/piece/delicate/RB.GIF</file>
+        <file>res/pic/piece/delicate/RC.GIF</file>
+        <file>res/pic/piece/delicate/RK.GIF</file>
+        <file>res/pic/piece/delicate/RKM.GIF</file>
+        <file>res/pic/piece/delicate/RN.GIF</file>
+        <file>res/pic/piece/delicate/RP.GIF</file>
+        <file>res/pic/piece/delicate/RR.GIF</file>
+        <file>res/pic/piece/delicate/OO.GIF</file>
+    </qresource>
+    <qresource prefix="/sound/effect">
+        <file>res/sound/effect/CAPTURE.WAV</file>
+        <file>res/sound/effect/CHECK.WAV</file>
+        <file>res/sound/effect/CLICK.WAV</file>
+        <file>res/sound/effect/DRAW.WAV</file>
+        <file>res/sound/effect/ILLEGAL.WAV</file>
+        <file>res/sound/effect/LOSS.WAV</file>
+        <file>res/sound/effect/MOVE.WAV</file>
+        <file>res/sound/effect/NEWGAME.WAV</file>
+        <file>res/sound/effect/WIN.WAV</file>
     </qresource>
 </RCC>

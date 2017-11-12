@@ -9,18 +9,24 @@
 #include <QMessageBox>
 #include <functional>
 #include "debug.h"
+#include <QSound>
+#include <QMediaPlayer>
+#include <QCoreApplication>
+#include <QMediaPlaylist>
 
 using namespace std;
 using namespace def;
 
-Palette::Palette(Chess* chess, ResMgr* resMgr)
+Palette::Palette(Chess* chess, QLabel* bg, ResMgr* resMgr)
     : chess_(chess)
+    , bg_(bg)
     , resMgr_(resMgr)
 {
     assert(chess_ != nullptr);   
+    assert(bg_ != nullptr);
     assert(resMgr_ != nullptr);    
 
-    board_ = std::make_shared<Board>();
+    board_ = std::make_shared<Board>();    
 }
 
 Palette::~Palette()
@@ -31,19 +37,22 @@ Palette::~Palette()
 // 初始化背景图片、两个选择图标
 void Palette::initLabel()
 {
-    bg_ = make_shared<QLabel>(chess_);
+    //bg_ = make_shared<QLabel>(chess_);
     bg_->resize(size::g_boardSize.width, size::g_boardSize.height);
     if (QPixmap* pic = resMgr_->getBg())
+    {
+        bg_->move(0, 0);
         bg_->setPixmap(*pic);
+    }
 
     prevSelect_ = make_shared<QLabel>(chess_);
     prevSelect_->resize(size::g_pieceSize.width, size::g_pieceSize.height);
-    if (QPixmap* pic = resMgr_->getPiece(ResMgr::EP_Select))
+    if (QPixmap* pic = resMgr_->getPiece(ResMgr::EP_select))
         prevSelect_->setPixmap(*pic);
 
     currSelect_ = make_shared<QLabel>(chess_);
     currSelect_->resize(size::g_pieceSize.width, size::g_pieceSize.height);
-    if (QPixmap* pic = resMgr_->getPiece(ResMgr::EP_Select))
+    if (QPixmap* pic = resMgr_->getPiece(ResMgr::EP_select))
         currSelect_->setPixmap(*pic);
 }
 
@@ -76,6 +85,16 @@ void Palette::open()
 
     prevPos_ = g_nullPos;
     drawSelect(g_nullPos);
+}
+
+void Palette::drawBg()
+{
+    bg_->resize(size::g_boardSize.width, size::g_boardSize.height);
+    if (QPixmap* pic = resMgr_->getBg())
+    {
+        bg_->move(0, 0);
+        bg_->setPixmap(*pic);
+    }
 }
 
 void Palette::drawPieces()
@@ -159,7 +178,21 @@ void Palette::undo()
 }
 
 void Palette::click(TPos currPos)
-{
+{/*
+    //QSound::play(":/sound/bg/pal.mp3");
+    QMediaPlaylist* playlist = new QMediaPlaylist;
+    playlist->addMedia(QUrl::fromLocalFile(QCoreApplication::applicationDirPath() + "/pal.mp3"));
+    playlist->setCurrentIndex(0);
+    playlist->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
+    QMediaPlayer* player = new QMediaPlayer;
+    //connect(player, SIGNAL(positionChanged(qint64)), this, SLOT(positionChanged(qint64)));
+    //qDebug()<<"current applicationDirPath: "<<QCoreApplication::applicationDirPath() + "/pal.mp3";
+    //player->setMedia(QUrl::fromLocalFile(QCoreApplication::applicationDirPath() + "/pal.mp3"));
+    player->setPlaylist(playlist);
+    player->setVolume(50);
+    player->play();
+*/
+
     if (prevPos_ == g_nullPos)
     {
         // 若prevPos_为无效位置，且新位置棋子属于下一步走棋的玩家，则更新prevPos_，并显示当前选择的棋子
@@ -210,5 +243,46 @@ void Palette::click(TPos currPos)
                 prevPos_ = currPos;
             }
         }
+    }
+}
+
+void Palette::soundEffect(bool on)
+{
+    if (on)
+    QSound::play(":/sound/effect/res/sound/effect/MOVE.WAV");
+}
+
+void Palette::bgm(bool on)
+{
+    static QMediaPlaylist* playlist = new QMediaPlaylist;
+    playlist->addMedia(QUrl::fromLocalFile(QCoreApplication::applicationDirPath() + "/pal.mp3"));
+    playlist->setCurrentIndex(0);
+    playlist->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
+
+    static QMediaPlayer* player = new QMediaPlayer;
+    //connect(player, SIGNAL(positionChanged(qint64)), this, SLOT(positionChanged(qint64)));
+    //qDebug()<<"current applicationDirPath: "<<QCoreApplication::applicationDirPath() + "/pal.mp3";
+    //player->setMedia(QUrl::fromLocalFile(QCoreApplication::applicationDirPath() + "/pal.mp3"));
+    player->setPlaylist(playlist);
+    player->setVolume(50);
+    if (on)
+        player->play();
+    else
+        player->stop();
+}
+
+void Palette::loadBgSkin(ResMgr::EBgSkin skin)
+{
+    if (resMgr_->loadBgSkin(skin))
+    {
+        drawBg();
+    }
+}
+
+void Palette::loadPieceSkin(ResMgr::EPieceSkin skin)
+{
+    if (resMgr_->loadPieceSkin(skin))
+    {
+        drawPieces();
     }
 }

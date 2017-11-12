@@ -6,39 +6,211 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>520</width>
-    <height>576</height>
+    <width>521</width>
+    <height>600</height>
    </rect>
-  </property>
-  <property name="minimumSize">
-   <size>
-    <width>520</width>
-    <height>576</height>
-   </size>
-  </property>
-  <property name="maximumSize">
-   <size>
-    <width>520</width>
-    <height>576</height>
-   </size>
   </property>
   <property name="windowTitle">
    <string>Chess</string>
   </property>
   <property name="windowIcon">
-   <iconset resource="res.qrc">
+   <iconset>
     <normaloff>:/icon/res/icon/XQF.ICO</normaloff>:/icon/res/icon/XQF.ICO</iconset>
   </property>
-  <widget class="QWidget" name="centralWidget"/>
-  <action name="actionStart">
+  <widget class="QWidget" name="centralWidget">
+   <widget class="QLabel" name="bg">
+    <property name="geometry">
+     <rect>
+      <x>40</x>
+      <y>70</y>
+      <width>441</width>
+      <height>401</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>TextLabel</string>
+    </property>
+   </widget>
+  </widget>
+  <widget class="QMenuBar" name="menuBar">
+   <property name="geometry">
+    <rect>
+     <x>0</x>
+     <y>0</y>
+     <width>521</width>
+     <height>23</height>
+    </rect>
+   </property>
+   <widget class="QMenu" name="settingMenu">
+    <property name="title">
+     <string>设置</string>
+    </property>
+    <widget class="QMenu" name="bgMenu">
+     <property name="title">
+      <string>棋盘</string>
+     </property>
+     <addaction name="canvasBgAction"/>
+     <addaction name="dropsBgAction"/>
+     <addaction name="greenBgAction"/>
+     <addaction name="sheetBgAction"/>
+     <addaction name="skeletonBgAction"/>
+     <addaction name="stoneBgAction"/>
+     <addaction name="woodBgAction"/>
+    </widget>
+    <widget class="QMenu" name="pieceMenu">
+     <property name="title">
+      <string>棋子</string>
+     </property>
+     <addaction name="comicPieceAction"/>
+     <addaction name="delicatePieceAction"/>
+     <addaction name="polishPieceAction"/>
+     <addaction name="woodPieceAction"/>
+    </widget>
+    <addaction name="openAction"/>
+    <addaction name="undoAction"/>
+    <addaction name="separator"/>
+    <addaction name="soundEffectAction"/>
+    <addaction name="bgmAction"/>
+    <addaction name="separator"/>
+    <addaction name="bgMenu"/>
+    <addaction name="pieceMenu"/>
+   </widget>
+   <widget class="QMenu" name="helpMenu">
+    <property name="title">
+     <string>帮助</string>
+    </property>
+    <addaction name="shortcut"/>
+    <addaction name="about"/>
+   </widget>
+   <addaction name="settingMenu"/>
+   <addaction name="helpMenu"/>
+  </widget>
+  <action name="openAction">
    <property name="text">
-    <string>start</string>
+    <string>开局</string>
+   </property>
+  </action>
+  <action name="undoAction">
+   <property name="text">
+    <string>悔棋</string>
+   </property>
+  </action>
+  <action name="soundEffectAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>音效</string>
+   </property>
+  </action>
+  <action name="canvasBgAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>画布</string>
+   </property>
+  </action>
+  <action name="dropsBgAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>水滴</string>
+   </property>
+  </action>
+  <action name="greenBgAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>绿色</string>
+   </property>
+  </action>
+  <action name="sheetBgAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>草稿</string>
+   </property>
+  </action>
+  <action name="skeletonBgAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>素描</string>
+   </property>
+  </action>
+  <action name="stoneBgAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>石材</string>
+   </property>
+  </action>
+  <action name="woodBgAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>木材</string>
+   </property>
+  </action>
+  <action name="comicPieceAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>卡通</string>
+   </property>
+  </action>
+  <action name="delicatePieceAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>精致</string>
+   </property>
+  </action>
+  <action name="polishPieceAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>抛光</string>
+   </property>
+  </action>
+  <action name="woodPieceAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>木材</string>
+   </property>
+  </action>
+  <action name="shortcut">
+   <property name="text">
+    <string>快捷键</string>
+   </property>
+  </action>
+  <action name="about">
+   <property name="text">
+    <string>关于</string>
+   </property>
+  </action>
+  <action name="bgmAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
+   <property name="text">
+    <string>音乐</string>
    </property>
   </action>
  </widget>
  <layoutdefault spacing="6" margin="11"/>
- <resources>
-  <include location="res.qrc"/>
- </resources>
+ <resources/>
  <connections/>
 </ui>

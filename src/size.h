@@ -3,14 +3,11 @@
 
 #include "def.h"
 
-using def::TPos;
-using def::TSize;
-
 namespace size
 {
-    const TPos g_boardLeftTopPos = {36, 36};
-    const TSize g_boardSize = {521, 577};
-    const TSize g_pieceSize = {56, 56};
+    const def::TClientCo g_boardLeftTopCo = {36, 59};
+    const def::TSize g_boardSize = {521, 577};
+    const def::TSize g_pieceSize = {56, 56};
 }
 
 #endif // SIZE_H

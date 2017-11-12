@@ -12,53 +12,53 @@ public:
     {
         EP_empty = 0,
 
-        EP_RedKing = 9,
-        EP_RedAdvisor,
-        EP_RedBishop,
-        EP_RedKnight,
-        EP_RedRook,
-        EP_RedCannon,
-        EP_RedPawn = 15,
+        EP_redKing = 9,
+        EP_redAdvisor,
+        EP_redBishop,
+        EP_redKnight,
+        EP_redRook,
+        EP_redCannon,
+        EP_redPawn = 15,
 
-        EP_BlackKing = 17,
-        EP_BlackAdvisor,
-        EP_BlackBishop,
-        EP_BlackKnight,
-        EP_BlackRook,
-        EP_BlackCannon,
-        EP_BlackPawn = 23,
+        EP_blackKing = 17,
+        EP_blackAdvisor,
+        EP_blackBishop,
+        EP_blackKnight,
+        EP_blackRook,
+        EP_blackCannon,
+        EP_blackPawn = 23,
 
-        EP_Select = 32
+        EP_select = 32
     };
 
     enum EPieceSkin
     {
-        EPS_Delicate,
-        EPS_Polish,
-        EPS_Wood,
+        EPS_comic,
+        EPS_delicate,
+        EPS_polish,
+        EPS_wood,
 
-        EPS_End
+        EPS_end
     };
 
     enum EBgSkin
     {
-        EBS_Canvas,
-        EBS_Drops,
-        EBS_Green,
-        EBS_Qianhong,
-        EBS_Sheet,
-        EBS_Skeleton,
-        EBS_White,
-        EBS_Wood,
+        EBS_canvas,
+        EBS_drops,
+        EBS_green,
+        EBS_sheet,
+        EBS_skeleton,
+        EBS_stone,
+        EBS_wood,
 
-        EBS_End
+        EBS_end
     };
 
     static ResMgr* getInstance();
     ~ResMgr();
 
-    bool loadPieces(EPieceSkin skin);
-    bool loadBg(EBgSkin skin);
+    bool loadPieceSkin(EPieceSkin skin);
+    bool loadBgSkin(EBgSkin skin);
 
     QPixmap* getBg();
     QPixmap* getPiece(EPiece piece);

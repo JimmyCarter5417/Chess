@@ -20,7 +20,7 @@ using std::shared_ptr;
 class Palette
 {
 public:
-    Palette(Chess* chess, ResMgr* resMgr);
+    Palette(Chess* chess, QLabel* bg, ResMgr* resMgr);
     ~Palette();
 
     void click(TPos currPos);
@@ -28,11 +28,17 @@ public:
     void open();// 开局
     void rotate();// 翻转棋盘
     void undo();// 悔棋
+    void soundEffect(bool on);
+    void bgm(bool on);
+
+    void loadBgSkin(ResMgr::EBgSkin skin);
+    void loadPieceSkin(ResMgr::EPieceSkin skin);
 
 protected:
     void initLabel();
     void initPieces();
 
+    void drawBg();
     void drawPieces();
     void drawPiece(TPos pos);
 
@@ -46,7 +52,8 @@ private:
     ResMgr* resMgr_;
     shared_ptr<Board> board_;
 
-    shared_ptr<QLabel> bg_;
+    //shared_ptr<QLabel> bg_;
+    QLabel* bg_;
     shared_ptr<QLabel> prevSelect_;
     shared_ptr<QLabel> currSelect_;
     vector<vector<shared_ptr<QLabel>>> pieces_;

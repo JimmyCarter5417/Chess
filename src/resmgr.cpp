@@ -38,36 +38,37 @@ ResMgr::~ResMgr()
     }
 }
 
-bool ResMgr::loadPieces(EPieceSkin skin)
+bool ResMgr::loadPieceSkin(EPieceSkin skin)
 {
     static unordered_map<int, string> allPieceSkinInfo =
     {
-        {EPS_Delicate, ":/piece/delicate/res/piece/deicate/"},
-        {EPS_Polish,   ":/piece/polish/res/piece/polish/"},
-        {EPS_Wood,     ":/piece/wood/res/piece/wood/"},
+        {EPS_comic,    ":/pic/piece/comic/res/pic/piece/comic/"},
+        {EPS_delicate, ":/pic/piece/delicate/res/pic/piece/delicate/"},
+        {EPS_polish,   ":/pic/piece/polish/res/pic/piece/polish/"},
+        {EPS_wood,     ":/pic/piece/wood/res/pic/piece/wood/"},
     };
 
     static unordered_map<int, string> allPieceInfo =
     {
         {EP_empty,        "OO.GIF"},
 
-        {EP_RedKing,      "RK.GIF"},
-        {EP_RedAdvisor,   "RA.GIF"},
-        {EP_RedBishop,    "RB.GIF"},
-        {EP_RedKnight,    "RN.GIF"},
-        {EP_RedRook,      "RR.GIF"},
-        {EP_RedCannon,    "RC.GIF"},
-        {EP_RedPawn,      "RP.GIF"},
+        {EP_redKing,      "RK.GIF"},
+        {EP_redAdvisor,   "RA.GIF"},
+        {EP_redBishop,    "RB.GIF"},
+        {EP_redKnight,    "RN.GIF"},
+        {EP_redRook,      "RR.GIF"},
+        {EP_redCannon,    "RC.GIF"},
+        {EP_redPawn,      "RP.GIF"},
 
-        {EP_BlackKing,    "BK.GIF"},
-        {EP_BlackAdvisor, "BA.GIF"},
-        {EP_BlackBishop,  "BB.GIF"},
-        {EP_BlackKnight,  "BN.GIF"},
-        {EP_BlackRook,    "BR.GIF"},
-        {EP_BlackCannon,  "BC.GIF"},
-        {EP_BlackPawn,    "BP.GIF"},
+        {EP_blackKing,    "BK.GIF"},
+        {EP_blackAdvisor, "BA.GIF"},
+        {EP_blackBishop,  "BB.GIF"},
+        {EP_blackKnight,  "BN.GIF"},
+        {EP_blackRook,    "BR.GIF"},
+        {EP_blackCannon,  "BC.GIF"},
+        {EP_blackPawn,    "BP.GIF"},
 
-        {EP_Select,       "OOS.GIF"},
+        {EP_select,       "OOS.GIF"},
     };
 
     unordered_map<int, string>::iterator itr = allPieceSkinInfo.find(skin);
@@ -87,22 +88,21 @@ bool ResMgr::loadPieces(EPieceSkin skin)
             return false;
     }
 
-    initBg_ = true;
+    initPieces_ = true;
     return true;
 }
 
-bool ResMgr::loadBg(EBgSkin skin)
+bool ResMgr::loadBgSkin(EBgSkin skin)
 {
     static unordered_map<int, string> allBgSkinInfo =
     {
-        {EBS_Canvas,   ":/bg/res/bg/CANVAS.GIF"},
-        {EBS_Drops,    ":/bg/res/bg/DROPS.GIF"},
-        {EBS_Green,    ":/bg/res/bg/GREEN.GIF"},
-        {EBS_Qianhong, ":/bg/res/bg/QIANHONG.GIF"},
-        {EBS_Sheet,    ":/bg/res/bg/SHEET.GIF"},
-        {EBS_Skeleton, ":/bg/res/bg/SKELETON.GIF"},
-        {EBS_White,    ":/bg/res/bg/WHITE.GIF"},
-        {EBS_Wood,     ":/bg/res/bg/WOOD.GIF"}
+        {EBS_canvas,   ":/pic/bg/res/pic/bg/CANVAS.GIF"},
+        {EBS_drops,    ":/pic/bg/res/pic/bg/DROPS.GIF"},
+        {EBS_green,    ":/pic/bg/res/pic/bg/GREEN.GIF"},
+        {EBS_sheet,    ":/pic/bg/res/pic/bg/SHEET.GIF"},
+        {EBS_skeleton, ":/pic/bg/res/pic/bg/SKELETON.GIF"},
+        {EBS_stone,    ":/pic/bg/res/pic/bg/STONE.GIF"},
+        {EBS_wood,     ":/pic/bg/res/pic/bg/WOOD.GIF"}
     };
 
     unordered_map<int, string>::iterator itr = allBgSkinInfo.find(skin);
@@ -122,7 +122,7 @@ bool ResMgr::loadBg(EBgSkin skin)
 QPixmap* ResMgr::getBg()
 {
     if (!initBg_)
-        loadBg(ResMgr::EBS_Wood);
+        loadBgSkin(ResMgr::EBS_wood);
 
     return bg_;
 }
@@ -130,7 +130,7 @@ QPixmap* ResMgr::getBg()
 QPixmap* ResMgr::getPiece(EPiece piece)
 {
     if (!initPieces_)
-        loadPieces(ResMgr::EPS_Wood);
+        loadPieceSkin(ResMgr::EPS_wood);
 
     return pieces_[piece];
 }

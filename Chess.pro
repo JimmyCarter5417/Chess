@@ -4,7 +4,7 @@
 #
 #-------------------------------------------------
 
-QT       += core gui
+QT       += core gui multimedia
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -19,6 +19,8 @@ FORMS    += chess.ui
 RESOURCES += \
     res.qrc
 
-CONFIG += c++11
+CONFIG += c++14
 
 DISTFILES +=
+
+RC_ICONS = res/pic/icon/XQF.ICO

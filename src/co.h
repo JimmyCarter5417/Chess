@@ -21,14 +21,14 @@ namespace co
 
     inline void clientCo2Pos(TClientCo clientCo, TPos& pos)
     {
-        pos.row = clientCo.y / size::g_pieceSize.height;
-        pos.col = clientCo.x / size::g_pieceSize.width;
+        pos.row = (clientCo.y - size::g_boardLeftTopCo.y + size::g_pieceSize.height / 2) / size::g_pieceSize.height;
+        pos.col = (clientCo.x - size::g_boardLeftTopCo.x + size::g_pieceSize.width / 2) / size::g_pieceSize.width;
     }
 
     inline void pos2ClientCo(TPos pos, TClientCo& clientCo)
     {
-        clientCo.x = size::g_boardLeftTopPos.col + size::g_pieceSize.height * pos.col - size::g_pieceSize.height / 2;
-        clientCo.y = size::g_boardLeftTopPos.row + size::g_pieceSize.width * pos.row - size::g_pieceSize.width / 2;
+        clientCo.x = size::g_boardLeftTopCo.x + size::g_pieceSize.height * pos.col - size::g_pieceSize.height / 2;
+        clientCo.y = size::g_boardLeftTopCo.y + size::g_pieceSize.width * pos.row - size::g_pieceSize.width / 2;
     }
 }
 
