@@ -68,6 +68,7 @@
     </widget>
     <addaction name="openAction"/>
     <addaction name="undoAction"/>
+    <addaction name="rotateAction"/>
     <addaction name="separator"/>
     <addaction name="soundEffectAction"/>
     <addaction name="bgmAction"/>
@@ -89,10 +90,16 @@
    <property name="text">
     <string>开局</string>
    </property>
+   <property name="shortcut">
+    <string>Ctrl+O</string>
+   </property>
   </action>
   <action name="undoAction">
    <property name="text">
     <string>悔棋</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+U</string>
    </property>
   </action>
   <action name="soundEffectAction">
@@ -101,6 +108,9 @@
    </property>
    <property name="text">
     <string>音效</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+S</string>
    </property>
   </action>
   <action name="canvasBgAction">
@@ -207,6 +217,17 @@
    </property>
    <property name="text">
     <string>音乐</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+B</string>
+   </property>
+  </action>
+  <action name="rotateAction">
+   <property name="text">
+    <string>翻转</string>
+   </property>
+   <property name="shortcut">
+    <string>Ctrl+R</string>
    </property>
   </action>
  </widget>

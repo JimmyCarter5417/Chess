@@ -23,8 +23,7 @@ Board::Board()
 void Board::init()
 {
     snapshot_ = std::make_shared<Snapshot>();// 新分配快照
-    snapshotMemo_->clear();// 清空备忘录
-    snapshotMemo_->push(std::make_shared<Snapshot>());// 插入起始快照，不能是snapshot_！
+    snapshotMemo_->clear();// 清空备忘录    
 }
 
 ResMgr::EPiece Board::getPiece(TPos pos) const
@@ -653,10 +652,13 @@ byte Board::movePiece(TPos prevPos, TPos currPos)
     {
         ret = EMR_suicide;// 设置SUICIDE位
         return ret;
-    }    
+    }
 
-    updateSnapshot(prevPos, currPos, snapshot_->player_);// 更新快照
+    if (getPiece(currPos) != ResMgr::EP_empty)
+        ret |= EMR_eat;// 吃子
+
     saveSnapshot();// 保存快照
+    updateSnapshot(prevPos, currPos, snapshot_->player_);// 更新快照    
 
     // 将军？
     def::EPlayer player = def::getOtherPlayer(snapshot_->player_);// player已切换，需要切回来
@@ -729,11 +731,11 @@ bool Board::rotate()
 }
 
 bool Board::undo()
-{
-    if (snapshotMemo_->empty())
+{    
+    if (snapshotMemo_->empty())// 已经是最初局面了
         return false;
 
-    loadSnapshot(snapshotMemo_->top());
+    loadSnapshot(snapshotMemo_->top());// 读取上一个快照
     snapshotMemo_->pop();
     debug::printBoard(snapshot_->board_);
     return true;

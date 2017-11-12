@@ -95,7 +95,6 @@
         <file>res/sound/effect/CAPTURE.WAV</file>
         <file>res/sound/effect/CHECK.WAV</file>
         <file>res/sound/effect/CLICK.WAV</file>
-        <file>res/sound/effect/DRAW.WAV</file>
         <file>res/sound/effect/ILLEGAL.WAV</file>
         <file>res/sound/effect/LOSS.WAV</file>
         <file>res/sound/effect/MOVE.WAV</file>

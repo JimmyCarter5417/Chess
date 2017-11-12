@@ -2,7 +2,14 @@
 #define RESMGR_H
 
 #include <unordered_map>
+#include <memory>
+#include <string>
 
+using std::shared_ptr;
+using std::unordered_map;
+
+class QMediaPlaylist;
+class QMediaPlayer;
 class QPixmap;
 
 class ResMgr
@@ -60,15 +67,21 @@ public:
     bool loadPieceSkin(EPieceSkin skin);
     bool loadBgSkin(EBgSkin skin);
 
-    QPixmap* getBg();
-    QPixmap* getPiece(EPiece piece);
+    shared_ptr<QPixmap> getBg();
+    shared_ptr<QPixmap> getPiece(EPiece piece);
+
+    void playBgm();
+    void stopBgm();
+    void playSound(const std::string& name);
 
 private:
     ResMgr();
 
 private:
-    std::unordered_map<int, QPixmap*> pieces_;
-    QPixmap* bg_;
+    unordered_map<int, shared_ptr<QPixmap>> pieces_;
+    shared_ptr<QPixmap> bg_;
+    shared_ptr<QMediaPlaylist> playlist_;
+    shared_ptr<QMediaPlayer> player_;
 
     bool initBg_;
     bool initPieces_;

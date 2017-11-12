@@ -1,6 +1,12 @@
 #include "resmgr.h"
 #include <QString>
 #include <QPixmap>
+#include <QLabel>
+#include <QMediaPlayer>
+#include <QCoreApplication>
+#include <QMediaPlaylist>
+#include <QSound>
+#include <QFile>
 #include <memory>
 #include <string>
 
@@ -13,8 +19,7 @@ ResMgr* ResMgr::getInstance()
 }
 
 ResMgr::ResMgr()
-    : bg_(nullptr)
-    , initBg_(false)
+    : initBg_(false)
     , initPieces_(false)
 {
 
@@ -22,20 +27,7 @@ ResMgr::ResMgr()
 
 ResMgr::~ResMgr()
 {
-    if (bg_)
-    {
-        delete bg_;
-        bg_ = nullptr;
-    }
 
-    for (auto& elem: pieces_)
-    {
-        if (elem.second != nullptr)
-        {
-            delete elem.second;
-            elem.second = nullptr;
-        }
-    }
 }
 
 bool ResMgr::loadPieceSkin(EPieceSkin skin)
@@ -80,8 +72,8 @@ bool ResMgr::loadPieceSkin(EPieceSkin skin)
     {
         EPiece pieceType = static_cast<EPiece>(pieceInfo.first);
 
-        if (pieces_[pieceType] == nullptr)
-            pieces_[pieceType] = new QPixmap;
+        if (pieces_[pieceType].get() == nullptr)
+            pieces_[pieceType] = std::make_shared<QPixmap>();
 
         string path = allPieceSkinInfo[skin] + pieceInfo.second;
         if (!pieces_[pieceType]->load(QString(path.c_str())))
@@ -109,8 +101,8 @@ bool ResMgr::loadBgSkin(EBgSkin skin)
     if (itr == allBgSkinInfo.end())
         return false;
 
-    if (bg_ == nullptr)
-        bg_ = new QPixmap;
+    if (bg_.get() == nullptr)
+        bg_ = std::make_shared<QPixmap>();
 
     if (!bg_->load(itr->second.c_str()))
         return false;
@@ -119,7 +111,7 @@ bool ResMgr::loadBgSkin(EBgSkin skin)
     return true;
 }
 
-QPixmap* ResMgr::getBg()
+shared_ptr<QPixmap> ResMgr::getBg()
 {
     if (!initBg_)
         loadBgSkin(ResMgr::EBS_wood);
@@ -127,10 +119,47 @@ QPixmap* ResMgr::getBg()
     return bg_;
 }
 
-QPixmap* ResMgr::getPiece(EPiece piece)
+shared_ptr<QPixmap> ResMgr::getPiece(EPiece piece)
 {
     if (!initPieces_)
         loadPieceSkin(ResMgr::EPS_wood);
 
     return pieces_[piece];
+}
+
+void ResMgr::playBgm()
+{
+    QString path = QCoreApplication::applicationDirPath() + "/pal.mp3";
+    if (!QFile(path).exists())// 文件不存在，则直接返回
+        return;
+
+    if (player_.get() == nullptr)
+    {
+        player_ = make_shared<QMediaPlayer>();
+
+        if (playlist_.get() == nullptr)
+        {
+            playlist_ = make_shared<QMediaPlaylist>();
+            playlist_->addMedia(QUrl::fromLocalFile(path));
+            playlist_->setCurrentIndex(0);
+            playlist_->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
+        }
+
+        player_->setPlaylist(playlist_.get());
+        player_->setVolume(50);
+    }
+
+    player_->play();
+}
+
+void ResMgr::stopBgm()
+{
+    if (player_)
+        player_->stop();
+}
+
+void ResMgr::playSound(const string& name)
+{
+    string path = ":/sound/effect/res/sound/effect/" + name;
+    QSound::play(path.c_str());
 }

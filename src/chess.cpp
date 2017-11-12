@@ -113,6 +113,11 @@ void Chess::on_undoAction_triggered()
     palette_->undo();
 }
 
+void Chess::on_rotateAction_triggered()
+{
+    palette_->rotate();
+}
+
 void Chess::on_soundEffectAction_triggered(bool checked)
 {
     palette_->soundEffect(checked);
@@ -210,3 +215,5 @@ void Chess::on_woodPieceAction_triggered(bool checked)
         palette_->loadPieceSkin(ResMgr::EPS_wood);
     }
 }
+
+

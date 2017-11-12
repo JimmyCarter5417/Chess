@@ -10,7 +10,8 @@ class Chess;
 class Board;
 class QLabel;
 class QPixmap;
-
+class QMediaPlaylist;
+class QMediaPlayer;
 
 using def::TPos;
 using def::byte;
@@ -47,6 +48,7 @@ protected:
 
 private:
     bool init_;
+    bool soundEffect_;
 
     Chess* chess_;   
     ResMgr* resMgr_;
@@ -59,6 +61,9 @@ private:
     vector<vector<shared_ptr<QLabel>>> pieces_;
 
     TPos prevPos_;
+
+    shared_ptr<QMediaPlaylist> playlist_;
+    shared_ptr<QMediaPlayer> player_;
 };
 
 #endif // PALETTE_H

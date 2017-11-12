@@ -30,6 +30,7 @@ protected:
 private slots:
     void on_openAction_triggered();
     void on_undoAction_triggered();
+    void on_rotateAction_triggered();
 
     void on_soundEffectAction_triggered(bool checked);
     void on_bgmAction_triggered(bool checked);
@@ -46,6 +47,7 @@ private slots:
     void on_delicatePieceAction_triggered(bool checked);
     void on_polishPieceAction_triggered(bool checked);
     void on_woodPieceAction_triggered(bool checked);
+
 
 private:
     Ui::Chess *ui;

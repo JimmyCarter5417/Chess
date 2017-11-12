@@ -39,21 +39,21 @@ void Palette::initLabel()
 {
     //bg_ = make_shared<QLabel>(chess_);
     bg_->resize(size::g_boardSize.width, size::g_boardSize.height);
-    if (QPixmap* pic = resMgr_->getBg())
+    if (shared_ptr<QPixmap> pic = resMgr_->getBg())
     {
         bg_->move(0, 0);
-        bg_->setPixmap(*pic);
+        bg_->setPixmap(*pic.get());
     }
 
     prevSelect_ = make_shared<QLabel>(chess_);
     prevSelect_->resize(size::g_pieceSize.width, size::g_pieceSize.height);
-    if (QPixmap* pic = resMgr_->getPiece(ResMgr::EP_select))
-        prevSelect_->setPixmap(*pic);
+    if (shared_ptr<QPixmap> pic = resMgr_->getPiece(ResMgr::EP_select))
+        prevSelect_->setPixmap(*pic.get());
 
     currSelect_ = make_shared<QLabel>(chess_);
     currSelect_->resize(size::g_pieceSize.width, size::g_pieceSize.height);
-    if (QPixmap* pic = resMgr_->getPiece(ResMgr::EP_select))
-        currSelect_->setPixmap(*pic);
+    if (shared_ptr<QPixmap> pic = resMgr_->getPiece(ResMgr::EP_select))
+        currSelect_->setPixmap(*pic.get());
 }
 
 // 每一个位置一个label
@@ -90,10 +90,10 @@ void Palette::open()
 void Palette::drawBg()
 {
     bg_->resize(size::g_boardSize.width, size::g_boardSize.height);
-    if (QPixmap* pic = resMgr_->getBg())
+    if (shared_ptr<QPixmap> pic = resMgr_->getBg())
     {
         bg_->move(0, 0);
-        bg_->setPixmap(*pic);
+        bg_->setPixmap(*pic.get());
     }
 }
 
@@ -111,8 +111,8 @@ void Palette::drawPieces()
 // 将board的pos位置棋子绘制到palette上
 void Palette::drawPiece(TPos pos)
 {
-    if (QPixmap* pic = resMgr_->getPiece(board_->getPiece(pos)))
-        pieces_[pos.row][pos.col]->setPixmap(*pic);
+    if (shared_ptr<QPixmap> pic = resMgr_->getPiece(board_->getPiece(pos)))
+        pieces_[pos.row][pos.col]->setPixmap(*pic.get());
 
     TClientCo clientCo;
     co::pos2ClientCo(pos, clientCo);
@@ -206,26 +206,20 @@ void Palette::click(TPos currPos)
     {
         // 可以移动棋子
         byte ret = movePiece(currPos);
-//        if (ret & Board::EMR_ok)
-//        {
-//            QMessageBox::information(NULL, "ok", "ok");
-//        }
-//        if (ret & Board::EMR_suicide)
-//        {
-//            QMessageBox::information(NULL, "suicide", "suicide");
-//        }
-//        if (ret & Board::EMR_check)
-//        {
-//            QMessageBox::information(NULL, "check", "check");
-//        }
-//        if (ret & Board::EMR_dead)
-//        {
-//            QMessageBox::information(NULL, "dead", "dead");
-//        }
-//        if (ret & Board::EMR_null)
-//        {
-//            QMessageBox::information(NULL, "null", "null");
-//        }
+
+        if (soundEffect_)
+        {
+            if (ret & Board::EMR_dead)
+                resMgr_->playSound("WIN.WAV");
+            else if (ret & Board::EMR_suicide)
+                resMgr_->playSound("ILLEGAL.WAV");
+            else if (ret & Board::EMR_check)
+                resMgr_->playSound("CHECK.WAV");
+            else if (ret & Board::EMR_eat)
+                resMgr_->playSound("CAPTURE.WAV");
+            else if (ret & Board::EMR_ok)
+                resMgr_->playSound("MOVE.WAV");
+        }
 
         if (ret & Board::EMR_ok)
         {
@@ -248,27 +242,15 @@ void Palette::click(TPos currPos)
 
 void Palette::soundEffect(bool on)
 {
-    if (on)
-    QSound::play(":/sound/effect/res/sound/effect/MOVE.WAV");
+    soundEffect_ = on;
 }
 
 void Palette::bgm(bool on)
-{
-    static QMediaPlaylist* playlist = new QMediaPlaylist;
-    playlist->addMedia(QUrl::fromLocalFile(QCoreApplication::applicationDirPath() + "/pal.mp3"));
-    playlist->setCurrentIndex(0);
-    playlist->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
-
-    static QMediaPlayer* player = new QMediaPlayer;
-    //connect(player, SIGNAL(positionChanged(qint64)), this, SLOT(positionChanged(qint64)));
-    //qDebug()<<"current applicationDirPath: "<<QCoreApplication::applicationDirPath() + "/pal.mp3";
-    //player->setMedia(QUrl::fromLocalFile(QCoreApplication::applicationDirPath() + "/pal.mp3"));
-    player->setPlaylist(playlist);
-    player->setVolume(50);
+{    
     if (on)
-        player->play();
+        resMgr_->playBgm();
     else
-        player->stop();
+        resMgr_->stopBgm();
 }
 
 void Palette::loadBgSkin(ResMgr::EBgSkin skin)

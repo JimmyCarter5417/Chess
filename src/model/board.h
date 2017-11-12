@@ -35,6 +35,7 @@ public:
         }
     };
 
+    // 当前局面快照
     class Snapshot
     {
         friend class Board;
@@ -181,6 +182,7 @@ public:
         EMR_suicide = 0x01,
         EMR_check = 0x02,
         EMR_dead = 0x04,
+        EMR_eat = 0x08,
     };
 
     Board();
