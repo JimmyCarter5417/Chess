@@ -18,15 +18,20 @@ using namespace std;
 using namespace def;
 
 Palette::Palette(Chess* chess, QLabel* bg, ResMgr* resMgr)
-    : chess_(chess)
-    , bg_(bg)
+    : soundEffect_(true)
+    , chess_(chess)
     , resMgr_(resMgr)
+    , bg_(bg)
+    , prevPos_(def::g_nullPos)
 {
     assert(chess_ != nullptr);   
     assert(bg_ != nullptr);
     assert(resMgr_ != nullptr);    
 
     board_ = std::make_shared<Board>();    
+
+    initLabel();
+    initPieces();
 }
 
 Palette::~Palette()
@@ -73,18 +78,11 @@ void Palette::initPieces()
 
 void Palette::open()
 {
-    if (!init_)
-    {
-        initLabel();
-        initPieces();
-        init_ = true;
-    }
-
     board_->init();
     drawPieces();
 
     prevPos_ = g_nullPos;
-    drawSelect(g_nullPos);
+    drawSelect(g_nullPos, g_nullPos);
 }
 
 void Palette::drawBg()
@@ -119,14 +117,14 @@ void Palette::drawPiece(TPos pos)
     pieces_[pos.row][pos.col]->move(clientCo.x, clientCo.y);
 }
 
-void Palette::drawSelect(TPos currPos)
+void Palette::drawSelect(TPos prevPos, TPos currPos)
 {
-    if (co::isValidPos(prevPos_))
+    if (co::isValidPos(prevPos))
     {
         prevSelect_->show();
 
         TClientCo clientCo;
-        co::pos2ClientCo(prevPos_, clientCo);
+        co::pos2ClientCo(prevPos, clientCo);
         prevSelect_->move(clientCo.x, clientCo.y);
     }
     else
@@ -148,13 +146,13 @@ void Palette::drawSelect(TPos currPos)
     }
 }
 
-byte Palette::movePiece(TPos currPos)
+byte Palette::movePiece(TPos prevPos, TPos currPos)
 {
-    byte ret = board_->movePiece(prevPos_, currPos);
+    byte ret = board_->movePiece(prevPos, currPos);
 
     if (ret & Board::EMR_ok)
     {
-        drawPiece(prevPos_);
+        drawPiece(prevPos);
         drawPiece(currPos);
     }
 
@@ -166,6 +164,9 @@ void Palette::rotate()
     if (board_->rotate())
     {
         drawPieces();
+        // 重绘select
+        std::pair<TPos, TPos> trigger = board_->getTrigger();
+        drawSelect(trigger.first, trigger.second);
     }
 }
 
@@ -174,38 +175,27 @@ void Palette::undo()
     if (board_->undo())
     {
         drawPieces();
+        // 重绘select
+        std::pair<TPos, TPos> trigger = board_->getTrigger();
+        drawSelect(trigger.first, trigger.second);
     }
 }
 
 void Palette::click(TPos currPos)
-{/*
-    //QSound::play(":/sound/bg/pal.mp3");
-    QMediaPlaylist* playlist = new QMediaPlaylist;
-    playlist->addMedia(QUrl::fromLocalFile(QCoreApplication::applicationDirPath() + "/pal.mp3"));
-    playlist->setCurrentIndex(0);
-    playlist->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
-    QMediaPlayer* player = new QMediaPlayer;
-    //connect(player, SIGNAL(positionChanged(qint64)), this, SLOT(positionChanged(qint64)));
-    //qDebug()<<"current applicationDirPath: "<<QCoreApplication::applicationDirPath() + "/pal.mp3";
-    //player->setMedia(QUrl::fromLocalFile(QCoreApplication::applicationDirPath() + "/pal.mp3"));
-    player->setPlaylist(playlist);
-    player->setVolume(50);
-    player->play();
-*/
-
+{
     if (prevPos_ == g_nullPos)
     {
         // 若prevPos_为无效位置，且新位置棋子属于下一步走棋的玩家，则更新prevPos_，并显示当前选择的棋子
         if (board_->getPieceOwner(currPos) == board_->getNextPlayer())
         {
-            drawSelect(currPos);
+            drawSelect(prevPos_, currPos);
             prevPos_ = currPos;
         }
     }
     else
     {
         // 可以移动棋子
-        byte ret = movePiece(currPos);
+        byte ret = movePiece(prevPos_, currPos);
 
         if (soundEffect_)
         {
@@ -223,8 +213,8 @@ void Palette::click(TPos currPos)
 
         if (ret & Board::EMR_ok)
         {
-            //显示两个选择框，prevPos_清空
-            drawSelect(currPos);
+            // 显示两个选择框，prevPos_清空
+            drawSelect(prevPos_, currPos);
             prevPos_ = g_nullPos;
         }
         else // 不能移动棋子
@@ -233,7 +223,7 @@ void Palette::click(TPos currPos)
             if (board_->getPieceOwner(prevPos_) == board_->getPieceOwner(currPos))
             {
                 prevPos_ = g_nullPos;//不标记上次选中的位置
-                drawSelect(currPos);
+                drawSelect(prevPos_, currPos);
                 prevPos_ = currPos;
             }
         }

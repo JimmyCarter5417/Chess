@@ -29,10 +29,17 @@ namespace def
         int row;
         int col;
 
-//        TPos(int row1, int col1)
-//            : row(row1)
-//            , col(col1)
-//        {}
+        TPos()
+            : row(-1)
+            , col(-1)
+        {
+
+        }
+
+        TPos(int row1, int col1)
+            : row(row1)
+            , col(col1)
+        {}
 
         bool operator==(const TPos& rhs) const
         {
@@ -76,28 +83,23 @@ namespace def
     {
         EP_up,
         EP_down,
-        EP_none,
     };
 
     // 切换玩家
-    static void switchPlayer(EPlayer& player)
+    inline void switchPlayer(EPlayer& player)
     {
         if (player == EP_up)
             player = EP_down;
-        else if (player == EP_down)
-            player = EP_up;
         else
-            player = EP_none;
+            player = EP_up;      
     }
 
-    static EPlayer getOtherPlayer(EPlayer player)
+    inline EPlayer getOtherPlayer(EPlayer player)
     {
         if (player == EP_up)
             return EP_down;
-        else if (player == EP_down)
-            return EP_up;
         else
-            return EP_none;
+            return EP_up;       
     }
 
     const TPos g_nullPos = {-1, -1};

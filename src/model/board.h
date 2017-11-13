@@ -163,7 +163,8 @@ public:
             {
                 for (int j = 0; j < co::g_colNum; j++)
                 {
-                    tmp[i][j] = board_[co::g_rowNum - 1 - i][co::g_colNum - 1 - j];
+                    TPos rotatePos = co::getRotatePos({i, j});
+                    tmp[i][j] = board_[rotatePos.row][rotatePos.col];
                 }
             }
 
@@ -171,7 +172,8 @@ public:
             def::switchPlayer(player_);
             upPieceSet_.swap(downPieceSet_);
             std::swap(upFlag_, downFlag_);// 交换上下方标志位
-            // todo: 旋转trigger
+            trigger_.first = co::getRotatePos(trigger_.first);// 旋转trigger
+            trigger_.second = co::getRotatePos(trigger_.second);
         }
     };
 
@@ -187,18 +189,17 @@ public:
 
     Board();
 
-    void init();
-
-    ResMgr::EPiece getPiece(TPos pos) const;    
+    void init();    
 
     byte movePiece(TPos prevPos, TPos currPos);
     bool rotate();
     bool undo();
 
+    ResMgr::EPiece getPiece(TPos pos) const;
     def::EPlayer getNextPlayer() const;
     def::EPlayer getPieceOwner(TPos pos) const;
 
-    bool changePlayer();
+    std::pair<TPos, TPos> getTrigger() const;
 
 protected:
     // 对于player来说，从prevPos到currPos是否合法
@@ -249,6 +250,14 @@ protected:
     const unordered_set<TDelta>& getValidRookDelta(def::EPlayer player) const;
     const unordered_set<TDelta>& getValidCannonDelta(def::EPlayer player) const;
     const unordered_set<TDelta>& getValidPawnDelta(def::EPlayer player) const;
+
+    const unordered_map<TPos, int>& getKingValue(def::EPlayer player) const;
+    const unordered_map<TPos, int>& getAdvisorValue(def::EPlayer player) const;
+    const unordered_map<TPos, int>& getBishopValue(def::EPlayer player) const;
+    const unordered_map<TPos, int>& getKnightValue(def::EPlayer player) const;
+    const unordered_map<TPos, int>& getRookValue(def::EPlayer player) const;
+    const unordered_map<TPos, int>& getCannonValue(def::EPlayer player) const;
+    const unordered_map<TPos, int>& getPawnValue(def::EPlayer player) const;
 
     bool check(def::EPlayer player);
     bool checkmate(def::EPlayer player);

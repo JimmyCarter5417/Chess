@@ -44,100 +44,76 @@ def::EPlayer Board::getPieceOwner(TPos pos) const
     byte scope = (getPiece(pos) & def::g_scopeMask);
     if (scope == snapshot_->upFlag_)
         return def::EP_up;
-    else if (scope == snapshot_->downFlag_)
-        return def::EP_down;
     else
-        return def::EP_none;
+        return def::EP_down;   
+}
+
+std::pair<TPos, TPos> Board::getTrigger() const
+{
+    return snapshot_->trigger_;
 }
 
 bool Board::isValidKingPos(TPos pos, def::EPlayer player) const
-{ 
-    static unordered_set<TPos> downPos =
-    {
-        {7, 3}, {7, 4}, {7, 5},
-        {8, 3}, {8, 4}, {8, 5},
-        {9, 3}, {9, 4}, {9, 5}
-    };
-
-    static unordered_set<TPos> upPos =
+{
+    static const unordered_set<TPos> upPos =
     {
         {0, 3}, {0, 4}, {0, 5},
         {1, 3}, {1, 4}, {1, 5},
         {2, 3}, {2, 4}, {2, 5}
     };
 
-    if (player == def::EP_down)
+    static const unordered_set<TPos> downPos =
     {
-        return downPos.find(pos) != downPos.end();
-    }
-    else if (player == def::EP_up)
-    {
-        return upPos.find(pos) != upPos.end();
-    }
-    else
-    {
-        return false;
-    }
+        {7, 3}, {7, 4}, {7, 5},
+        {8, 3}, {8, 4}, {8, 5},
+        {9, 3}, {9, 4}, {9, 5}
+    };
+
+    return player == def::EP_up ?
+           upPos.find(pos) != upPos.end() :
+           downPos.find(pos) != downPos.end();
 }
 
 bool Board::isValidAdvisorPos(TPos pos, def::EPlayer player) const
 {
-    static unordered_set<TPos> downPos =
-    {
-        {7, 3}, {7, 5},
-        {8, 4},
-        {9, 3}, {9, 5}
-    };
-
-    static unordered_set<TPos> upPos =
+    static const unordered_set<TPos> upPos =
     {
         {0, 3}, {0, 5},
         {1, 4},
         {2, 3}, {2, 5}
     };
 
-    if (player == def::EP_down)
+    static const unordered_set<TPos> downPos =
     {
-        return downPos.find(pos) != downPos.end();
-    }
-    else if (player == def::EP_up)
-    {
-        return upPos.find(pos) != upPos.end();
-    }
-    else
-    {
-        return false;
-    }
+        {7, 3}, {7, 5},
+        {8, 4},
+        {9, 3}, {9, 5}
+    };
+
+    return player == def::EP_up ?
+           upPos.find(pos) != upPos.end() :
+           downPos.find(pos) != downPos.end();
 }
 
 bool Board::isValidBishopPos(TPos pos, def::EPlayer player) const
 {
-    static unordered_set<TPos> downPos =
-    {
-        {5, 2}, {5, 6},
-        {7, 0}, {7, 4}, {7, 8},
-        {9, 2}, {9, 6}
-    };
-
-    static unordered_set<TPos> upPos =
+    static const unordered_set<TPos> upPos =
     {
         {0, 2}, {0, 6},
         {2, 0}, {2, 4}, {2, 8},
         {4, 2}, {4, 6}
     };
 
-    if (player == def::EP_down)
+    static const unordered_set<TPos> downPos =
     {
-        return downPos.find(pos) != downPos.end();
-    }
-    else if (player == def::EP_up)
-    {
-        return upPos.find(pos) != upPos.end();
-    }
-    else
-    {
-        return false;
-    }
+        {5, 2}, {5, 6},
+        {7, 0}, {7, 4}, {7, 8},
+        {9, 2}, {9, 6}
+    };    
+
+    return player == def::EP_up ?
+           upPos.find(pos) != upPos.end() :
+           downPos.find(pos) != downPos.end();
 }
 
 bool Board::isValidKnightPos(TPos pos, def::EPlayer player) const
@@ -157,20 +133,16 @@ bool Board::isValidCannonPos(TPos pos, def::EPlayer player) const
 
 bool Board::isValidPawnPos(TPos pos, def::EPlayer player) const
 {
-    if (player == def::EP_down)
-    {
-        return ((pos.row == 5 || pos.row == 6) && (pos.col % 2 == 0)) ||
-               (pos.row >= 0 && pos.row <= 4 && pos.col >= 0 && pos.col <= 8);
-    }
-    else if (player == def::EP_up)
+    if (player == def::EP_up)
     {
         return ((pos.row == 3 || pos.row == 4) && (pos.col % 2 == 0)) ||
                (pos.row >= 5 && pos.row <= 9 && pos.col >= 0 && pos.col <= 8);
     }
     else
     {
-        return false;
-    }
+        return ((pos.row == 5 || pos.row == 6) && (pos.col % 2 == 0)) ||
+                (pos.row >= 0 && pos.row <= 4 && pos.col >= 0 && pos.col <= 8);
+    }   
 }
 
 const unordered_set<TDelta>& Board::getValidKingDelta(def::EPlayer player) const
@@ -255,13 +227,6 @@ const unordered_set<TDelta>& Board::getValidCannonDelta(def::EPlayer player) con
 }
 const unordered_set<TDelta>& Board::getValidPawnDelta(def::EPlayer player) const
 {
-    static const unordered_set<TDelta> downDeltas =
-    {
-        {-1,  0},
-        { 0, -1},
-        { 0,  1},
-    };
-
     static const unordered_set<TDelta> upDeltas =
     {
         { 1,  0},
@@ -269,7 +234,14 @@ const unordered_set<TDelta>& Board::getValidPawnDelta(def::EPlayer player) const
         { 0,  1},
     };
 
-    return player == def::EP_down ? downDeltas : upDeltas;
+    static const unordered_set<TDelta> downDeltas =
+    {
+        {-1,  0},
+        { 0, -1},
+        { 0,  1},
+    };    
+
+    return player == def::EP_up ? upDeltas : downDeltas;
 }
 
 // 单格
@@ -680,9 +652,6 @@ byte Board::movePiece(TPos prevPos, TPos currPos)
 // 前提是isValidMove(prevPos, currPos, player) && !isSuicide(prevPos, currPos, player)
 bool Board::updateSnapshot(TPos prevPos, TPos currPos, def::EPlayer player)
 {
-    if (player == def::EP_none)
-        return false;
-
     Board::TPieceSet& activePieceSet = (player == def::EP_up ? snapshot_->upPieceSet_ : snapshot_->downPieceSet_);// 走棋一方
     Board::TPieceSet& passivePieceSet = (player == def::EP_up ? snapshot_->downPieceSet_ : snapshot_->upPieceSet_);// 对方
 
@@ -720,6 +689,9 @@ bool Board::updateSnapshot(TPos prevPos, TPos currPos, def::EPlayer player)
     snapshot_->board_[prevPos.row][prevPos.col] = ResMgr::EP_empty;// 删除原位置棋子
 
     def::switchPlayer(snapshot_->player_);// 切换玩家
+
+    snapshot_->trigger_.first = prevPos;// 设置当前快照的两个触发棋子位置，用于绘制select图标
+    snapshot_->trigger_.second = currPos;
 
     return true;
 }
@@ -759,9 +731,6 @@ bool Board::isSuicide(TPos prevPos, TPos currPos, def::EPlayer player)
 // 检查player是否将对方
 bool Board::check(def::EPlayer player)
 {
-    if (player == def::EP_none)
-        return false;
-
     Board::TPieceSet& activePieceSet = (player == def::EP_up ? snapshot_->upPieceSet_ : snapshot_->downPieceSet_);// 将军一方
     Board::TPieceSet& passivePieceSet = (player == def::EP_up ? snapshot_->downPieceSet_ : snapshot_->upPieceSet_);// 对方
 
@@ -781,9 +750,6 @@ bool Board::check(def::EPlayer player)
 bool Board::checkmate(def::EPlayer player)
 {
     // 默认对方已处于被将军状态，不再检查
-    if (player == def::EP_none)
-        return false;
-
     def::EPlayer otherPlayer = def::getOtherPlayer(player);
     Board::TPieceSet& activePieceSet = (player == def::EP_up ? snapshot_->upPieceSet_ : snapshot_->downPieceSet_);// 将军一方
     Board::TPieceSet& passivePieceSet = (player == def::EP_up ? snapshot_->downPieceSet_ : snapshot_->upPieceSet_);// 对方
@@ -893,4 +859,202 @@ bool Board::loadSnapshot(shared_ptr<Snapshot> snapshot)
     snapshot_ = snapshot;
     //return snapshot_;
     return snapshot_.get() != nullptr;
+}
+
+const unordered_map<TPos, int>& Board::getKingValue(def::EPlayer player) const
+{
+    static const unordered_map<TPos, int> upValues =
+    {
+        {{0, 3}, 11}, {{0, 4}, 15}, {{0, 5}, 11},
+        {{1, 3},  2}, {{1, 4},  2}, {{1, 5},  2},
+        {{2, 3},  1}, {{2, 4},  1}, {{2, 5},  1},
+    };
+
+    static const unordered_map<TPos, int> downValues =
+    {
+        {{7, 3},  1}, {{7, 4},  1}, {{7, 5},  1},
+        {{8, 3},  2}, {{8, 4},  2}, {{8, 5},  2},
+        {{9, 3}, 11}, {{9, 4}, 15}, {{9, 5}, 11},
+    };
+
+    return player == def::EP_up ? upValues : downValues;
+}
+
+const unordered_map<TPos, int>& Board::getAdvisorValue(def::EPlayer player) const
+{
+    static const unordered_map<TPos, int> upValues =
+    {
+        {{0, 3}, 20}, {{0, 5}, 20},
+        {{0, 4}, 23},
+        {{0, 3}, 20}, {{0, 5}, 20},
+    };
+
+    static const unordered_map<TPos, int> downValues =
+    {
+        {{7, 3}, 20}, {{7, 5}, 20},
+        {{8, 4}, 23},
+        {{9, 3}, 20}, {{9, 5}, 20},
+    };
+
+    return player == def::EP_up ? upValues : downValues;
+}
+
+const unordered_map<TPos, int>& Board::getBishopValue(def::EPlayer player) const
+{
+    static const unordered_map<TPos, int> upValues =
+    {
+        {{0, 2}, 20}, {{0, 6}, 20},
+        {{2, 0}, 18}, {{2, 4}, 23}, {{2, 8}, 18},
+        {{4, 2}, 20}, {{4, 6}, 20},
+    };
+
+    static const unordered_map<TPos, int> downValues =
+    {
+        {{5, 2}, 20}, {{5, 6}, 20},
+        {{7, 0}, 18}, {{7, 4}, 23}, {{7, 8}, 18},
+        {{9, 2}, 20}, {{9, 6}, 20},
+    };
+
+    return player == def::EP_up ? upValues : downValues;
+}
+
+const unordered_map<TPos, int>& Board::getKnightValue(def::EPlayer player) const
+{
+    static const int arr[10][9] =
+    {
+        {90, 90, 90, 96, 90, 96, 90, 90, 90},
+        {90, 96,103, 97, 94, 97,103, 96, 90},
+        {92, 98, 99,103, 99,103, 99, 98, 92},
+        {93,108,100,107,100,107,100,108, 93},
+        {90,100, 99,103,104,103, 99,100, 90},
+        {90, 98,101,102,103,102,101, 98, 90},
+        {92, 94, 98, 95, 98, 95, 98, 94, 92},
+        {93, 92, 94, 95, 92, 95, 94, 92, 93},
+        {85, 90, 92, 93, 78, 93, 92, 90, 85},
+        {88, 85, 90, 88, 90, 88, 90, 85, 88},
+    };
+
+    static unordered_map<TPos, int> values;
+    if (values.empty())
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            for (int j = 0; j < 9; j++)
+                values[TPos(i, j)] = arr[i][j];
+        }
+    }
+
+    return values;
+}
+
+const unordered_map<TPos, int>& Board::getRookValue(def::EPlayer player) const
+{
+    static const int arr[10][9] =
+    {
+        {206,208,207,213,214,213,207,208,206},
+        {206,212,209,216,233,216,209,212,206},
+        {206,208,207,214,216,214,207,208,206},
+        {206,213,213,216,216,216,213,213,206},
+        {208,211,211,214,215,214,211,211,208},
+        {208,212,212,214,215,214,212,212,208},
+        {204,209,204,212,214,212,204,209,204},
+        {198,208,204,212,212,212,204,208,198},
+        {200,208,206,212,200,212,206,208,200},
+        {194,206,204,212,200,212,204,206,194},
+    };
+
+    static unordered_map<TPos, int> values;
+    if (values.empty())
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            for (int j = 0; j < 9; j++)
+                values[TPos(i, j)] = arr[i][j];
+        }
+    }
+
+    return values;
+}
+
+const unordered_map<TPos, int>& Board::getCannonValue(def::EPlayer player) const
+{
+    static const int arr[10][9] =
+    {
+        {100,100, 96, 91, 90, 91, 96,100,100},
+        { 98, 98, 96, 92, 89, 92, 96, 98, 98},
+        { 97, 97, 96, 91, 92, 91, 96, 97, 97},
+        { 96, 99, 99, 98,100, 98, 99, 99, 96},
+        { 96, 96, 96, 96,100, 96, 96, 96, 96},
+        { 95, 96, 99, 96,100, 96, 99, 96, 95},
+        { 96, 96, 96, 96, 96, 96, 96, 96, 96},
+        { 97, 96,100, 99,101, 99,100, 96, 97},
+        { 96, 97, 98, 98, 98, 98, 98, 97, 96},
+        { 96, 96, 97, 99, 99, 99, 97, 96, 96},
+    };
+
+    static unordered_map<TPos, int> values;
+    if (values.empty())
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            for (int j = 0; j< 9; j++)
+                values[TPos(i, j)] = arr[i][j];
+        }
+    }
+
+    return values;
+}
+
+const unordered_map<TPos, int>& Board::getPawnValue(def::EPlayer player) const
+{
+    static const int upArr[10][9] =
+    {
+        { 0,  0,  0,  0,  0,  0,  0,  0,  0},
+        { 0,  0,  0,  0,  0,  0,  0,  0,  0},
+        { 0,  0,  0,  0,  0,  0,  0,  0,  0},
+        { 7,  0,  7,  0, 15,  0,  7,  0,  7},
+        { 7,  0, 13,  0, 16,  0, 13,  0,  7},
+        {14, 18, 20, 27, 29, 27, 20, 18, 14},
+        {19, 23, 27, 29, 30, 29, 27, 23, 19},
+        {19, 24, 32, 37, 37, 37, 32, 24, 19},
+        {19, 24, 34, 42, 44, 42, 34, 24, 19},
+        { 9,  9,  9, 11, 13, 11,  9,  9,  9},
+    };
+
+    static const int downArr[10][9] =
+    {
+        { 9,  9,  9, 11, 13, 11,  9,  9,  9},
+        {19, 24, 34, 42, 44, 42, 34, 24, 19},
+        {19, 24, 32, 37, 37, 37, 32, 24, 19},
+        {19, 23, 27, 29, 30, 29, 27, 23, 19},
+        {14, 18, 20, 27, 29, 27, 20, 18, 14},
+        { 7,  0, 13,  0, 16,  0, 13,  0,  7},
+        { 7,  0,  7,  0, 15,  0,  7,  0,  7},
+        { 0,  0,  0,  0,  0,  0,  0,  0,  0},
+        { 0,  0,  0,  0,  0,  0,  0,  0,  0},
+        { 0,  0,  0,  0,  0,  0,  0,  0,  0},
+    };
+
+    static unordered_map<TPos, int> upValues;
+    static unordered_map<TPos, int> downValues;
+
+    if (upValues.empty())
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            for (int j = 0; j< 9; j++)
+                upValues[TPos(i, j)] = upArr[i][j];
+        }
+    }
+
+    if (downValues.empty())
+    {
+        for (int i = 0; i < 10; i++)
+        {
+            for (int j = 0; j< 9; j++)
+                downValues[TPos(i, j)] = downArr[i][j];
+        }
+    }
+
+    player == def::EP_up ? upValues : downValues;
 }

@@ -30,6 +30,14 @@ namespace co
         clientCo.x = size::g_boardLeftTopCo.x + size::g_pieceSize.height * pos.col - size::g_pieceSize.height / 2;
         clientCo.y = size::g_boardLeftTopCo.y + size::g_pieceSize.width * pos.row - size::g_pieceSize.width / 2;
     }
+
+    inline TPos getRotatePos(TPos pos)
+    {
+        if (!isValidPos(pos))
+            return def::g_nullPos;
+
+        return {co::g_rowNum - 1 - pos.row, co::g_colNum - 1 - pos.col};
+    }
 }
 
 #endif // CO_H

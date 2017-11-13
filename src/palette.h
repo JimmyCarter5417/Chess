@@ -43,11 +43,10 @@ protected:
     void drawPieces();
     void drawPiece(TPos pos);
 
-    void drawSelect(TPos currPos);
-    byte movePiece(TPos currPos);
+    void drawSelect(TPos prevPos, TPos currPos);
+    byte movePiece(TPos prevPos, TPos currPos);
 
 private:
-    bool init_;
     bool soundEffect_;
 
     Chess* chess_;   

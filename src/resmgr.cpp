@@ -141,7 +141,7 @@ void ResMgr::playBgm()
         {
             playlist_ = make_shared<QMediaPlaylist>();
             playlist_->addMedia(QUrl::fromLocalFile(path));
-            playlist_->setCurrentIndex(0);
+            playlist_->setCurrentIndex(1);
             playlist_->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
         }
 
