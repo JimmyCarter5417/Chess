@@ -1,10 +1,12 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-#include "../def.h"
+
 #include "../co.h"
 #include "../resmgr.h"
 #include "memo.h"
+
+#include <model.h>
 
 #include <vector>
 #include <unordered_set>
@@ -17,21 +19,38 @@ using std::vector;
 using std::unordered_set;
 using std::shared_ptr;
 
-class Board
+class Board : public model::IModel
 {
-public:
+public:    
+    Board();
+
+    virtual void init();// 开局
+    virtual bool rotate();// 翻转棋盘
+    virtual bool undo();// 悔棋
+
+    virtual int getScore(def::EPlayer player) const;// 获取当前局面下的玩家分数
+    virtual def::EPiece getPiece(def::TPos pos) const;// 获取某一位置的棋子
+    virtual def::EPlayer getNextPlayer() const;// 获取下一走棋玩家
+    virtual def::EPlayer getPieceOwner(def::TPos pos) const;// 获取pos棋子所属玩家
+    virtual std::pair<def::TPos, def::TPos> getTrigger() const;// 表示该snapshot是由trigger的两个位置移动产生的，用于绘制select图标
+
+    virtual def::byte movePiece(def::TPos prevPos, def::TPos currPos);// 尝试走棋，返回EMoveRet的组合
+
+protected:
     // 玩家棋子位置集合
     struct TPieceSet
     {
         TPos king;
+        int score;
         unordered_set<TPos> defenders;
         unordered_set<TPos> attackers;
 
-        void swap(TPieceSet& another)
+        void swap(TPieceSet& other)
         {
-            std::swap(king, another.king);
-            defenders.swap(another.defenders);
-            attackers.swap(another.attackers);
+            std::swap(king, other.king);
+            std::swap(score, other.score);
+            defenders.swap(other.defenders);
+            attackers.swap(other.attackers);
         }
     };
 
@@ -75,6 +94,7 @@ public:
             player_ = def::EP_down;// 下方先走
             // 上方棋子集合
             upPieceSet_.king = {0, 4};
+            upPieceSet_.score = 888;
             upPieceSet_.defenders =
             {
                 {0, 2},
@@ -98,6 +118,7 @@ public:
             };
             // 下方棋子集合
             downPieceSet_.king = {9, 4};
+            downPieceSet_.score = 888;
             downPieceSet_.defenders =
             {
                 {9, 2},
@@ -124,6 +145,8 @@ public:
             downFlag_ = def::g_redFlag;// 默认下面为红色
 
             trigger_ = {def::g_nullPos, def::g_nullPos};// 起始局面无先前走棋
+
+
         }
 
         Snapshot(const Snapshot& other)
@@ -177,31 +200,6 @@ public:
         }
     };
 
-    enum EMoveRet
-    {
-        EMR_null = 0,
-        EMR_ok = 0x10,
-        EMR_suicide = 0x01,
-        EMR_check = 0x02,
-        EMR_dead = 0x04,
-        EMR_eat = 0x08,
-    };
-
-    Board();
-
-    void init();    
-
-    byte movePiece(TPos prevPos, TPos currPos);
-    bool rotate();
-    bool undo();
-
-    ResMgr::EPiece getPiece(TPos pos) const;
-    def::EPlayer getNextPlayer() const;
-    def::EPlayer getPieceOwner(TPos pos) const;
-
-    std::pair<TPos, TPos> getTrigger() const;
-
-protected:
     // 对于player来说，从prevPos到currPos是否合法
     bool isValidMove(TPos prevPos, TPos currPos, def::EPlayer player) const;
 
@@ -251,13 +249,7 @@ protected:
     const unordered_set<TDelta>& getValidCannonDelta(def::EPlayer player) const;
     const unordered_set<TDelta>& getValidPawnDelta(def::EPlayer player) const;
 
-    const unordered_map<TPos, int>& getKingValue(def::EPlayer player) const;
-    const unordered_map<TPos, int>& getAdvisorValue(def::EPlayer player) const;
-    const unordered_map<TPos, int>& getBishopValue(def::EPlayer player) const;
-    const unordered_map<TPos, int>& getKnightValue(def::EPlayer player) const;
-    const unordered_map<TPos, int>& getRookValue(def::EPlayer player) const;
-    const unordered_map<TPos, int>& getCannonValue(def::EPlayer player) const;
-    const unordered_map<TPos, int>& getPawnValue(def::EPlayer player) const;
+    int getValue(byte piece, TPos pos, def::EPlayer player) const;
 
     bool check(def::EPlayer player);
     bool checkmate(def::EPlayer player);

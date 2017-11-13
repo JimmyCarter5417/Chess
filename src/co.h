@@ -33,9 +33,6 @@ namespace co
 
     inline TPos getRotatePos(TPos pos)
     {
-        if (!isValidPos(pos))
-            return def::g_nullPos;
-
         return {co::g_rowNum - 1 - pos.row, co::g_colNum - 1 - pos.col};
     }
 }

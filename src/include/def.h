@@ -83,6 +83,7 @@ namespace def
     {
         EP_up,
         EP_down,
+        EP_none,
     };
 
     // 切换玩家
@@ -90,17 +91,44 @@ namespace def
     {
         if (player == EP_up)
             player = EP_down;
+        else if (player == EP_down)
+            player = EP_up;
         else
-            player = EP_up;      
+            player = EP_none;
     }
 
     inline EPlayer getOtherPlayer(EPlayer player)
     {
         if (player == EP_up)
             return EP_down;
+        else if (player == EP_down)
+            return EP_up;
         else
-            return EP_up;       
+            return EP_none;
     }
+
+    enum EPiece
+    {
+        EP_empty = 0,
+
+        EP_redKing = 9,
+        EP_redAdvisor,
+        EP_redBishop,
+        EP_redKnight,
+        EP_redRook,
+        EP_redCannon,
+        EP_redPawn = 15,
+
+        EP_blackKing = 17,
+        EP_blackAdvisor,
+        EP_blackBishop,
+        EP_blackKnight,
+        EP_blackRook,
+        EP_blackCannon,
+        EP_blackPawn = 23,
+
+        EP_select = 32
+    };
 
     const TPos g_nullPos = {-1, -1};
 
@@ -114,7 +142,6 @@ namespace def
     
     //七种棋子用低三位表示
     const byte g_empty   = 0x0;
-
     const byte g_king    = 0x1;
     const byte g_advisor = 0x2;
     const byte g_bishop  = 0x3;

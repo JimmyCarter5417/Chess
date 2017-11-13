@@ -24,3 +24,5 @@ CONFIG += c++14
 DISTFILES +=
 
 RC_ICONS = res/pic/icon/XQF.ICO
+
+INCLUDEPATH += src/include/
