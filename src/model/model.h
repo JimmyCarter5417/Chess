@@ -1,7 +1,7 @@
 #ifndef MODEL_H
 #define MODEL_H
 
-#include <def.h>
+#include "util/def.h"
 
 namespace model
 {
@@ -17,6 +17,8 @@ namespace model
 
     struct IModel
     {
+        virtual ~IModel(){}
+
         virtual void init() = 0;// 开局
         virtual bool rotate() = 0;// 翻转棋盘
         virtual bool undo() = 0;// 悔棋
@@ -28,8 +30,8 @@ namespace model
         virtual std::pair<def::TPos, def::TPos> getTrigger() const = 0;// 表示该snapshot是由trigger的两个位置移动产生的，用于绘制select图标
 
         virtual def::byte movePiece(def::TPos prevPos, def::TPos currPos) = 0;// 尝试走棋，返回EMoveRet的组合
+        virtual def::TPos calcBestMove(int depth) = 0;// 遍历n层，计算下一步最佳走法
     };
 }
-
 
 #endif // MODEL_H

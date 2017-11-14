@@ -3,4 +3,5 @@ SOURCES += \
 
 HEADERS += \
     $$PWD/board.h \
-    $$PWD/memo.h
+    $$PWD/memo.h \
+    $$PWD/model.h

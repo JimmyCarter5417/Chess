@@ -14,11 +14,11 @@ void debug::printBoard(const std::vector<std::vector<unsigned char>>& board, con
     std::string header = "    00 01 02 03 04 05 06 07 08\n";
     size_t ret = fwrite(header.c_str(), 1, header.size(), fp);
 
-    for (int i = 0; i < board.size(); i++)
+    for (unsigned int i = 0; i < board.size(); i++)
     {
         QString qstr;
         qstr.sprintf("%02d:", i);
-        for (int j = 0; j < board.front().size(); j++)
+        for (unsigned int j = 0; j < board.front().size(); j++)
         {
             char tmp[8] = {0};
             sprintf(tmp, " %02d", board[i][j]);

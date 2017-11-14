@@ -1,13 +1,14 @@
 #ifndef PALETTE_H
 #define PALETTE_H
 
-#include "def.h"
+#include "util/def.h"
 #include "resmgr.h"
+#include "model/model.h"
+
 #include <vector>
 #include <memory>
 
 class Chess;
-class Board;
 class QLabel;
 class QPixmap;
 class QMediaPlaylist;
@@ -51,7 +52,7 @@ private:
 
     Chess* chess_;   
     ResMgr* resMgr_;
-    shared_ptr<Board> board_;
+    shared_ptr<model::IModel> board_;
 
     //shared_ptr<QLabel> bg_;
     QLabel* bg_;

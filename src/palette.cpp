@@ -1,21 +1,19 @@
 #include "palette.h"
 #include "chess.h"
-#include "model/board.h"
 #include "resmgr.h"
-#include "co.h"
-#include "size.h"
-#include <assert.h>
+#include "model/board.h"
+#include "util/co.h"
+#include "util/debug.h"
+
 #include <QLabel>
 #include <QMessageBox>
-#include <functional>
-#include "debug.h"
 #include <QSound>
 #include <QMediaPlayer>
 #include <QCoreApplication>
 #include <QMediaPlaylist>
 
-using namespace std;
-using namespace def;
+#include <assert.h>
+#include <functional>
 
 Palette::Palette(Chess* chess, QLabel* bg, ResMgr* resMgr)
     : soundEffect_(true)
@@ -43,21 +41,21 @@ Palette::~Palette()
 void Palette::initLabel()
 {
     //bg_ = make_shared<QLabel>(chess_);
-    bg_->resize(size::g_boardSize.width, size::g_boardSize.height);
+    bg_->resize(co::g_boardSize.width, co::g_boardSize.height);
     if (shared_ptr<QPixmap> pic = resMgr_->getBg())
     {
         bg_->move(0, 0);
         bg_->setPixmap(*pic.get());
     }
 
-    prevSelect_ = make_shared<QLabel>(chess_);
-    prevSelect_->resize(size::g_pieceSize.width, size::g_pieceSize.height);
-    if (shared_ptr<QPixmap> pic = resMgr_->getPiece(ResMgr::EP_select))
+    prevSelect_ = std::make_shared<QLabel>(chess_);
+    prevSelect_->resize(co::g_pieceSize.width, co::g_pieceSize.height);
+    if (shared_ptr<QPixmap> pic = resMgr_->getPiece(def::EP_select))
         prevSelect_->setPixmap(*pic.get());
 
-    currSelect_ = make_shared<QLabel>(chess_);
-    currSelect_->resize(size::g_pieceSize.width, size::g_pieceSize.height);
-    if (shared_ptr<QPixmap> pic = resMgr_->getPiece(ResMgr::EP_select))
+    currSelect_ = std::make_shared<QLabel>(chess_);
+    currSelect_->resize(co::g_pieceSize.width, co::g_pieceSize.height);
+    if (shared_ptr<QPixmap> pic = resMgr_->getPiece(def::EP_select))
         currSelect_->setPixmap(*pic.get());
 }
 
@@ -70,8 +68,8 @@ void Palette::initPieces()
     {
         for (int j = 0; j < co::g_colNum; j++)
         {
-            pieces_[i][j] = make_shared<QLabel>(chess_);
-            pieces_[i][j]->resize(size::g_pieceSize.width, size::g_pieceSize.height);
+            pieces_[i][j] = std::make_shared<QLabel>(chess_);
+            pieces_[i][j]->resize(co::g_pieceSize.width, co::g_pieceSize.height);
         }
     }
 }
@@ -81,13 +79,13 @@ void Palette::open()
     board_->init();
     drawPieces();
 
-    prevPos_ = g_nullPos;
-    drawSelect(g_nullPos, g_nullPos);
+    prevPos_ = def::g_nullPos;
+    drawSelect(def::g_nullPos, def::g_nullPos);
 }
 
 void Palette::drawBg()
 {
-    bg_->resize(size::g_boardSize.width, size::g_boardSize.height);
+    bg_->resize(co::g_boardSize.width, co::g_boardSize.height);
     if (shared_ptr<QPixmap> pic = resMgr_->getBg())
     {
         bg_->move(0, 0);
@@ -112,8 +110,7 @@ void Palette::drawPiece(TPos pos)
     if (shared_ptr<QPixmap> pic = resMgr_->getPiece(board_->getPiece(pos)))
         pieces_[pos.row][pos.col]->setPixmap(*pic.get());
 
-    TClientCo clientCo;
-    co::pos2ClientCo(pos, clientCo);
+    def::TClientCo clientCo = co::pos2ClientCo(pos);
     pieces_[pos.row][pos.col]->move(clientCo.x, clientCo.y);
 }
 
@@ -123,8 +120,7 @@ void Palette::drawSelect(TPos prevPos, TPos currPos)
     {
         prevSelect_->show();
 
-        TClientCo clientCo;
-        co::pos2ClientCo(prevPos, clientCo);
+        def::TClientCo clientCo = co::pos2ClientCo(prevPos);
         prevSelect_->move(clientCo.x, clientCo.y);
     }
     else
@@ -136,8 +132,7 @@ void Palette::drawSelect(TPos prevPos, TPos currPos)
     {
         currSelect_->show();
 
-        TClientCo clientCo;
-        co::pos2ClientCo(currPos, clientCo);
+        def::TClientCo clientCo = co::pos2ClientCo(currPos);
         currSelect_->move(clientCo.x, clientCo.y);
     }
     else
@@ -150,7 +145,7 @@ byte Palette::movePiece(TPos prevPos, TPos currPos)
 {
     byte ret = board_->movePiece(prevPos, currPos);
 
-    if (ret & Board::EMR_ok)
+    if (ret & model::EMR_ok)
     {
         drawPiece(prevPos);
         drawPiece(currPos);
@@ -183,7 +178,7 @@ void Palette::undo()
 
 void Palette::click(TPos currPos)
 {
-    if (prevPos_ == g_nullPos)
+    if (prevPos_ == def::g_nullPos)
     {
         // 若prevPos_为无效位置，且新位置棋子属于下一步走棋的玩家，则更新prevPos_，并显示当前选择的棋子
         if (board_->getPieceOwner(currPos) == board_->getNextPlayer())
@@ -199,30 +194,30 @@ void Palette::click(TPos currPos)
 
         if (soundEffect_)
         {
-            if (ret & Board::EMR_dead)
+            if (ret & model::EMR_dead)
                 resMgr_->playSound("WIN.WAV");
-            else if (ret & Board::EMR_suicide)
+            else if (ret & model::EMR_suicide)
                 resMgr_->playSound("ILLEGAL.WAV");
-            else if (ret & Board::EMR_check)
+            else if (ret & model::EMR_check)
                 resMgr_->playSound("CHECK.WAV");
-            else if (ret & Board::EMR_eat)
+            else if (ret & model::EMR_eat)
                 resMgr_->playSound("CAPTURE.WAV");
-            else if (ret & Board::EMR_ok)
+            else if (ret & model::EMR_ok)
                 resMgr_->playSound("MOVE.WAV");
         }
 
-        if (ret & Board::EMR_ok)
+        if (ret & model::EMR_ok)
         {
             // 显示两个选择框，prevPos_清空
             drawSelect(prevPos_, currPos);
-            prevPos_ = g_nullPos;
+            prevPos_ = def::g_nullPos;
         }
         else // 不能移动棋子
         {            
             // 当前选择位置与原位置同色，才能更新prevPos_，并绘制选择框
             if (board_->getPieceOwner(prevPos_) == board_->getPieceOwner(currPos))
             {
-                prevPos_ = g_nullPos;//不标记上次选中的位置
+                prevPos_ = def::g_nullPos;//不标记上次选中的位置
                 drawSelect(prevPos_, currPos);
                 prevPos_ = currPos;
             }

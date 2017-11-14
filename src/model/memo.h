@@ -3,7 +3,6 @@
 
 #include <vector>
 #include <memory>
-#include <assert.h>
 
 using std::vector;
 using std::shared_ptr;

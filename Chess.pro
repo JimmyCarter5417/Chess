@@ -25,4 +25,4 @@ DISTFILES +=
 
 RC_ICONS = res/pic/icon/XQF.ICO
 
-INCLUDEPATH += src/include/
+INCLUDEPATH += src/

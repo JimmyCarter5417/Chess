@@ -1,21 +1,19 @@
 ﻿#include "chess.h"
 #include "ui_chess.h"
+#include "resmgr.h"
+#include "palette.h"
+#include "util/co.h"
+
+#include <QActionGroup>
+#include <QDebug>
+#include <QGridLayout>
 #include <QImage>
 #include <QLabel>
 #include <QPixmap>
-#include <QGridLayout>
 #include <QPoint>
-#include <QDebug>
-#include <QDir>
 #include <QMouseEvent>
 #include <QKeyEvent>
 #include <QMessageBox>
-
-#include "resmgr.h"
-#include "palette.h"
-#include "co.h"
-
-using namespace def;
 
 Chess::Chess(QWidget *parent) :
     QMainWindow(parent),
@@ -61,12 +59,7 @@ void Chess::mousePressEvent(QMouseEvent *event)
 {
     if (Qt::LeftButton == event->button())
     {
-        TPos currPos = g_nullPos;
-        co::clientCo2Pos({event->x(), event->y()}, currPos);
-
-        palette_->click(currPos);
-
-
+        palette_->click(co::clientCo2Pos({event->x(), event->y()}));
     }
 //    if (Qt ::RightButton == event->button())
 //    {
@@ -95,11 +88,7 @@ void Chess::keyPressEvent(QKeyEvent *event)
     else if (event->key() == Qt::Key_U)
     {
         palette_->undo();
-    }
-    /*else if (event->key() == Qt::Key_R)
-    {
-        palette_->redo();
-    }*/
+    }   
 }
 
 

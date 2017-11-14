@@ -1,10 +1,13 @@
 #ifndef RESMGR_H
 #define RESMGR_H
 
+#include "util/def.h"
+
 #include <unordered_map>
 #include <memory>
 #include <string>
 
+using std::string;
 using std::shared_ptr;
 using std::unordered_map;
 
@@ -14,30 +17,7 @@ class QPixmap;
 
 class ResMgr
 {
-public:
-    enum EPiece
-    {
-        EP_empty = 0,
-
-        EP_redKing = 9,
-        EP_redAdvisor,
-        EP_redBishop,
-        EP_redKnight,
-        EP_redRook,
-        EP_redCannon,
-        EP_redPawn = 15,
-
-        EP_blackKing = 17,
-        EP_blackAdvisor,
-        EP_blackBishop,
-        EP_blackKnight,
-        EP_blackRook,
-        EP_blackCannon,
-        EP_blackPawn = 23,
-
-        EP_select = 32
-    };
-
+public:    
     enum EPieceSkin
     {
         EPS_comic,
@@ -68,11 +48,11 @@ public:
     bool loadBgSkin(EBgSkin skin);
 
     shared_ptr<QPixmap> getBg();
-    shared_ptr<QPixmap> getPiece(EPiece piece);
+    shared_ptr<QPixmap> getPiece(def::EPiece piece);
 
     void playBgm();
     void stopBgm();
-    void playSound(const std::string& name);
+    void playSound(const string& name);
 
 private:
     ResMgr();

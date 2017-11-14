@@ -1,17 +1,17 @@
 #ifndef BOARD_H
 #define BOARD_H
 
-
-#include "../co.h"
-#include "../resmgr.h"
 #include "memo.h"
-
-#include <model.h>
+#include "model/model.h"
+#include "util/def.h"
+#include "util/co.h"
+#include "util/hash.h"
 
 #include <vector>
 #include <unordered_set>
 #include <memory>
 
+using def::EPlayer;
 using def::TPos;
 using def::TDelta;
 using def::byte;
@@ -35,6 +35,7 @@ public:
     virtual std::pair<def::TPos, def::TPos> getTrigger() const;// 表示该snapshot是由trigger的两个位置移动产生的，用于绘制select图标
 
     virtual def::byte movePiece(def::TPos prevPos, def::TPos currPos);// 尝试走棋，返回EMoveRet的组合
+    virtual def::TPos calcBestMove(int depth);// 遍历n层，计算下一步最佳走法
 
 protected:
     // 玩家棋子位置集合
@@ -60,7 +61,7 @@ protected:
         friend class Board;
 
         vector<vector<byte>> board_;// 棋盘
-        def::EPlayer player_;// 下一步要走棋的玩家
+        EPlayer player_;// 下一步要走棋的玩家
 
         TPieceSet upPieceSet_;// 上方玩家棋子集合
         TPieceSet downPieceSet_;// 下方玩家棋子集合
@@ -201,28 +202,28 @@ protected:
     };
 
     // 对于player来说，从prevPos到currPos是否合法
-    bool isValidMove(TPos prevPos, TPos currPos, def::EPlayer player) const;
+    bool isValidMove(TPos prevPos, TPos currPos, EPlayer player) const;
 
-    typedef bool (Board::*PosFunc)(TPos pos, def::EPlayer player) const;// 判断位置是否合法
-    typedef bool (Board::*DeltaFunc)(TDelta delta, def::EPlayer player) const;// 判断偏移量是否合法
+    typedef bool (Board::*PosFunc)(TPos pos, EPlayer player) const;// 判断位置是否合法
+    typedef bool (Board::*DeltaFunc)(TDelta delta, EPlayer player) const;// 判断偏移量是否合法
     typedef bool (Board::*RuleFunc)(TPos prevPos, TPos currPos) const;// 棋子特定的规则
-    bool isValidMove(TPos prevPos, TPos currPos, def::EPlayer player, PosFunc isValidPos, DeltaFunc isValidDelta, RuleFunc isValidRule) const;
+    bool isValidMove(TPos prevPos, TPos currPos, EPlayer player, PosFunc isValidPos, DeltaFunc isValidDelta, RuleFunc isValidRule) const;
 
-    bool isValidKingPos(TPos pos, def::EPlayer player) const;
-    bool isValidAdvisorPos(TPos pos, def::EPlayer player) const;
+    bool isValidKingPos(TPos pos, EPlayer player) const;
+    bool isValidAdvisorPos(TPos pos, EPlayer player) const;
     bool isValidBishopPos(TPos pos,def:: EPlayer player) const;
-    bool isValidKnightPos(TPos pos, def::EPlayer player) const;
-    bool isValidRookPos(TPos pos, def::EPlayer player) const;
-    bool isValidCannonPos(TPos pos, def::EPlayer player) const;
-    bool isValidPawnPos(TPos pos, def::EPlayer player) const;
+    bool isValidKnightPos(TPos pos, EPlayer player) const;
+    bool isValidRookPos(TPos pos, EPlayer player) const;
+    bool isValidCannonPos(TPos pos, EPlayer player) const;
+    bool isValidPawnPos(TPos pos, EPlayer player) const;
 
-    bool isValidKingDelta(TDelta delta, def::EPlayer player) const;
-    bool isValidAdvisorDelta(TDelta delta, def::EPlayer player) const;
-    bool isValidBishopDelta(TDelta delta, def::EPlayer player) const;
-    bool isValidKnightDelta(TDelta delta, def::EPlayer player) const;
-    bool isValidRookDelta(TDelta delta, def::EPlayer player) const;
-    bool isValidCannonDelta(TDelta delta, def::EPlayer player) const;
-    bool isValidPawnDelta(TDelta delta, def::EPlayer player) const;
+    bool isValidKingDelta(TDelta delta, EPlayer player) const;
+    bool isValidAdvisorDelta(TDelta delta, EPlayer player) const;
+    bool isValidBishopDelta(TDelta delta, EPlayer player) const;
+    bool isValidKnightDelta(TDelta delta, EPlayer player) const;
+    bool isValidRookDelta(TDelta delta, EPlayer player) const;
+    bool isValidCannonDelta(TDelta delta, EPlayer player) const;
+    bool isValidPawnDelta(TDelta delta, EPlayer player) const;
 
     // 不再检查pos及delta，默认前面已检查
     bool isValidKingRule(TPos prevPos, TPos currPos) const;
@@ -233,29 +234,29 @@ protected:
     bool isValidCannonRule(TPos prevPos, TPos currPos) const;
     bool isValidPawnRule(TPos prevPos, TPos currPos) const;
 
-    bool isValidKingMove(TPos prevPos, TPos currPos, def::EPlayer player) const;
-    bool isValidAdvisorMove(TPos prevPos, TPos currPos, def::EPlayer player) const;
-    bool isValidBishopMove(TPos prevPos, TPos currPos, def::EPlayer player) const;
-    bool isValidKnightMove(TPos prevPos, TPos currPos, def::EPlayer player) const;
-    bool isValidRookMove(TPos prevPos, TPos currPos, def::EPlayer player) const;
-    bool isValidCannonMove(TPos prevPos, TPos currPos, def::EPlayer player) const;
-    bool isValidPawnMove(TPos prevPos, TPos currPos, def::EPlayer player) const;
+    bool isValidKingMove(TPos prevPos, TPos currPos, EPlayer player) const;
+    bool isValidAdvisorMove(TPos prevPos, TPos currPos, EPlayer player) const;
+    bool isValidBishopMove(TPos prevPos, TPos currPos, EPlayer player) const;
+    bool isValidKnightMove(TPos prevPos, TPos currPos, EPlayer player) const;
+    bool isValidRookMove(TPos prevPos, TPos currPos, EPlayer player) const;
+    bool isValidCannonMove(TPos prevPos, TPos currPos, EPlayer player) const;
+    bool isValidPawnMove(TPos prevPos, TPos currPos, EPlayer player) const;
 
-    const unordered_set<TDelta>& getValidKingDelta(def::EPlayer player) const;
-    const unordered_set<TDelta>& getValidAdvisorDelta(def::EPlayer player) const;
-    const unordered_set<TDelta>& getValidBishopDelta(def::EPlayer player) const;
-    const unordered_set<TDelta>& getValidKnightDelta(def::EPlayer player) const;
-    const unordered_set<TDelta>& getValidRookDelta(def::EPlayer player) const;
-    const unordered_set<TDelta>& getValidCannonDelta(def::EPlayer player) const;
-    const unordered_set<TDelta>& getValidPawnDelta(def::EPlayer player) const;
+    const unordered_set<TDelta>& getValidKingDelta(EPlayer player) const;
+    const unordered_set<TDelta>& getValidAdvisorDelta(EPlayer player) const;
+    const unordered_set<TDelta>& getValidBishopDelta(EPlayer player) const;
+    const unordered_set<TDelta>& getValidKnightDelta(EPlayer player) const;
+    const unordered_set<TDelta>& getValidRookDelta(EPlayer player) const;
+    const unordered_set<TDelta>& getValidCannonDelta(EPlayer player) const;
+    const unordered_set<TDelta>& getValidPawnDelta(EPlayer player) const;
 
-    int getValue(byte piece, TPos pos, def::EPlayer player) const;
+    int getValue(byte piece, TPos pos, EPlayer player) const;
 
-    bool check(def::EPlayer player);
-    bool checkmate(def::EPlayer player);
+    bool check(EPlayer player);
+    bool checkmate(EPlayer player);
 
-    bool isSuicide(TPos prevPos, TPos currPos, def::EPlayer player);
-    bool updatePieceSet(TPos prevPos, TPos currPos, def::EPlayer player);
+    bool isSuicide(TPos prevPos, TPos currPos, EPlayer player);
+    bool updatePieceSet(TPos prevPos, TPos currPos, EPlayer player);
 
     inline bool isPiece(TPos pos, int piece) const;// 判断pos位置是否为特定棋子（不分颜色）
     inline bool isKing(TPos pos) const;
@@ -267,7 +268,10 @@ protected:
     shared_ptr<Snapshot> createSnapshot();
     bool saveSnapshot();
     bool loadSnapshot(shared_ptr<Snapshot> snapshot);
-    bool updateSnapshot(TPos prevPos, TPos currPos, def::EPlayer player);
+    bool updateSnapshot(TPos prevPos, TPos currPos, EPlayer player);
+
+    bool generateAllMoves(vector<std::pair<TPos, TPos>>& moves);
+    std::pair<int, TPos> calcBestScore(int depth);
 
 private:
     shared_ptr<Snapshot> snapshot_;

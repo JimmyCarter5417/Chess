@@ -2,12 +2,14 @@
 #define CHESS_H
 
 #include <QMainWindow>
-#include <QActionGroup>
+
 #include <memory>
 
 class Board;
 class ResMgr;
 class Palette;
+
+class QActionGroup;
 
 using std::shared_ptr;
 
