@@ -1,8 +1,8 @@
 #include "debug.h"
-#include "stdio.h"
-#include "QString"
+#include <stdio.h>
+#include <QString>
 
-void debug::printBoard(const std::vector<std::vector<unsigned char>>& board, const std::string& path/* = "D:\\log.txt"*/)
+void debug::printBoard(const std::vector<std::vector<def::int8>>& board, const std::string& path/* = "D:\\log.txt"*/)
 {
     if (board.empty() || board.front().empty() || path.empty())
         return;

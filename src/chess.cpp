@@ -89,6 +89,10 @@ void Chess::keyPressEvent(QKeyEvent *event)
     {
         palette_->undo();
     }   
+    else if (event->key() == Qt::Key_A)
+    {
+        palette_->run();
+    }
 }
 
 

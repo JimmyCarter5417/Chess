@@ -14,7 +14,7 @@
 using def::EPlayer;
 using def::TPos;
 using def::TDelta;
-using def::byte;
+using def::int8;
 using std::vector;
 using std::unordered_set;
 using std::shared_ptr;
@@ -34,9 +34,15 @@ public:
     virtual def::EPlayer getPieceOwner(def::TPos pos) const;// 获取pos棋子所属玩家
     virtual std::pair<def::TPos, def::TPos> getTrigger() const;// 表示该snapshot是由trigger的两个位置移动产生的，用于绘制select图标
 
-    virtual def::byte movePiece(def::TPos prevPos, def::TPos currPos);// 尝试走棋，返回EMoveRet的组合
-    virtual def::TPos calcBestMove(int depth);// 遍历n层，计算下一步最佳走法
+    virtual def::int8 movePiece(def::TPos prevPos, def::TPos currPos);// 尝试走棋，返回EMoveRet的组合
+    virtual std::pair<TPos, TPos> calcBestMove(def::int8 depth);// 遍历n层，计算下一步最佳走法
 
+    virtual bool run();
+
+    bool generateAllMoves(vector<std::pair<TPos, TPos>>& moves);
+    int calcBestScore(def::int8 depth, std::pair<TPos, TPos>& move);
+
+    int ab(int depth, int alpha, int beta, def::EPlayer player, std::pair<TPos, TPos>& move);
 protected:
     // 玩家棋子位置集合
     struct TPieceSet
@@ -60,22 +66,22 @@ protected:
     {
         friend class Board;
 
-        vector<vector<byte>> board_;// 棋盘
+        vector<vector<int8>> board_;// 棋盘
         EPlayer player_;// 下一步要走棋的玩家
 
         TPieceSet upPieceSet_;// 上方玩家棋子集合
         TPieceSet downPieceSet_;// 下方玩家棋子集合
 
         // 第四位和第五位表示上下部分
-        byte upFlag_;// 默认上面为黑色
-        byte downFlag_;// 默认下面为红色
+        int8 upFlag_;// 默认上面为黑色
+        int8 downFlag_;// 默认下面为红色
 
         std::pair<TPos, TPos> trigger_;// 表示该snapshot是由trigger的两个位置移动产生的，用于绘制select图标
 
     public:
         Snapshot()
         {
-            static const vector<vector<byte>> initialBoard = {
+            static const vector<vector<int8>> initialBoard = {
                      /* edge            mid            edge */
                      /*  0   1   2   3   4   5   6   7   8  */
               /* 0 */ { 21, 20, 19, 18, 17, 18, 19, 20, 21 }, /*  edge */
@@ -182,7 +188,7 @@ protected:
         void rotate()
         {
             //todo: optimize
-            vector<vector<byte>> tmp(co::g_rowNum, vector<byte>(co::g_colNum, 0));
+            vector<vector<int8>> tmp(co::g_rowNum, vector<int8>(co::g_colNum, 0));
             for (int i = 0; i < co::g_rowNum; i++)
             {
                 for (int j = 0; j < co::g_colNum; j++)
@@ -250,7 +256,7 @@ protected:
     const unordered_set<TDelta>& getValidCannonDelta(EPlayer player) const;
     const unordered_set<TDelta>& getValidPawnDelta(EPlayer player) const;
 
-    int getValue(byte piece, TPos pos, EPlayer player) const;
+    int getValue(int8 piece, TPos pos, EPlayer player) const;
 
     bool check(EPlayer player);
     bool checkmate(EPlayer player);
@@ -270,8 +276,7 @@ protected:
     bool loadSnapshot(shared_ptr<Snapshot> snapshot);
     bool updateSnapshot(TPos prevPos, TPos currPos, EPlayer player);
 
-    bool generateAllMoves(vector<std::pair<TPos, TPos>>& moves);
-    std::pair<int, TPos> calcBestScore(int depth);
+
 
 private:
     shared_ptr<Snapshot> snapshot_;

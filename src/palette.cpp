@@ -29,7 +29,7 @@ Palette::Palette(Chess* chess, QLabel* bg, ResMgr* resMgr)
     board_ = std::make_shared<Board>();    
 
     initLabel();
-    initPieces();
+    initPieces();    
 }
 
 Palette::~Palette()
@@ -141,9 +141,9 @@ void Palette::drawSelect(TPos prevPos, TPos currPos)
     }
 }
 
-byte Palette::movePiece(TPos prevPos, TPos currPos)
+int8 Palette::movePiece(TPos prevPos, TPos currPos)
 {
-    byte ret = board_->movePiece(prevPos, currPos);
+    int8 ret = board_->movePiece(prevPos, currPos);
 
     if (ret & model::EMR_ok)
     {
@@ -176,6 +176,17 @@ void Palette::undo()
     }
 }
 
+void Palette::run()
+{
+    if (board_->run())
+    {
+        drawPieces();
+        // 重绘select
+        std::pair<TPos, TPos> trigger = board_->getTrigger();
+        drawSelect(trigger.first, trigger.second);
+    }
+}
+
 void Palette::click(TPos currPos)
 {
     if (prevPos_ == def::g_nullPos)
@@ -190,7 +201,7 @@ void Palette::click(TPos currPos)
     else
     {
         // 可以移动棋子
-        byte ret = movePiece(prevPos_, currPos);
+        int8 ret = movePiece(prevPos_, currPos);
 
         if (soundEffect_)
         {
@@ -227,7 +238,7 @@ void Palette::click(TPos currPos)
 
 void Palette::soundEffect(bool on)
 {
-    soundEffect_ = on;
+    soundEffect_ = on;    
 }
 
 void Palette::bgm(bool on)

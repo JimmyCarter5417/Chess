@@ -45,7 +45,7 @@ EPlayer Board::getNextPlayer() const
 
 EPlayer Board::getPieceOwner(TPos pos) const
 {
-    byte scope = (getPiece(pos) & def::g_scopeMask);
+    int8 scope = (getPiece(pos) & def::g_scopeMask);
     if (scope == snapshot_->upFlag_)
         return def::EP_up;
     else if (scope == snapshot_->downFlag_)
@@ -59,26 +59,95 @@ std::pair<TPos, TPos> Board::getTrigger() const
     return snapshot_->trigger_;
 }
 
-def::TPos Board::calcBestMove(int depth)
+bool Board::run()
 {
-    vector<std::pair<TPos, TPos>> moves;
-    if (!generateAllMoves(moves))
-        return def::g_nullPos;
+    std::pair<TPos, TPos> move;
+    int alpha = INT_MIN;
+    int beta = INT_MAX;
 
-    TPos dstPos = def::g_nullPos;
-    int bestScore = INT_MIN;
-    for (const std::pair<TPos, TPos>& posPair: moves)
+    //move = calcBestMove(3);
+    int score = ab(3, alpha, beta, getNextPlayer(), move);
+    movePiece(move.first, move.second);
+    return true;
+}
+
+int Board::ab(int depth, int alpha, int beta, def::EPlayer maxPlayer, std::pair<TPos, TPos>& move)
+{
+    static def::EPlayer s_maxPlayer = getNextPlayer();
+
+    if (depth == 0 || getScore(s_maxPlayer) == INT_MAX)
+        return getScore(def::getOtherPlayer(getNextPlayer()));
+
+    def::EPlayer player = getNextPlayer();
+    vector<std::pair<TPos, TPos>> moves;
+    generateAllMoves(moves);
+
+    if (player == s_maxPlayer)
     {
-        int score = calcBestScore(depth - 1);
-        if (best > score)
+        for (const std::pair<TPos, TPos>& posPair: moves)
         {
-            bestScore = score;
-            dstPos = posPair.second;
+            int8 ret = movePiece(posPair.first, posPair.second);
+            if (ret & model::EMR_ok)
+            {
+                std::pair<TPos, TPos> tmp;
+                int res = ab(depth - 1, alpha, beta, def::getOtherPlayer(player), tmp);
+                alpha = std::max(alpha, res);
+                //undo();
+
+                move = posPair;
+                if (beta <= alpha)
+                {
+                    undo();
+                    //move = posPair;
+                    break;
+                }
+                else
+                {
+                    undo();
+                }
+            }
         }
+        //s_maxPlayer = def::getOtherPlayer(s_maxPlayer);
+        return alpha;
+    }
+    else
+    {
+        for (const std::pair<TPos, TPos>& posPair: moves)
+        {
+            int8 ret = movePiece(posPair.first, posPair.second);
+            if (ret & model::EMR_ok)
+            {
+                std::pair<TPos, TPos> tmp;
+                int res = ab(depth - 1, alpha, beta, def::getOtherPlayer(player), tmp);
+                beta = std::min(beta, res);
+                //undo();
+
+                move = posPair;
+                if (beta <= alpha)
+                {
+                    undo();
+                    //move = posPair;
+                    break;
+                }
+                else
+                {
+                    undo();
+                }
+            }
+        }
+//s_maxPlayer = def::getOtherPlayer(s_maxPlayer);
+        return beta;
     }
 }
 
-int Board::calcBestScore(int depth)
+std::pair<TPos, TPos> Board::calcBestMove(def::int8 depth)
+{
+    std::pair<TPos, TPos> move;
+    int score = calcBestScore(depth, move);
+    return move;
+}
+
+int Board::calcBestScore(def::int8 depth, std::pair<TPos, TPos>& move)
 {
     if (depth == 0)
         return getScore(def::getOtherPlayer(getNextPlayer()));
@@ -90,18 +159,27 @@ int Board::calcBestScore(int depth)
     int res = INT_MIN;
     for (const std::pair<TPos, TPos>& posPair: moves)
     {
-        int score = calcBestScore(depth - 1);
+        int8 ret = movePiece(posPair.first, posPair.second);
+        if (!(ret & model::EMR_ok))
+            continue;
+
+        std::pair<TPos, TPos> nextMove;
+        int score = -calcBestScore(depth - 1, nextMove);
         if (score > res)
         {
+            move = posPair;
             res = score;
         }
+
+        undo();
     }
 
     return res;
 }
 
-bool Board::generateAllMoves(vector<std::pair<TPos, TPos>&> moves)
+bool Board::generateAllMoves(vector<std::pair<TPos, TPos>>& moves)
 {
+    static int count = 0;
     moves.clear();
 
     for (unsigned int i = 0; i < snapshot_->board_.size(); i++)
@@ -152,12 +230,16 @@ bool Board::generateAllMoves(vector<std::pair<TPos, TPos>&> moves)
 
             for (const TDelta& delta: *pDeltas)
             {
-                if (co::isValidPos(pos + delta))
-                    moves.push_back(pos, pos + delta);
+                //if (co::isValidPos(pos + delta))
+                TPos t = pos + delta;
+                if (co::isValidPos(pos + delta) && isValidMove(pos, pos + delta, getNextPlayer()));
+                    moves.push_back({pos, pos + delta});
+
             }
         }
     }
 
+    count += moves.size();
     return true;
 }
 
@@ -558,7 +640,7 @@ bool Board::isValidCannonRule(TPos prevPos, TPos currPos) const
 // 不再检查pos及delta，默认前面已检查
 bool Board::isValidPawnRule(TPos prevPos, TPos currPos) const
 {
-    byte scope = (getPiece(prevPos) & def::g_scopeMask);
+    int8 scope = (getPiece(prevPos) & def::g_scopeMask);
     if (scope == snapshot_->upFlag_)
     {
         if (prevPos.row <= 4)// 未过河，只能向前走一步，row加一
@@ -716,9 +798,9 @@ bool Board::isValidMove(TPos prevPos, TPos currPos, EPlayer player) const
     return true;
 }
 
-byte Board::movePiece(TPos prevPos, TPos currPos)
+int8 Board::movePiece(TPos prevPos, TPos currPos)
 {
-    byte ret = model::EMR_null;
+    int8 ret = model::EMR_null;
 
     // pos/delta/rule是否合法
     if (!isValidMove(prevPos, currPos, snapshot_->player_))
@@ -750,6 +832,16 @@ byte Board::movePiece(TPos prevPos, TPos currPos)
         // 将死？
         if (checkmate(player))
         {
+            if (player == def::EP_up)
+            {
+                snapshot_->upPieceSet_.score = INT_MAX;
+                snapshot_->downPieceSet_.score = INT_MIN;
+            }
+            else
+            {
+                snapshot_->upPieceSet_.score = INT_MIN;
+                snapshot_->downPieceSet_.score = INT_MAX;
+            }
             ret |= model::EMR_dead;// 设置DEAD位
         }
     }
@@ -765,8 +857,8 @@ bool Board::updateSnapshot(TPos prevPos, TPos currPos, EPlayer player)
     Board::TPieceSet& passivePieceSet = (player == def::EP_up ? snapshot_->downPieceSet_ : snapshot_->upPieceSet_);// 对方
 
     // 更新双方分数
-    byte prevPiece = (getPiece(prevPos) & def::g_pieceMask);
-    byte currPiece = (getPiece(currPos) & def::g_pieceMask);
+    int8 prevPiece = (getPiece(prevPos) & def::g_pieceMask);
+    int8 currPiece = (getPiece(currPos) & def::g_pieceMask);
 
     activePieceSet.score += getValue(prevPiece, currPos, player) - getValue(prevPiece, prevPos, player);
     passivePieceSet.score -= getValue(currPiece, currPos, def::getOtherPlayer(player));
@@ -977,7 +1069,7 @@ bool Board::loadSnapshot(shared_ptr<Snapshot> snapshot)
     return snapshot_.get() != nullptr;
 }
 
-int Board::getValue(byte piece, TPos pos, EPlayer player) const
+int Board::getValue(int8 piece, TPos pos, EPlayer player) const
 {
     static const int downValueMap[7][10][9] =
     {

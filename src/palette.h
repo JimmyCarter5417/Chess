@@ -15,7 +15,7 @@ class QMediaPlaylist;
 class QMediaPlayer;
 
 using def::TPos;
-using def::byte;
+using def::int8;
 using std::vector;
 using std::shared_ptr;
 
@@ -32,6 +32,7 @@ public:
     void undo();// 悔棋
     void soundEffect(bool on);
     void bgm(bool on);
+    void run();
 
     void loadBgSkin(ResMgr::EBgSkin skin);
     void loadPieceSkin(ResMgr::EPieceSkin skin);
@@ -45,7 +46,7 @@ protected:
     void drawPiece(TPos pos);
 
     void drawSelect(TPos prevPos, TPos currPos);
-    byte movePiece(TPos prevPos, TPos currPos);
+    int8 movePiece(TPos prevPos, TPos currPos);
 
 private:
     bool soundEffect_;
