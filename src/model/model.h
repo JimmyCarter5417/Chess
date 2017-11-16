@@ -29,8 +29,7 @@ namespace model
         virtual def::EPlayer getPieceOwner(def::TPos pos) const = 0;// 获取pos棋子所属玩家
         virtual std::pair<def::TPos, def::TPos> getTrigger() const = 0;// 表示该snapshot是由trigger的两个位置移动产生的，用于绘制select图标
 
-        virtual def::int8 movePiece(def::TPos prevPos, def::TPos currPos) = 0;// 尝试走棋，返回EMoveRet的组合
-        virtual std::pair<def::TPos, def::TPos> calcBestMove(def::int8 depth) = 0;// 遍历n层，计算下一步最佳走法
+        virtual def::int8 movePiece(def::TPos prevPos, def::TPos currPos) = 0;// 尝试走棋，返回EMoveRet的组合        
         virtual bool run() = 0;
     };
 }

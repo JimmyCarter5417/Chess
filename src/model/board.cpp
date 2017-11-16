@@ -64,19 +64,23 @@ bool Board::run()
     std::pair<TPos, TPos> move;
     int alpha = INT_MIN;
     int beta = INT_MAX;
+    int score = 0;
+    int depth = 3;
 
-    //move = calcBestMove(3);
-    int score = ab(3, alpha, beta, getNextPlayer(), move);
+    score = calcBestMove(depth, move);
+    debug::printBoard(snapshot_->board_);
+    score = ab(depth, alpha, beta, move);
+    debug::printBoard(snapshot_->board_);
     movePiece(move.first, move.second);
     return true;
 }
 
-int Board::ab(int depth, int alpha, int beta, def::EPlayer maxPlayer, std::pair<TPos, TPos>& move)
+int Board::ab(int depth, int alpha, int beta, std::pair<TPos, TPos>& move)
 {
     static def::EPlayer s_maxPlayer = getNextPlayer();
 
     if (depth == 0 || getScore(s_maxPlayer) == INT_MAX)
-        return getScore(def::getOtherPlayer(getNextPlayer()));
+        return getScore(s_maxPlayer);
 
     def::EPlayer player = getNextPlayer();
     vector<std::pair<TPos, TPos>> moves;
@@ -90,24 +94,19 @@ int Board::ab(int depth, int alpha, int beta, def::EPlayer maxPlayer, std::pair<
             if (ret & model::EMR_ok)
             {
                 std::pair<TPos, TPos> tmp;
-                int res = ab(depth - 1, alpha, beta, def::getOtherPlayer(player), tmp);
+                int res = ab(depth - 1, alpha, beta, tmp);
                 alpha = std::max(alpha, res);
-                //undo();
+                undo();
 
                 move = posPair;
                 if (beta <= alpha)
                 {
-                    undo();
-                    //move = posPair;
+
                     break;
-                }
-                else
-                {
-                    undo();
-                }
+                }               
             }
         }
-        //s_maxPlayer = def::getOtherPlayer(s_maxPlayer);
+
         return alpha;
     }
     else
@@ -118,45 +117,36 @@ int Board::ab(int depth, int alpha, int beta, def::EPlayer maxPlayer, std::pair<
             if (ret & model::EMR_ok)
             {
                 std::pair<TPos, TPos> tmp;
-                int res = ab(depth - 1, alpha, beta, def::getOtherPlayer(player), tmp);
+                int res = ab(depth - 1, alpha, beta, tmp);
                 beta = std::min(beta, res);
-                //undo();
+                undo();
 
                 move = posPair;
                 if (beta <= alpha)
                 {
-                    undo();
-                    //move = posPair;
                     break;
-                }
-                else
-                {
-                    undo();
-                }
+                }               
             }
         }
-//s_maxPlayer = def::getOtherPlayer(s_maxPlayer);
+
         return beta;
     }
 }
 
-std::pair<TPos, TPos> Board::calcBestMove(def::int8 depth)
+int Board::calcBestMove(def::int8 depth, std::pair<def::TPos, def::TPos>& move)
 {
-    std::pair<TPos, TPos> move;
-    int score = calcBestScore(depth, move);
-    return move;
-}
+    static def::EPlayer s_maxPlayer = getNextPlayer();
 
-int Board::calcBestScore(def::int8 depth, std::pair<TPos, TPos>& move)
-{
     if (depth == 0)
-        return getScore(def::getOtherPlayer(getNextPlayer()));
+        return getScore(s_maxPlayer);
+        //return getScore(getNextPlayer());
 
     vector<std::pair<TPos, TPos>> moves;
     if (!generateAllMoves(moves))
         return -1;
 
-    int res = INT_MIN;
+    int maxRes = INT_MIN;
+    int minRes = INT_MAX;
     for (const std::pair<TPos, TPos>& posPair: moves)
     {
         int8 ret = movePiece(posPair.first, posPair.second);
@@ -164,17 +154,30 @@ int Board::calcBestScore(def::int8 depth, std::pair<TPos, TPos>& move)
             continue;
 
         std::pair<TPos, TPos> nextMove;
-        int score = -calcBestScore(depth - 1, nextMove);
-        if (score > res)
+        int score = calcBestMove(depth - 1, nextMove);
+        undo();
+
+        if (getNextPlayer() == s_maxPlayer)
         {
-            move = posPair;
-            res = score;
+            if (score > maxRes)
+            {
+                move = posPair;
+                maxRes = score;
+            }
+        }
+        else
+        {
+            if (score < minRes)
+            {
+                move = posPair;
+                minRes = score;
+            }
         }
 
-        undo();
+
     }
 
-    return res;
+    return getNextPlayer() == s_maxPlayer ? maxRes : minRes;
 }
 
 bool Board::generateAllMoves(vector<std::pair<TPos, TPos>>& moves)
@@ -917,7 +920,7 @@ bool Board::undo()
 
     loadSnapshot(snapshotMemo_->top());// 读取上一个快照
     snapshotMemo_->pop();
-    debug::printBoard(snapshot_->board_);
+    //debug::printBoard(snapshot_->board_);
     return true;
 }
 

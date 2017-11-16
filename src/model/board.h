@@ -35,14 +35,15 @@ public:
     virtual std::pair<def::TPos, def::TPos> getTrigger() const;// 表示该snapshot是由trigger的两个位置移动产生的，用于绘制select图标
 
     virtual def::int8 movePiece(def::TPos prevPos, def::TPos currPos);// 尝试走棋，返回EMoveRet的组合
-    virtual std::pair<TPos, TPos> calcBestMove(def::int8 depth);// 遍历n层，计算下一步最佳走法
+
 
     virtual bool run();
 
     bool generateAllMoves(vector<std::pair<TPos, TPos>>& moves);
-    int calcBestScore(def::int8 depth, std::pair<TPos, TPos>& move);
 
-    int ab(int depth, int alpha, int beta, def::EPlayer player, std::pair<TPos, TPos>& move);
+    int ab(int depth, int alpha, int beta, std::pair<TPos, TPos>& move);
+    int calcBestMove(def::int8 depth, std::pair<def::TPos, def::TPos>& move);// 遍历n层，计算下一步最佳走法
+
 protected:
     // 玩家棋子位置集合
     struct TPieceSet
