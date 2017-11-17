@@ -10,5 +10,5 @@ SOURCES += \
     $$PWD/resmgr.cpp
 	
 include(algo/algo.pri)
-include(model/model.pri)
+include(board/board.pri)
 include(util/util.pri)

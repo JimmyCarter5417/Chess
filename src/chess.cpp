@@ -77,10 +77,6 @@ void Chess::keyPressEvent(QKeyEvent *event)
     {
         QMessageBox::aboutQt(NULL, "aboutQt");
     }
-    else if (event->modifiers() == Qt::ControlModifier && event->key() == Qt::Key_R)
-    {
-        palette_->rotate();
-    }
     else if (event->key() == Qt::Key_O)
     {
         palette_->open();
@@ -106,9 +102,9 @@ void Chess::on_undoAction_triggered()
     palette_->undo();
 }
 
-void Chess::on_rotateAction_triggered()
+void Chess::on_rotateAction_triggered(bool checked)
 {
-    palette_->rotate();
+    palette_->rotate(checked);
 }
 
 void Chess::on_soundEffectAction_triggered(bool checked)

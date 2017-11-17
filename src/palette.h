@@ -16,6 +16,7 @@ class QMediaPlayer;
 
 using def::TPos;
 using def::int8;
+using def::TMove;
 using std::vector;
 using std::shared_ptr;
 
@@ -28,7 +29,7 @@ public:
     void click(TPos currPos);
 
     void open();// 开局
-    void rotate();// 翻转棋盘
+    void rotate(bool on);// 翻转棋盘
     void undo();// 悔棋
     void soundEffect(bool on);
     void bgm(bool on);
@@ -45,11 +46,12 @@ protected:
     void drawPieces();
     void drawPiece(TPos pos);
 
-    void drawSelect(TPos prevPos, TPos currPos);
-    int8 movePiece(TPos prevPos, TPos currPos);
+    void drawSelect(TMove move);
+    int8 makeMove(TMove move);
 
 private:
     bool soundEffect_;
+    bool rotate_;
 
     Chess* chess_;   
     ResMgr* resMgr_;

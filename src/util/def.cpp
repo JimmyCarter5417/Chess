@@ -49,10 +49,10 @@ TPos TPos::operator+(const TDelta& delta) const
 // 切换玩家
 void def::switchPlayer(EPlayer& player)
 {
-    if (player == EP_up)
-        player = EP_down;
-    else if (player == EP_down)
-        player = EP_up;
+    if (player == EP_black)
+        player = EP_red;
+    else if (player == EP_red)
+        player = EP_black;
     else
         player = EP_none;
 }
@@ -60,10 +60,10 @@ void def::switchPlayer(EPlayer& player)
 // 对位玩家
 EPlayer def::getOtherPlayer(EPlayer player)
 {
-    if (player == EP_up)
-        return EP_down;
-    else if (player == EP_down)
-        return EP_up;
+    if (player == EP_black)
+        return EP_red;
+    else if (player == EP_red)
+        return EP_black;
     else
         return EP_none;
 }

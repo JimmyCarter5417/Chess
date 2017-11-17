@@ -32,7 +32,7 @@ protected:
 private slots:
     void on_openAction_triggered();
     void on_undoAction_triggered();
-    void on_rotateAction_triggered();
+    void on_rotateAction_triggered(bool checked);
 
     void on_soundEffectAction_triggered(bool checked);
     void on_bgmAction_triggered(bool checked);

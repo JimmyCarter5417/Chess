@@ -30,6 +30,12 @@ namespace def
         TPos operator+(const TDelta& delta) const;
     };
 
+    struct TMove
+    {
+        TPos src;
+        TPos dst;
+    };
+
     struct TClientCo
     {
         int x;
@@ -44,8 +50,8 @@ namespace def
 
     enum EPlayer
     {
-        EP_up,
-        EP_down,
+        EP_black,
+        EP_red,
         EP_none,
     };
 

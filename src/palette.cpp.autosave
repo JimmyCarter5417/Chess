@@ -170,7 +170,7 @@ void Palette::rotate(bool on)
 
 void Palette::undo()
 {
-    if (board_->undo())
+    if (board_->undoMove())
     {
         drawPieces();
         // 重绘select
