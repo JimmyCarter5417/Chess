@@ -19,10 +19,10 @@ namespace board
         virtual ~IBoard(){}
 
         virtual void init() = 0;// 开局
-        virtual bool undo() = 0;// 悔棋
+        virtual bool undoMove() = 0;// 悔棋
         virtual def::int8 run() = 0;// 电脑走棋，返回EMoveRet的组合
-        virtual def::int8 movePiece(def::TMove move) = 0;// 走棋，返回EMoveRet的组合
-        virtual def::int8 movePiece(int index) = 0;// 走已生成走法中的某一个
+        virtual def::int8 makeMove(def::TMove move) = 0;// 走棋，返回EMoveRet的组合
+        virtual def::int8 makeMove(int index) = 0;// 走已生成走法中的某一个
         virtual int generateAllMoves() = 0;// 生成当前局面所有合法走法
 
         virtual int getScore(def::EPlayer player) const = 0;// 获取当前局面下的玩家分数

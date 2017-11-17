@@ -40,7 +40,7 @@ bool SlimBoard::undoMove()// 悔棋
     if (history_.empty())
         return false;
 
-    TRecord record = history_.top();
+    SlimBoard::TRecord record = history_.top();
     history_.pop();
     board_[record.src] = board_[record.dst];
     board_[record.dst] = record.capture;
