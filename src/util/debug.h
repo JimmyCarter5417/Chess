@@ -7,7 +7,7 @@
 
 namespace debug
 {
-    void printBoard(const std::vector<std::vector<def::int8>>& board, const std::string& path = "D:\\log.txt");
+    void printBoard(const std::vector<std::vector<uint8_t>>& board, const std::string& path = "D:\\log.txt");
 };
 
 #endif // DEBUG_H

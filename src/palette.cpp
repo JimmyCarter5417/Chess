@@ -1,7 +1,8 @@
 #include "palette.h"
 #include "chess.h"
 #include "resmgr.h"
-#include "model/naiveboard.h"
+#include "board/naiveboard.h"
+#include "board/slimboard.h"
 #include "util/co.h"
 #include "util/debug.h"
 
@@ -27,7 +28,9 @@ Palette::Palette(Chess* chess, QLabel* bg, ResMgr* resMgr)
     assert(bg_ != nullptr);
     assert(resMgr_ != nullptr);    
 
-    board_ = std::make_shared<Board>();    
+    // board_ = std::make_shared<NaiveBoard>();
+    board_ = std::make_shared<SlimBoard>();
+
 
     initLabel();
     initPieces();    
@@ -82,6 +85,8 @@ void Palette::open()
 
     prevPos_ = def::g_nullPos;
     drawSelect({def::g_nullPos, def::g_nullPos});
+
+    resMgr_->playSound("NEWGAME.WAV");
 }
 
 void Palette::drawBg()
@@ -142,11 +147,11 @@ void Palette::drawSelect(TMove move)
     }
 }
 
-int8 Palette::makeMove(TMove move)
+uint8_t Palette::makeMove(TMove move)
 {
-    int8 ret = board_->makeMove(move);
+    uint8_t ret = board_->makeMove(move);
 
-    if (ret & model::EMR_ok)
+    if (ret & board::EMR_ok)
     {
         drawPiece(move.src);
         drawPiece(move.dst);
@@ -170,7 +175,7 @@ void Palette::rotate(bool on)
 
 void Palette::undo()
 {
-    if (board_->undoMove())
+    if (board_->undoMakeMove())
     {
         drawPieces();
         // 重绘select
@@ -181,7 +186,7 @@ void Palette::undo()
 
 void Palette::run()
 {
-    if (board_->run())
+    if (board_->autoMove())
     {
         drawPieces();
         // 重绘select
@@ -204,23 +209,23 @@ void Palette::click(TPos currPos)
     else
     {
         // 可以移动棋子
-        int8 ret = makeMove({prevPos_, currPos});
+        uint8_t ret = makeMove({prevPos_, currPos});
 
         if (soundEffect_)
         {
-            if (ret & model::EMR_dead)
+            if (ret & board::EMR_dead)
                 resMgr_->playSound("WIN.WAV");
-            else if (ret & model::EMR_suicide)
+            else if (ret & board::EMR_suicide)
                 resMgr_->playSound("ILLEGAL.WAV");
-            else if (ret & model::EMR_check)
+            else if (ret & board::EMR_check)
                 resMgr_->playSound("CHECK.WAV");
-            else if (ret & model::EMR_eat)
+            else if (ret & board::EMR_eat)
                 resMgr_->playSound("CAPTURE.WAV");
-            else if (ret & model::EMR_ok)
+            else if (ret & board::EMR_ok)
                 resMgr_->playSound("MOVE.WAV");
         }
 
-        if (ret & model::EMR_ok)
+        if (ret & board::EMR_ok)
         {
             // 显示两个选择框，prevPos_清空
             drawSelect({prevPos_, currPos});

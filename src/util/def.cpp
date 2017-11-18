@@ -2,7 +2,7 @@
 
 using namespace def;
 
-TDelta::TDelta(int8 row/* = 0*/, int8 col/* = 0*/)
+TDelta::TDelta(int8_t row/* = 0*/, int8_t col/* = 0*/)
     : deltaRow(row)
     , deltaCol(col)
 {
@@ -14,7 +14,7 @@ bool TDelta::operator==(const TDelta& rhs) const
     return deltaRow == rhs.deltaRow && deltaCol == rhs.deltaCol;
 }
 
-TPos::TPos(int8 row1/* = -1*/, int8 col1/* = -1*/)
+TPos::TPos(int8_t row1/* = -1*/, int8_t col1/* = -1*/)
     : row(row1)
     , col(col1)
 {

@@ -6,8 +6,8 @@
 namespace co
 {
     // 二维数组尺寸
-    const def::int32 g_rowNum = 10;
-    const def::int32 g_colNum = 9;
+    const int g_rowNum = 10;
+    const int g_colNum = 9;
 
     const def::TClientCo g_boardLeftTopCo = {36, 59};
     const def::TSize g_boardSize = {521, 577};

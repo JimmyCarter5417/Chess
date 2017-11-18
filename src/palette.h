@@ -3,7 +3,7 @@
 
 #include "util/def.h"
 #include "resmgr.h"
-#include "model/model.h"
+#include "board/board.h"
 
 #include <vector>
 #include <memory>
@@ -15,7 +15,6 @@ class QMediaPlaylist;
 class QMediaPlayer;
 
 using def::TPos;
-using def::int8;
 using def::TMove;
 using std::vector;
 using std::shared_ptr;
@@ -47,7 +46,7 @@ protected:
     void drawPiece(TPos pos);
 
     void drawSelect(TMove move);
-    int8 makeMove(TMove move);
+    uint8_t makeMove(TMove move);
 
 private:
     bool soundEffect_;
@@ -55,7 +54,7 @@ private:
 
     Chess* chess_;   
     ResMgr* resMgr_;
-    shared_ptr<model::IModel> board_;
+    shared_ptr<board::IBoard> board_;
 
     //shared_ptr<QLabel> bg_;
     QLabel* bg_;

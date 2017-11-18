@@ -1,7 +1,7 @@
-#ifndef BOARD_H
-#define BOARD_H
+#ifndef NAIVEBOARD_H
+#define NAIVEBOARD_H
 
-#include "model/model.h"
+#include "board/board.h"
 #include "util/def.h"
 #include "util/co.h"
 #include "util/hash.h"
@@ -15,30 +15,26 @@ using def::EPlayer;
 using def::TPos;
 using def::TDelta;
 using def::TMove;
-using def::int8;
 using std::vector;
 using std::unordered_set;
 using std::shared_ptr;
 using std::stack;
 
-class NaiveBoard : public model::IModel
+class NaiveBoard : public board::IBoard
 {
 public:    
-    Board();
+    NaiveBoard();
 
-    virtual void init();// 开局
-    virtual bool undoMove();// 悔棋
-    virtual def::int8 run();// 电脑走棋，返回EMoveRet的组合
-    virtual def::int8 makeMove(def::TMove move);// 走棋，返回EMoveRet的组合
-    virtual def::int8 makeMove(int index);// 走已生成走法中的某一个
-    virtual int generateAllMoves();// 生成当前局面所有合法走法
+    virtual void init();                                    // 开局
+    virtual uint8_t autoMove();                             // 电脑走棋,返回EMoveRet的组合
+    virtual uint8_t makeMove(def::TMove move);              // 指定走法走棋,返回EMoveRet的组合
+    virtual bool undoMakeMove();                            // 悔棋
 
-    virtual int getScore(def::EPlayer player) const;// 获取当前局面下的玩家分数
-    virtual def::EPiece getPiece(def::TPos pos) const;// 获取某一位置的棋子
-    virtual def::EPlayer getNextPlayer() const;// 获取下一走棋玩家
+    virtual int getScore(def::EPlayer player) const;        // 获取当前局面下的玩家分数
+    virtual def::EPiece getPiece(def::TPos pos) const;      // 获取某一位置的棋子
+    virtual def::EPlayer getNextPlayer() const;             // 获取下一走棋玩家
     virtual def::EPlayer getPieceOwner(def::TPos pos) const;// 获取pos棋子所属玩家
-    virtual def::TMove getTrigger() const;// 表示该snapshot是由trigger的两个位置移动产生的，用于绘制select图标
-    virtual def::TMove getMove(int index) const;// 获取已生成走法中的某一个
+    virtual def::TMove getTrigger() const;                  // 表示该snapshot是由trigger的两个位置移动产生的，用于绘制select图标
 
 protected:
     // 玩家棋子位置集合
@@ -61,24 +57,24 @@ protected:
     // 当前局面快照
     class Snapshot
     {
-        friend class Board;
+        friend class NaiveBoard;
 
-        vector<vector<int8>> board_;// 棋盘
+        vector<vector<uint8_t>> board_;// 棋盘
         EPlayer player_;// 下一步要走棋的玩家
 
         TPieceSet upPieceSet_;// 上方玩家棋子集合
         TPieceSet downPieceSet_;// 下方玩家棋子集合
 
         // 第四位和第五位表示上下部分
-        int8 blackFlag_;// 默认上面为黑色
-        int8 redFlag_;// 默认下面为红色
+        uint8_t blackFlag_;// 默认上面为黑色
+        uint8_t redFlag_;// 默认下面为红色
 
         def::TMove trigger_;// 表示该snapshot是由trigger的两个位置移动产生的，用于绘制select图标
 
     public:
         Snapshot()
         {
-            static const vector<vector<int8>> initialBoard = {
+            static const vector<vector<uint8_t>> initialBoard = {
                      /* edge            mid            edge */
                      /*  0   1   2   3   4   5   6   7   8  */
               /* 0 */ { 21, 20, 19, 18, 17, 18, 19, 20, 21 }, /*  edge */
@@ -185,7 +181,7 @@ protected:
         /*void rotate()
         {
             //todo: optimize
-            vector<vector<int8>> tmp(co::g_rowNum, vector<int8>(co::g_colNum, 0));
+            vector<vector<uint8_t>> tmp(co::g_rowNum, vector<uint8_t>(co::g_colNum, 0));
             for (int i = 0; i < co::g_rowNum; i++)
             {
                 for (int j = 0; j < co::g_colNum; j++)
@@ -253,7 +249,7 @@ protected:
     const unordered_set<TDelta>& getValidCannonDelta(EPlayer player) const;
     const unordered_set<TDelta>& getValidPawnDelta(EPlayer player) const;
 
-    int getValue(int8 piece, TPos pos, EPlayer player) const;
+    int getValue(uint8_t piece, TPos pos, EPlayer player) const;
 
     bool check(EPlayer player);
     bool checkmate(EPlayer player);
@@ -273,10 +269,14 @@ protected:
     bool loadSnapshot();
     bool updateSnapshot(TMove move, EPlayer player);
 
+    void generateAllMoves(vector<def::TMove>& moves);// 生成当前局面所有合法走法
+
+    int minimax(int depth, def::EPlayer maxPlayer, TMove& move);
+    int alphabeta(int depth, def::EPlayer maxPlayer, int alpha, int beta, TMove& move);
+
 private:
     shared_ptr<Snapshot> snapshot_;
     stack<shared_ptr<Snapshot>> snapshotMemo_;
-    vector<def::TMove> moves_;
 };
 
-#endif // BOARD_H
+#endif // NAIVEBOARD_H

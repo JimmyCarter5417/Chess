@@ -1,6 +1,4 @@
 #include "naiveboard.h"
-#include "util/debug.h"
-#include "algo/algo.h"
 
 #include <assert.h>
 #include <math.h>
@@ -45,10 +43,10 @@ EPlayer NaiveBoard::getNextPlayer() const
 
 EPlayer NaiveBoard::getPieceOwner(TPos pos) const
 {
-    int8 scope = (getPiece(pos) & def::g_scopeMask);
-    if (scope == snapshot_->blackFlag_)
+    uint8_t color = (getPiece(pos) & def::g_colorMask);
+    if (color == snapshot_->blackFlag_)
         return def::EP_black;
-    else if (scope == snapshot_->redFlag_)
+    else if (color == snapshot_->redFlag_)
         return def::EP_red;
     else
         return def::EP_none;
@@ -59,15 +57,7 @@ def::TMove NaiveBoard::getTrigger() const
     return snapshot_->trigger_;
 }
 
-def::TMove NaiveBoard::getMove(int index) const
-{
-    if (index >= moves_.size())
-        return {def::g_nullPos, def::g_nullPos};
-
-    return moves_[index];
-}
-
-def::int8 NaiveBoard::run()
+uint8_t NaiveBoard::autoMove()
 {
     int alpha = INT_MIN;
     int beta = INT_MAX;
@@ -75,26 +65,18 @@ def::int8 NaiveBoard::run()
     int depth = 3;
     TMove move;
 
-    score = algo::minimax(depth, this, getNextPlayer(), move);
-    debug::printBoard(snapshot_->board_);
-    score = algo::alphabeta(depth, this, getNextPlayer(), move, alpha, beta);
-    debug::printBoard(snapshot_->board_);
+    score = minimax(depth, getNextPlayer(), move);
+   // debug::printBoard(snapshot_->board_);
+    score = alphabeta(depth, getNextPlayer(), alpha, beta, move);
+    //debug::printBoard(snapshot_->board_);
 
     makeMove(move);
     return true;
 }
 
-def::int8 NaiveBoard::makeMove(int index)
+void NaiveBoard::generateAllMoves(vector<def::TMove>& moves)
 {
-    if (index >= moves_.size())
-        return 0;
-
-    return makeMove(moves_[index]);
-}
-
-int NaiveBoard::generateAllMoves()
-{
-    moves_.clear();
+    moves.clear();
 
     for (unsigned int i = 0; i < snapshot_->board_.size(); i++)
     {
@@ -138,8 +120,8 @@ int NaiveBoard::generateAllMoves()
 
             if (pDeltas == nullptr)
             {
-                moves_.clear();
-                return 0;
+                moves.clear();
+                return;
             }
 
             for (const TDelta& delta: *pDeltas)
@@ -148,12 +130,10 @@ int NaiveBoard::generateAllMoves()
                 TMove move = {src, dst};
 
                 if (co::isValidPos(dst) && isValidMove(move, getNextPlayer()));
-                    moves_.push_back(move);
+                    moves.push_back(move);
             }
         }
     }
-
-    return moves_.size();
 }
 
 bool NaiveBoard::isValidKingPos(TPos pos, EPlayer player) const
@@ -553,13 +533,13 @@ bool NaiveBoard::isValidCannonRule(TMove move) const
 // 不再检查pos及delta，默认前面已检查
 bool NaiveBoard::isValidPawnRule(TMove move) const
 {
-    int8 scope = (getPiece(move.src) & def::g_scopeMask);
-    if (scope == snapshot_->blackFlag_)
+    uint8_t color = (getPiece(move.src) & def::g_colorMask);
+    if (color == snapshot_->blackFlag_)
     {
         if (move.src.row <= 4)// 未过河，只能向前走一步，row加一
             return move.dst.row - move.src.row == 1;
     }
-    else if (scope == snapshot_->redFlag_)
+    else if (color == snapshot_->redFlag_)
     {
         if (move.src.row >= 5)// 未过河，只能向前走一步，row减一
             return move.dst.row - move.src.row == -1;
@@ -711,9 +691,9 @@ bool NaiveBoard::isValidMove(TMove move, EPlayer player) const
     return true;
 }
 
-int8 NaiveBoard::makeMove(TMove move)
+uint8_t NaiveBoard::makeMove(TMove move)
 {
-    int8 ret = 0;
+    uint8_t ret = 0;
 
     // pos/delta/rule是否合法
     if (!isValidMove(move, snapshot_->player_))
@@ -724,14 +704,14 @@ int8 NaiveBoard::makeMove(TMove move)
     // 自杀？
     if (isSuicide(move, snapshot_->player_))
     {
-        ret |= model::EMR_suicide;// 设置SUICIDE位
+        ret |= board::EMR_suicide;// 设置SUICIDE位
         return ret;
     }
 
-    ret = model::EMR_ok;// 可以走棋
+    ret = board::EMR_ok;// 可以走棋
 
     if (getPiece(move.dst) != def::EP_empty)
-        ret |= model::EMR_eat;// 吃子
+        ret |= board::EMR_eat;// 吃子
 
     saveSnapshot();// 保存快照
     updateSnapshot(move, snapshot_->player_);// 更新快照
@@ -740,7 +720,7 @@ int8 NaiveBoard::makeMove(TMove move)
     EPlayer player = def::getOtherPlayer(snapshot_->player_);// player已切换，需要切回来
     if (check(player))
     {
-        ret |= model::EMR_check;// 设置OK位/CHECK位
+        ret |= board::EMR_check;// 设置OK位/CHECK位
 
         // 将死？
         if (checkmate(player))
@@ -755,11 +735,11 @@ int8 NaiveBoard::makeMove(TMove move)
                 snapshot_->upPieceSet_.score = INT_MIN;
                 snapshot_->downPieceSet_.score = INT_MAX;
             }
-            ret |= model::EMR_dead;// 设置DEAD位
+            ret |= board::EMR_dead;// 设置DEAD位
         }
     }
 
-    debug::printBoard(snapshot_->board_);
+    //debug::printBoard(snapshot_->board_);
     return ret;
 }
 
@@ -770,8 +750,8 @@ bool NaiveBoard::updateSnapshot(TMove move, EPlayer player)
     NaiveBoard::TPieceSet& passivePieceSet = (player == def::EP_black ? snapshot_->downPieceSet_ : snapshot_->upPieceSet_);// 对方
 
     // 更新双方分数
-    int8 srcPiece = (getPiece(move.src) & def::g_pieceMask);
-    int8 dstPiece = (getPiece(move.dst) & def::g_pieceMask);
+    uint8_t srcPiece = (getPiece(move.src) & def::g_pieceMask);
+    uint8_t dstPiece = (getPiece(move.dst) & def::g_pieceMask);
 
     activePieceSet.score += getValue(srcPiece, move.dst, player) - getValue(srcPiece, move.src, player);
     passivePieceSet.score -= getValue(dstPiece, move.dst, def::getOtherPlayer(player));
@@ -823,7 +803,7 @@ bool NaiveBoard::updateSnapshot(TMove move, EPlayer player)
     return true;
 }*/
 
-bool NaiveBoard::undoMove()
+bool NaiveBoard::undoMakeMove()
 {    
     return loadSnapshot();// 读取上一个快照
 }
@@ -979,7 +959,7 @@ bool NaiveBoard::loadSnapshot()
     return bool(snapshot_);
 }
 
-int NaiveBoard::getValue(int8 piece, TPos pos, EPlayer player) const
+int NaiveBoard::getValue(uint8_t piece, TPos pos, EPlayer player) const
 {
     static const int downValueMap[7][10][9] =
     {
@@ -1078,3 +1058,75 @@ int NaiveBoard::getValue(int8 piece, TPos pos, EPlayer player) const
     return downValueMap[piece - 1][pos.row][pos.col];// piece需要减一
 }
 
+int NaiveBoard::minimax(int depth, def::EPlayer maxPlayer, TMove& move)
+{
+    int score = getScore(maxPlayer);
+    if (depth == 0 || score == INT_MAX || score == INT_MIN)
+        return score;
+
+    vector<def::TMove> moves;
+    generateAllMoves(moves);
+
+    int maxRes = INT_MIN;
+    int minRes = INT_MAX;
+    for (int i = 0; i < moves.size(); i++)
+    {
+        if (makeMove(moves[i]) & board::EMR_ok)
+        {
+            def::TMove nextMove;
+            int score = minimax(depth - 1, maxPlayer, nextMove);
+            undoMakeMove();
+
+            if (getNextPlayer() == maxPlayer)
+            {
+                if (score > maxRes)
+                {
+                    move = moves[i];
+                    maxRes = score;
+                }
+            }
+            else
+            {
+                if (score < minRes)
+                {
+                    move = moves[i];
+                    minRes = score;
+                }
+            }
+        }
+    }
+
+    return getNextPlayer() == maxPlayer ? maxRes : minRes;
+}
+
+int NaiveBoard::alphabeta(int depth, def::EPlayer maxPlayer, int alpha, int beta, TMove& move)
+{
+    int score = getScore(maxPlayer);
+    if (depth == 0 || score == INT_MAX || score == INT_MIN)
+        return score;
+
+    vector<def::TMove> moves;
+    generateAllMoves(moves);
+
+    for (int i = 0; i < moves.size(); i++)
+    {
+        if (makeMove(moves[i]) & board::EMR_ok)
+        {
+            TMove nextMove;
+            int score = alphabeta(depth - 1, maxPlayer, alpha, beta, nextMove);
+            undoMakeMove();
+
+            move = moves[i];
+
+            if (getNextPlayer() == maxPlayer)
+                alpha = std::max(alpha, score);
+            else
+                beta = std::max(beta, score);
+
+            if (beta <= alpha)
+                break;
+        }
+    }
+
+    return getNextPlayer() == maxPlayer ? alpha : beta;
+}
