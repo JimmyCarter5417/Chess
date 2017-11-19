@@ -34,7 +34,13 @@ protected:
     uint8_t movePiece(uint16_t move);
     void undoMovePiece(uint16_t move, uint8_t capture);
 
-    void generateAllMoves(vector<uint16_t>& moves);// 生成当前局面所有合法走法
+    void generateAllMoves(vector<uint16_t>& moves) const;// 生成当前局面所有合法走法
+    void initScore();
+
+    int evaluate();
+    int minimax(int depth, def::EPlayer maxPlayer, uint16_t& nextMove);
+    int negamax(int depth, uint16_t& nextMove);
+    int alphadeta(int depth, def::EPlayer maxPlayer, int alpha, int beta, uint16_t& nextMove);
 
     bool isValidMove(uint16_t move);
     bool isCheck();// 当前玩家是否被将军
@@ -68,6 +74,8 @@ protected:
     inline uint8_t getMoveSrc(uint16_t move) const;
     inline uint8_t getMoveDst(uint16_t move) const;
     inline uint16_t getMove(uint8_t src, uint8_t dst) const;
+
+
 
 private:
     struct TRecord

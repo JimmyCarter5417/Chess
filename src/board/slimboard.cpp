@@ -9,6 +9,9 @@ static const int8_t g_kingDelta[4]    = {-16,  -1,  1, 16};
 static const int8_t g_advisorDelta[4] = {-17, -15, 15, 17};
 static const int8_t g_knightDelta[4][2] = {{-33, -31}, {-18, 14}, {-14, 18}, {31, 33}};// 马的正常delta
 
+static const int g_winScore  =  10000;
+static const int g_deadScore = -10000;
+
 
 SlimBoard::SlimBoard()
 {
@@ -59,13 +62,32 @@ void SlimBoard::init()// 开局
     redKingIdx_ = 199;
     blackKingIdx_ = 55;
     
-    redScore_ = 0;
-    blackScore_ = 0;
+    //redScore_ = 0;
+    //blackScore_ = 0;
+    initScore();
+
     player_ = def::EP_red;
     //player_ = def::EP_black;
     
     stack<TRecord> tmp;
     history_.swap(tmp);   
+}
+
+void SlimBoard::initScore()
+{
+    blackScore_ = 0;
+    redScore_ = 0;
+
+    for (int i = 0; i < 256; i++)
+    {
+        def::EPiece piece = getPiece(i);
+        def::EPlayer owner = getPieceOwner(i);
+
+        if (owner == def::EP_black)
+            blackScore_ += getPieceValue(piece, i);
+        else if (owner == def::EP_red)
+            redScore_ += getPieceValue(piece, i);
+    }
 }
 
 bool SlimBoard::undoMakeMove()// 悔棋
@@ -84,8 +106,144 @@ bool SlimBoard::undoMakeMove()// 悔棋
 
 uint8_t SlimBoard::autoMove()// 电脑计算走棋
 {
-    // todo
-    return 0;
+    uint16_t nextMove;
+    int a = minimax(1, player_, nextMove);
+    uint16_t nextMove1;
+    int b = negamax(1, nextMove1);
+    return makeMove(nextMove);
+}
+
+int SlimBoard::evaluate()
+{
+    return player_ == def::EP_red ?  redScore_ - blackScore_ : blackScore_ - redScore_;
+}
+
+int SlimBoard::minimax(int depth, def::EPlayer maxPlayer, uint16_t& nextMove)
+{
+    static int count = 0;
+
+    int playerScore = getScore(player_);
+    if (depth == 0 || playerScore == g_winScore || playerScore == g_deadScore)
+        return playerScore;
+
+    vector<uint16_t> moves;
+    generateAllMoves(moves);
+
+    count += moves.size();
+
+    if (player_ == maxPlayer)// 极大节点
+    {
+        int maxScore = INT_MIN;
+
+        for (uint16_t move: moves)
+        {
+            if (board::EMR_ok & makeMove(move))// move可能导致自杀
+            {
+                uint16_t tmp;
+                int val = minimax(depth - 1, maxPlayer, tmp);
+                undoMakeMove();
+
+                if (val > maxScore)
+                {
+                    maxScore = val;
+                    nextMove = move;
+                }
+            }
+        }
+
+        return maxScore;
+    }
+    else// 极小节点
+    {
+        int minScore = INT_MAX;
+
+        for (uint16_t move: moves)
+        {
+            if (board::EMR_ok & makeMove(move))// move可能导致自杀
+            {
+                uint16_t tmp;
+                int val = minimax(depth - 1, maxPlayer, tmp);
+                undoMakeMove();
+
+                if (val < minScore)
+                {
+                    minScore = val;
+                    nextMove = move;
+                }
+            }
+        }
+
+        return minScore;
+    }
+}
+
+int SlimBoard::negamax(int depth, uint16_t& nextMove)
+{
+    static int count = 0;
+
+    int playerScore = getScore(player_);
+    if (depth == 0 || playerScore == g_winScore || playerScore == g_deadScore)
+        return playerScore;
+
+    vector<uint16_t> moves;
+    generateAllMoves(moves);
+
+    count += moves.size();
+
+    int maxScore = INT_MIN;
+    for (uint16_t move: moves)
+    {
+        if (board::EMR_ok & makeMove(move))// move可能导致自杀
+        {
+            uint16_t tmp;
+            int val = -negamax(depth - 1, tmp);
+            undoMakeMove();
+
+            if (val > maxScore)
+            {
+                maxScore = val;
+                nextMove = move;
+            }
+        }
+    }
+
+    return maxScore;
+}
+
+int SlimBoard::alphadeta(int depth, def::EPlayer maxPlayer, int alpha, int deta, uint16_t& nextMove)
+{
+    static int count = 0;
+
+    /*int playerScore = getScore(player_);
+    if (depth == 0 || playerScore == g_winScore || playerScore == g_deadScore)
+        return evaluate();
+
+    vector<uint16_t> moves;
+    generateAllMoves(moves);
+
+    count += moves.size();
+
+    for (uint16_t move: moves)
+    {
+        if (board::EMR_ok & makeMove(move))
+        {
+            if (player_ == maxPlayer)
+            {
+                uint16_t tmp;
+                int val = alphadeta(depth - 1, maxPlayer, alpha, beta, tmp);
+
+                alpha = max(alpha, val);
+
+            }
+            else
+            {
+
+            }
+
+            undoMakeMove();
+        }
+    }*/
+    return 1;
 }
 
 uint8_t SlimBoard::makeMove(def::TMove move)// 指定走法走棋
@@ -172,7 +330,7 @@ void SlimBoard::undoMovePiece(uint16_t move, uint8_t capture)
         updateKingIdx(static_cast<def::EPlayer>(dstPiece & def::g_colorMask), srcIndex);
 }
 
-void SlimBoard::generateAllMoves(vector<uint16_t>& moves)// 生成当前局面所有合法走法
+void SlimBoard::generateAllMoves(vector<uint16_t>& moves) const// 生成当前局面所有合法走法
 {
     moves.clear();
 
