@@ -38,11 +38,11 @@ protected:
     void initScore();
 
     // 算法相关
-    int evaluate();
+    int evaluate(def::EPlayer player);// 评价函数，相当重要
     int minimax(int depth, def::EPlayer maxPlayer, uint16_t& nextMove);
-    int negamax(int depth, uint16_t& nextMove);
+    int negamax(int depth, def::EPlayer maxPlayer, uint16_t& nextMove);
     int alphabeta(int depth, def::EPlayer maxPlayer, int alpha, int beta, uint16_t& nextMove);
-    int alphabetaWithNega(int depth, int alpha, int beta, uint16_t& nextMove);
+    int alphabetaWithNega(int depth, def::EPlayer maxPlayer, int alpha, int beta, uint16_t& nextMove);
 
     // 基础函数
     bool isValidMove(uint16_t move);

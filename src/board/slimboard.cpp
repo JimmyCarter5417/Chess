@@ -113,27 +113,26 @@ uint8_t SlimBoard::autoMove()// 电脑计算走棋
     int a = minimax(depth, player_, nextMove1);
 
     uint16_t nextMove2;
-    int b = negamax(depth, nextMove2);
+    int b = negamax(depth, player_, nextMove2);
 
     uint16_t nextMove3;
     int c = alphabeta(depth, player_, INT_MIN, INT_MAX, nextMove3);
 
-    /*uint16_t nextMove4;
-    // int d = alphabetaWithNega(depth, INT_MIN, INT_MAX, nextMove4);
-    int d = alphabetaWithNega(depth, g_deadScore, g_winScore, nextMove4);*/
+    uint16_t nextMove4;
+    int d = alphabetaWithNega(depth, player_, g_deadScore, g_winScore, nextMove4);
 
     return makeMove(nextMove3);
 }
 
-int SlimBoard::evaluate()
+int SlimBoard::evaluate(def::EPlayer player)
 {
-    return player_ == def::EP_red ?  redScore_ - blackScore_ : blackScore_ - redScore_;
+    return (player == def::EP_red) ? (redScore_ - blackScore_) : (blackScore_ - redScore_);
 }
 
 int SlimBoard::minimax(int depth, def::EPlayer maxPlayer, uint16_t& nextMove)
 {
-    if (depth == 0 || winner_ != def::EP_none)
-        return evaluate();
+    if (depth == 0 || winner_ != def::EP_none)      
+        return evaluate(maxPlayer);// 评价函数是相对于极大方的
 
     vector<uint16_t> moves;
     generateAllMoves(moves);
@@ -188,11 +187,10 @@ int SlimBoard::minimax(int depth, def::EPlayer maxPlayer, uint16_t& nextMove)
     }
 }
 
-int SlimBoard::negamax(int depth, uint16_t& nextMove)
+int SlimBoard::negamax(int depth, def::EPlayer maxPlayer, uint16_t& nextMove)
 {
     if (depth == 0 || winner_ != def::EP_none)
-        // return evaluate();// 完全错误
-        return redScore_ - blackScore_;// 红方走棋正确，黑方走棋错误
+        return evaluate(player_);// 评价函数是相对于当前玩家的
 
     vector<uint16_t> moves;
     generateAllMoves(moves);
@@ -205,7 +203,7 @@ int SlimBoard::negamax(int depth, uint16_t& nextMove)
         if (board::EMR_ok & makeMove(move))// move可能导致自杀
         {
             uint16_t tmp;
-            int val = -negamax(depth - 1, tmp);
+            int val = -negamax(depth - 1, maxPlayer, tmp);
             undoMakeMove();
 
             if (val > maxScore)
@@ -222,7 +220,7 @@ int SlimBoard::negamax(int depth, uint16_t& nextMove)
 int SlimBoard::alphabeta(int depth, def::EPlayer maxPlayer, int alpha, int beta, uint16_t& nextMove)
 {
     if (depth == 0 || winner_ != def::EP_none)
-        return evaluate();
+        return evaluate(maxPlayer);// 评价函数是相对于极大方的
 
     vector<uint16_t> moves;
     generateAllMoves(moves);
@@ -289,11 +287,10 @@ int SlimBoard::alphabeta(int depth, def::EPlayer maxPlayer, int alpha, int beta,
     return 0;
 }
 
-int SlimBoard::alphabetaWithNega(int depth, int alpha, int beta, uint16_t& nextMove)
+int SlimBoard::alphabetaWithNega(int depth, def::EPlayer maxPlayer, int alpha, int beta, uint16_t& nextMove)
 {
-    if (depth == 0 || winner_ != def::EP_none)
-        return redScore_ - blackScore_;
-        //return evaluate();
+    if (depth == 0 || winner_ != def::EP_none)       
+        return evaluate(player_);// 评价函数是相对于当前玩家的
 
     vector<uint16_t> moves;
     generateAllMoves(moves);
@@ -307,32 +304,21 @@ int SlimBoard::alphabetaWithNega(int depth, int alpha, int beta, uint16_t& nextM
         if (board::EMR_ok & makeMove(move))
         {
             uint16_t tmp;
-            int val = -alphabetaWithNega(depth - 1, -beta, -alpha, tmp);
+            int val = -alphabetaWithNega(depth - 1, maxPlayer, -beta, -maxScore, tmp);
             undoMakeMove();
 
-            if (val > alpha)
+            if (val > maxScore)
             {
                 nextMove = move;
-                alpha = val;
+                maxScore = val;
             }
 
             if (val >= beta)
                 break;
-
-            /*if (val > maxScore)// 本层为极大节点，取各子节点最大值
-            {
-                maxScore = val;
-                nextMove = move;
-            }
-
-            if (maxScore > beta)// beta剪枝：对于上层极小节点来说，希望寻找其子节点最小值，本层maxScore一旦大于beta，即可忽略
-            {
-                break;
-            }*/
         }
     }
 
-    return alpha;
+    return maxScore;
 }
 
 uint8_t SlimBoard::makeMove(def::TMove move)// 指定走法走棋
