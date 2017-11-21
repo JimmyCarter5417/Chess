@@ -66,6 +66,7 @@ void SlimBoard::init()// 开局
     //blackScore_ = 0;
     initScore();
 
+    winner_ = def::EP_none;
     player_ = def::EP_red;
     //player_ = def::EP_black;
     
@@ -106,11 +107,22 @@ bool SlimBoard::undoMakeMove()// 悔棋
 
 uint8_t SlimBoard::autoMove()// 电脑计算走棋
 {
-    uint16_t nextMove;
-    int a = minimax(1, player_, nextMove);
+    int depth = 3;
+
     uint16_t nextMove1;
-    int b = negamax(1, nextMove1);
-    return makeMove(nextMove);
+    int a = minimax(depth, player_, nextMove1);
+
+    uint16_t nextMove2;
+    int b = negamax(depth, nextMove2);
+
+    uint16_t nextMove3;
+    int c = alphabeta(depth, player_, INT_MIN, INT_MAX, nextMove3);
+
+    /*uint16_t nextMove4;
+    // int d = alphabetaWithNega(depth, INT_MIN, INT_MAX, nextMove4);
+    int d = alphabetaWithNega(depth, g_deadScore, g_winScore, nextMove4);*/
+
+    return makeMove(nextMove3);
 }
 
 int SlimBoard::evaluate()
@@ -120,16 +132,11 @@ int SlimBoard::evaluate()
 
 int SlimBoard::minimax(int depth, def::EPlayer maxPlayer, uint16_t& nextMove)
 {
-    static int count = 0;
-
-    int playerScore = getScore(player_);
-    if (depth == 0 || playerScore == g_winScore || playerScore == g_deadScore)
-        return playerScore;
+    if (depth == 0 || winner_ != def::EP_none)
+        return evaluate();
 
     vector<uint16_t> moves;
     generateAllMoves(moves);
-
-    count += moves.size();
 
     if (player_ == maxPlayer)// 极大节点
     {
@@ -137,6 +144,8 @@ int SlimBoard::minimax(int depth, def::EPlayer maxPlayer, uint16_t& nextMove)
 
         for (uint16_t move: moves)
         {
+            res1++;
+
             if (board::EMR_ok & makeMove(move))// move可能导致自杀
             {
                 uint16_t tmp;
@@ -159,6 +168,8 @@ int SlimBoard::minimax(int depth, def::EPlayer maxPlayer, uint16_t& nextMove)
 
         for (uint16_t move: moves)
         {
+            res1++;
+
             if (board::EMR_ok & makeMove(move))// move可能导致自杀
             {
                 uint16_t tmp;
@@ -179,20 +190,18 @@ int SlimBoard::minimax(int depth, def::EPlayer maxPlayer, uint16_t& nextMove)
 
 int SlimBoard::negamax(int depth, uint16_t& nextMove)
 {
-    static int count = 0;
-
-    int playerScore = getScore(player_);
-    if (depth == 0 || playerScore == g_winScore || playerScore == g_deadScore)
-        return playerScore;
+    if (depth == 0 || winner_ != def::EP_none)
+        // return evaluate();// 完全错误
+        return redScore_ - blackScore_;// 红方走棋正确，黑方走棋错误
 
     vector<uint16_t> moves;
     generateAllMoves(moves);
 
-    count += moves.size();
-
     int maxScore = INT_MIN;
     for (uint16_t move: moves)
     {
+        res2++;
+
         if (board::EMR_ok & makeMove(move))// move可能导致自杀
         {
             uint16_t tmp;
@@ -210,40 +219,120 @@ int SlimBoard::negamax(int depth, uint16_t& nextMove)
     return maxScore;
 }
 
-int SlimBoard::alphadeta(int depth, def::EPlayer maxPlayer, int alpha, int deta, uint16_t& nextMove)
+int SlimBoard::alphabeta(int depth, def::EPlayer maxPlayer, int alpha, int beta, uint16_t& nextMove)
 {
-    static int count = 0;
-
-    /*int playerScore = getScore(player_);
-    if (depth == 0 || playerScore == g_winScore || playerScore == g_deadScore)
+    if (depth == 0 || winner_ != def::EP_none)
         return evaluate();
 
     vector<uint16_t> moves;
     generateAllMoves(moves);
 
-    count += moves.size();
+    if (player_ == maxPlayer)// 极大节点
+    {
+        int maxScore = alpha;
+
+        for (uint16_t move: moves)
+        {
+            res3++;
+
+            if (board::EMR_ok & makeMove(move))
+            {
+                uint16_t tmp;
+                int val = alphabeta(depth - 1, maxPlayer, maxScore, beta, tmp);
+                undoMakeMove();
+
+                if (val > maxScore)// 本层为极大节点，取各子节点最大值
+                {
+                    maxScore = val;
+                    nextMove = move;
+                }
+
+                if (maxScore >= beta)// beta剪枝：对于上层极小节点来说，希望寻找其子节点最小值，本层maxScore一旦大于beta，即可忽略
+                {
+                    break;
+                }
+            }
+        }
+
+        return maxScore;
+    }
+    else// 极小节点
+    {
+        int minScore = beta;
+
+        for (uint16_t move: moves)
+        {
+            res3++;
+
+            if (board::EMR_ok & makeMove(move))
+            {
+                uint16_t tmp;
+                int val = alphabeta(depth - 1, maxPlayer, alpha, minScore, tmp);
+                undoMakeMove();
+
+                if (val < minScore)// 本层为极小节点，取各子节点最小值
+                {
+                    minScore = val;
+                    nextMove = move;
+                }
+
+                if (alpha >= minScore)// alpha剪枝：对于上层极大节点来说，希望寻找其子节点最大值，本层alpha一旦大于minScore，即可忽略
+                {
+                    break;
+                }
+            }
+        }
+
+        return minScore;
+    }
+
+    return 0;
+}
+
+int SlimBoard::alphabetaWithNega(int depth, int alpha, int beta, uint16_t& nextMove)
+{
+    if (depth == 0 || winner_ != def::EP_none)
+        return redScore_ - blackScore_;
+        //return evaluate();
+
+    vector<uint16_t> moves;
+    generateAllMoves(moves);
+
+    int maxScore = alpha;
 
     for (uint16_t move: moves)
     {
+        res4++;
+
         if (board::EMR_ok & makeMove(move))
         {
-            if (player_ == maxPlayer)
-            {
-                uint16_t tmp;
-                int val = alphadeta(depth - 1, maxPlayer, alpha, beta, tmp);
-
-                alpha = max(alpha, val);
-
-            }
-            else
-            {
-
-            }
-
+            uint16_t tmp;
+            int val = -alphabetaWithNega(depth - 1, -beta, -alpha, tmp);
             undoMakeMove();
+
+            if (val > alpha)
+            {
+                nextMove = move;
+                alpha = val;
+            }
+
+            if (val >= beta)
+                break;
+
+            /*if (val > maxScore)// 本层为极大节点，取各子节点最大值
+            {
+                maxScore = val;
+                nextMove = move;
+            }
+
+            if (maxScore > beta)// beta剪枝：对于上层极小节点来说，希望寻找其子节点最小值，本层maxScore一旦大于beta，即可忽略
+            {
+                break;
+            }*/
         }
-    }*/
-    return 1;
+    }
+
+    return alpha;
 }
 
 uint8_t SlimBoard::makeMove(def::TMove move)// 指定走法走棋
@@ -283,7 +372,7 @@ uint8_t SlimBoard::makeMove(uint16_t move)
     {
         ret |= board::EMR_check;
 
-        if (isCheckmate())
+        if (isCheckmate())       
             ret |= board::EMR_dead;
     }
 

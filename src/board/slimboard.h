@@ -37,11 +37,14 @@ protected:
     void generateAllMoves(vector<uint16_t>& moves) const;// 生成当前局面所有合法走法
     void initScore();
 
+    // 算法相关
     int evaluate();
     int minimax(int depth, def::EPlayer maxPlayer, uint16_t& nextMove);
     int negamax(int depth, uint16_t& nextMove);
-    int alphadeta(int depth, def::EPlayer maxPlayer, int alpha, int beta, uint16_t& nextMove);
+    int alphabeta(int depth, def::EPlayer maxPlayer, int alpha, int beta, uint16_t& nextMove);
+    int alphabetaWithNega(int depth, int alpha, int beta, uint16_t& nextMove);
 
+    // 基础函数
     bool isValidMove(uint16_t move);
     bool isCheck();// 当前玩家是否被将军
     bool isCheckmate();// 当前玩家是否被将死
@@ -75,8 +78,6 @@ protected:
     inline uint8_t getMoveDst(uint16_t move) const;
     inline uint16_t getMove(uint8_t src, uint8_t dst) const;
 
-
-
 private:
     struct TRecord
     {
@@ -99,8 +100,14 @@ private:
     int redScore_;
     int blackScore_;
 
+    def::EPlayer winner_;
     def::EPlayer player_;
     stack<TRecord> history_;
+
+    int res1 = 0;
+    int res2 = 0;
+    int res3 = 0;
+    int res4 = 0;
 };
 
 #endif // SLIMBOARD_H
