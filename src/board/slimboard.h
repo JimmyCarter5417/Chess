@@ -34,15 +34,20 @@ protected:
     uint8_t movePiece(uint16_t move);
     void undoMovePiece(uint16_t move, uint8_t capture);
 
-    void generateAllMoves(vector<uint16_t>& moves) const;// 生成当前局面所有合法走法
+    void generateAllMoves(vector<uint16_t>& moves, bool capture = false) const;// 生成当前局面所有合法走法
     void initScore();
 
-    // 算法相关
-    int evaluate(def::EPlayer player);// 评价函数，相当重要
-    int minimax(int depth, def::EPlayer maxPlayer, uint16_t& nextMove);
-    int negamax(int depth, def::EPlayer maxPlayer, uint16_t& nextMove);
-    int alphabeta(int depth, def::EPlayer maxPlayer, int alpha, int beta, uint16_t& nextMove);
-    int alphabetaWithNega(int depth, def::EPlayer maxPlayer, int alpha, int beta, uint16_t& nextMove);
+    // 相关算法
+    int evaluate(def::EPlayer player) const;// 评价函数，相当重要
+    // 基本递归算法测试
+    int minimax(int depth, def::EPlayer maxPlayer, uint16_t* pNextMove);
+    int negamax(int depth, uint16_t* pNextMove);
+    int alphabeta(int depth, def::EPlayer maxPlayer, int alpha, int beta, uint16_t* pNextMove);
+    int alphabetaWithNega(int depth, int alpha, int beta, uint16_t* pNextMove);
+    // 下面是真正使用的算法
+    uint16_t fullSearch();// 迭代加深的alpha-beta完全搜索
+    int quiescentSearch(int alpha, int beta);// 静态搜索
+    int alphabetaWithNegaSearch(int depth, int maxDepth, int alpha, int beta, uint16_t* pNextMove);
 
     // 基础函数
     bool isValidMove(uint16_t move);
@@ -93,6 +98,7 @@ private:
 
 private:
     uint8_t board_[256];
+    uint16_t cache_[65536];
 
     uint8_t redKingIdx_;
     uint8_t blackKingIdx_;
@@ -102,12 +108,7 @@ private:
 
     def::EPlayer winner_;
     def::EPlayer player_;
-    stack<TRecord> history_;
-
-    int res1 = 0;
-    int res2 = 0;
-    int res3 = 0;
-    int res4 = 0;
+    stack<TRecord> records_;
 };
 
 #endif // SLIMBOARD_H
