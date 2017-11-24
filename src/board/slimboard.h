@@ -2,6 +2,8 @@
 #define SLIMBOARD_H
 
 #include "board/board.h"
+#include "board/zobrist.h"
+
 #include <vector>
 #include <stack>
 
@@ -47,7 +49,7 @@ protected:
     // 下面是真正使用的算法
     uint16_t fullSearch();// 迭代加深的alpha-beta完全搜索
     int quiescentSearch(int alpha, int beta);// 静态搜索
-    int alphabetaWithNegaSearch(int depth, int maxDepth, int alpha, int beta, uint16_t* pNextMove);
+    int alphabetaWithNegaSearch(int depth, int alpha, int beta, uint16_t* pNextMove);
 
     // 基础函数
     bool isValidMove(uint16_t move);
@@ -100,6 +102,8 @@ private:
     uint8_t board_[256];
     uint16_t cache_[65536];
 
+    int distance_;
+
     uint8_t redKingIdx_;
     uint8_t blackKingIdx_;
 
@@ -109,6 +113,10 @@ private:
     def::EPlayer winner_;
     def::EPlayer player_;
     stack<TRecord> records_;
+
+    Zobrist zoCurr_;
+    static const Zobrist zoPlayer_;
+    static const Zobrist zoTable_[14][256];
 };
 
 #endif // SLIMBOARD_H

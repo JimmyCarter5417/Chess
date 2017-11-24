@@ -63,6 +63,8 @@ void SlimBoard::init()// 开局
     memcpy(board_, initBoard, 256);
     memset(cache_, 0, 65536 * sizeof (uint16_t));
 
+    distance_ = 0;
+
     redKingIdx_ = 199;
     blackKingIdx_ = 55;
     
@@ -75,7 +77,7 @@ void SlimBoard::init()// 开局
     //player_ = def::EP_black;
     
     stack<TRecord> tmp;
-    history_.swap(tmp);   
+    records_.swap(tmp);
 }
 
 void SlimBoard::initScore()
@@ -97,14 +99,16 @@ void SlimBoard::initScore()
 
 bool SlimBoard::undoMakeMove()// 悔棋
 {
-    if (history_.empty())
+    if (records_.empty())
         return false;
 
-    SlimBoard::TRecord record = history_.top();
-    history_.pop();    
+    SlimBoard::TRecord record = records_.top();
+    records_.pop();
     undoMovePiece(record.move, record.capture);
     
     def::switchPlayer(player_);
+
+    distance_--;// 减少与根节点的距离
 
     return true;
 }
@@ -331,7 +335,7 @@ uint16_t SlimBoard::fullSearch()
 
     for (int i = 1; i <= g_maxDepth; i++)
     {
-        int score = alphabetaWithNegaSearch(1, i, -g_checkmateScore, g_checkmateScore, &move);
+        int score = alphabetaWithNegaSearch(i, -g_checkmateScore, g_checkmateScore, &move);
 
         if (score > g_winScore || score < -g_winScore)// 将死对方或被对方将死
             break;
@@ -354,6 +358,11 @@ int SlimBoard::quiescentSearch(int alpha, int beta)
     if (isCheck())// 被将军，则生成所有走法
     {
         generateAllMoves(moves);
+        std::sort(moves.begin(), moves.end(), // 将生成的走法按照历史走法的分值排序，得分高表示之前浅层递归已经记录过的走法，被排到最前
+                  [this](uint16_t v1, uint16_t v2)// 因为相同局面浅一些的搜索可能会更适合剪枝
+                    {
+                        return this->cache_[v1] >= this->cache_[v2];
+                    });
     }
     else// 否则先评估
     {
@@ -364,15 +373,42 @@ int SlimBoard::quiescentSearch(int alpha, int beta)
 
         if (val >= beta)// beta截断
             return val;
+
+        static int MvvLva[8] = {0, 5, 1, 1, 3, 4, 3, 2};
+        generateAllMoves(moves);
+        std::sort(moves.begin(), moves.end(), // 将生成的走法按照MvvLva逆向排序，先搜索最优吃子方法
+                  [this](uint16_t v1, uint16_t v2)
+                    {
+                        return MvvLva[getPiece(getMoveDst(v1)) & def::g_pieceMask] >=
+                               MvvLva[getPiece(getMoveDst(v2)) & def::g_pieceMask];
+                    });
     }
 
+    // 同alpha-beta类似
+    for (uint16_t move: moves)
+    {
+        if (board::EMR_ok & makeMove(move))
+        {
+            int val = -quiescentSearch(-beta, -maxScore);
+            undoMakeMove();
 
+            if (val > maxScore)
+                maxScore = val;
+
+            if (val >= beta)// beta剪枝
+                break;
+        }
+    }
+
+    if (maxScore == -g_checkmateScore)// 一步都走不了
+        maxScore = -g_checkmateScore + distance_;
+
+    return maxScore;
 }
 
-// depth: [1, maxDepth]
-int SlimBoard::alphabetaWithNegaSearch(int depth, int maxDepth, int alpha, int beta, uint16_t* pNextMove)
+int SlimBoard::alphabetaWithNegaSearch(int depth, int alpha, int beta, uint16_t* pNextMove)
 {
-    if (depth == maxDepth || winner_ != def::EP_none)
+    if (depth == 0 || winner_ != def::EP_none)
         return evaluate(player_);// 评价函数是相对于当前玩家的
 
     vector<uint16_t> moves;
@@ -390,7 +426,7 @@ int SlimBoard::alphabetaWithNegaSearch(int depth, int maxDepth, int alpha, int b
     {
         if (board::EMR_ok & makeMove(move))
         {
-            int val = -alphabetaWithNegaSearch(depth + 1, maxDepth, -beta, -maxScore, nullptr);
+            int val = -alphabetaWithNegaSearch(depth - 1, -beta, -maxScore, nullptr);
             undoMakeMove();
 
             if (val > maxScore)// pv走法 beta走法
@@ -408,13 +444,12 @@ int SlimBoard::alphabetaWithNegaSearch(int depth, int maxDepth, int alpha, int b
 
     if (maxScore == -g_checkmateScore)// 此层无可走的棋，即被将死
     {
-        maxScore = -g_checkmateScore + depth;// 根据相对于根节点的步数给出评分
+        maxScore = -g_checkmateScore + distance_;// 根据相对于根节点的步数给出评分
     }
 
     if (maxMove != 0)// 可以走棋的话，保存该最佳走法
     {
-        int tmp = maxDepth - depth;
-        cache_[maxMove] += tmp * tmp;// 层数越深，得分越低
+        cache_[maxMove] += depth * depth;// 层数越深，得分越低
 
         if (pNextMove != nullptr)
             *pNextMove = maxMove;
@@ -449,7 +484,7 @@ uint8_t SlimBoard::makeMove(uint16_t move)
     }
     
     def::switchPlayer(player_);// 切换玩家
-    history_.push({capture, move});// 保持纪录
+    records_.push({capture, move});// 保持纪录
     
     ret |= board::EMR_ok;
 
@@ -463,6 +498,8 @@ uint8_t SlimBoard::makeMove(uint16_t move)
         if (isCheckmate())       
             ret |= board::EMR_dead;
     }
+
+    distance_++;// 增加与根节点的距离
 
     return ret;
 }
@@ -713,9 +750,9 @@ def::TMove SlimBoard::getTrigger() const// 表示该snapshot是由trigger的两�
 {
     def::TMove move;
 
-    if (!history_.empty())
+    if (!records_.empty())
     {
-        SlimBoard::TRecord record = history_.top();// 上一步走法
+        SlimBoard::TRecord record = records_.top();// 上一步走法
         move.src = toPos(getMoveSrc(record.move));
         move.dst = toPos(getMoveDst(record.move));
     }

@@ -5,4 +5,5 @@ SOURCES += \
 HEADERS += \
     $$PWD/board.h \
     $$PWD/slimboard.h \
-    $$PWD/naiveboard.h
+    $$PWD/naiveboard.h \
+    $$PWD/zobrist.h
