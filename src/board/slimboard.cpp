@@ -13,7 +13,11 @@ static const int8_t g_knightDelta[4][2] = {{-33, -31}, {-18, 14}, {-14, 18}, {31
 
 static const int g_checkmateScore  = 10000;// 将死对方的分数
 static const int g_winScore        = 9900; // 分数大于此界限均为胜利
+static const int g_drawScore = 20;
 static const int g_maxDepth        = 32;   // 最大递归深度
+
+static const Zobrist g_zoPlayer;
+static const Zobrist g_zoTable[14][256];
 
 
 SlimBoard::SlimBoard()
@@ -76,8 +80,10 @@ void SlimBoard::init()// 开局
     player_ = def::EP_red;
     //player_ = def::EP_black;
     
-    stack<TRecord> tmp;
+    MyStack<TRecord> tmp;
     records_.swap(tmp);
+
+    zoCurr_.clear();
 }
 
 void SlimBoard::initScore()
@@ -350,7 +356,16 @@ uint16_t SlimBoard::fullSearch()
 int SlimBoard::quiescentSearch(int alpha, int beta)
 {
     // 检查重复局面
+    if (int status = detectRepeat(1))
+    {
+        return getRepeatScore(status);
+    }
+
     // 到达极限递归深度
+    if (distance_ == g_maxDepth)
+    {
+        return evaluate(player_);
+    }
 
     int maxScore = -g_checkmateScore;
     vector<uint16_t> moves;
@@ -374,13 +389,13 @@ int SlimBoard::quiescentSearch(int alpha, int beta)
         if (val >= beta)// beta截断
             return val;
 
-        static int MvvLva[8] = {0, 5, 1, 1, 3, 4, 3, 2};
+        static int MvvLva[8] = {0, 5, 1, 1, 3, 4, 3, 2};// 空 将 仕 象 马 车 炮 卒
         generateAllMoves(moves);
         std::sort(moves.begin(), moves.end(), // 将生成的走法按照MvvLva逆向排序，先搜索最优吃子方法
                   [this](uint16_t v1, uint16_t v2)
                     {
-                        return MvvLva[getPiece(getMoveDst(v1)) & def::g_pieceMask] >=
-                               MvvLva[getPiece(getMoveDst(v2)) & def::g_pieceMask];
+                        return MvvLva[getPieceType(getMoveDst(v1))] >=
+                               MvvLva[getPieceType(getMoveDst(v2))];
                     });
     }
 
@@ -517,10 +532,6 @@ uint8_t SlimBoard::movePiece(uint16_t move)
     
     delPiece(srcIndex, srcPiece);
     addPiece(dstIndex, srcPiece);
-
-    // 更新将位置，注意srcPiece/dstPiece与srcIndex/dstIndex
-    if ((srcPiece & def::g_pieceMask) == def::g_king)
-        updateKingIdx(static_cast<def::EPlayer>(srcPiece & def::g_colorMask), dstIndex);
     
     return dstPiece;
 }
@@ -538,10 +549,6 @@ void SlimBoard::undoMovePiece(uint16_t move, uint8_t capture)
     
     if (capture != 0)
         addPiece(dstIndex, static_cast<def::EPiece>(capture));
-
-    // 更新将位置，注意srcPiece/dstPiece与srcIndex/dstIndex
-    if ((dstPiece & def::g_pieceMask) == def::g_king)
-        updateKingIdx(static_cast<def::EPlayer>(dstPiece & def::g_colorMask), srcIndex);
 }
 
 // 生成当前局面所有合法走法
@@ -1127,6 +1134,11 @@ def::EPiece SlimBoard::getPiece(uint8_t idx) const
     return static_cast<def::EPiece>(board_[idx]);
 }
 
+uint8_t SlimBoard::getPieceType(def::EPiece piece) const
+{
+    return piece & def::g_pieceMask;
+}
+
 def::EPlayer SlimBoard::getPieceOwner(uint8_t idx) const// 用于内部使用一维坐标
 {
     uint8_t color = (board_[idx] & def::g_colorMask);
@@ -1320,9 +1332,15 @@ void SlimBoard::addPiece(uint8_t idx, def::EPiece piece)
     int color = (piece & def::g_colorMask);
 
     if (color == def::g_redFlag)// 增加对应玩家分数
+    {
         redScore_ += val;
+        zoCurr_.Xor(g_zoTable[value - 9][idx]);// 更新zorbris
+    }
     else if (color == def::g_blackFlag)
+    {
         blackScore_ += val;
+        zoCurr_.Xor(g_zoTable[value - 10][idx]);// 更新zorbris
+    }
 }
 
 void SlimBoard::delPiece(uint8_t idx, def::EPiece piece)
@@ -1333,15 +1351,89 @@ void SlimBoard::delPiece(uint8_t idx, def::EPiece piece)
     int color = (piece & def::g_colorMask);
 
     if (color == def::g_redFlag)// 减少对应玩家分数
+    {
         redScore_ -= val;
+        zoCurr_.Xor(g_zoTable[value - 9][idx]);// 更新zorbris
+    }
     else if (color == def::g_blackFlag)
+    {
         blackScore_ -= val;
+        zoCurr_.Xor(g_zoTable[value - 10][idx]);// 更新zorbris
+    }
 }
 
-void SlimBoard::updateKingIdx(def::EPlayer player, uint8_t idx)
+uint8_t SlimBoard::findKing(def::EPlayer player) const
 {
-    if (player == def::EP_black)
-        blackKingIdx_ = idx;
-    else if (player == def::EP_red)
-        redKingIdx_ = idx;
+    def::EPiece king = (def::g_king | player);
+
+    for (int i = 0; i < 256; i++)
+    {
+        if (getPiece(i) == king)
+            return i;
+    }
+
+    return 0;
+}
+
+/*
+    A. 返回0，表示没有重复局面；
+    B. 返回1，表示存在重复局面，但双方都无长将(判和)；
+    C. 返回3(=1+2)，表示存在重复局面，本方单方面长将(判本方负)；
+    D. 返回5(=1+4)，表示存在重复局面，对方单方面长将(判对方负)；
+    E. 返回7(=1+2+4)，表示存在重复局面，双方长将(判和)。
+*/
+int SlimBoard::detectRepeat(int count)
+{
+    def::EPlayer player = def::getOtherPlayer(player_);// 上一玩家
+    bool selfPerpetualCheck = false;
+    bool otherPerpetualCheck = false;
+
+    for (unsigned int i = records_.size() - 1; i >= 0; ++i)// 由底向上搜索
+    {
+        const TRecord& record = records_.at(i);
+
+        if (record.capture != 0)// 有吃子即可结束搜索
+        {
+            break;
+        }
+
+        if (player == player_)
+        {
+            selfPerpetualCheck = selfPerpetualCheck && record.check;
+
+            if (record.key == zoCurr_.dwKey)
+            {
+                if (--count == 0)
+                {
+                    return 1 + (selfPerpetualCheck ? 2 : 0) + (otherPerpetualCheck ? 4 : 0);
+                }
+            }
+        }
+        else
+        {
+            otherPerpetualCheck = otherPerpetualCheck && record.check;
+        }
+
+        def::switchPlayer(player);
+    }
+
+    return 0;
+}
+
+int SlimBoard::getRepeatScore(int status)
+{
+    assert(status != 0);
+
+    int res = 0;
+
+    if (status & 2)
+        res += distance_ - g_checkmateScore;
+
+    if (status & 4)
+        res += g_checkmateScore - distance_;
+
+    if (res == 0)
+        res = -g_drawScore;
+
+    return res;
 }

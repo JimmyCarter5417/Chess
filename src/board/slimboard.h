@@ -2,7 +2,8 @@
 #define SLIMBOARD_H
 
 #include "board/board.h"
-#include "board/zobrist.h"
+#include "util/zobrist.h"
+#include "util/mystack.h"
 
 #include <vector>
 #include <stack>
@@ -31,6 +32,9 @@ protected:
     // 内部使用一维坐标更为高效
     inline def::EPlayer getPieceOwner(uint8_t idx) const;
     inline def::EPiece getPiece(uint8_t idx) const;
+    inline uint8_t getPieceValue(def::EPiece piece, uint8_t idx) const;
+    inline uint8_t getPieceType(def::EPiece piece) const;
+
     uint8_t makeMove(uint16_t move);// 内部使用
     
     uint8_t movePiece(uint16_t move);
@@ -72,7 +76,6 @@ protected:
     inline bool isSameCol(uint8_t src, uint8_t dst) const;
 
     inline uint8_t getRotateIndex(uint8_t idx) const;
-    inline uint8_t getPieceValue(def::EPiece piece, uint8_t idx) const;
     inline uint8_t getPawnForwardIndex(uint8_t idx, def::EPlayer player) const;// 卒向前走一步后的坐标
 
     inline uint8_t getKnightLeg(uint8_t src, uint8_t dst) const;
@@ -85,16 +88,25 @@ protected:
     inline uint8_t getMoveDst(uint16_t move) const;
     inline uint16_t getMove(uint8_t src, uint8_t dst) const;
 
+    inline uint8_t findKing(def::EPlayer player) const;
+
+    int detectRepeat(int count);
+    int getRepeatScore(int status);
+
 private:
     struct TRecord
     {
-        uint8_t capture;  // dst坐标被捕获的棋子
-        uint16_t move;    // 当前走法
+        uint16_t move;     // 当前走法
+        uint8_t  capture;  // 走棋后dst坐标被捕获的棋子
+        bool     check;    // 走棋后是否能将军
+        uint16_t key;      // 走棋前局面的校验码
 
-        TRecord(uint8_t c = 0, uint16_t m = 0)
+        TRecord(uint16_t Move, uint8_t Capture, bool Check, uint16_t Key)
         {
-            capture = c;
-            move = m;
+            move = Move;
+            capture = Capture;
+            check = Check;
+            key = Key;
         }
     };
 
@@ -104,19 +116,15 @@ private:
 
     int distance_;
 
-    uint8_t redKingIdx_;
-    uint8_t blackKingIdx_;
-
     int redScore_;
     int blackScore_;
 
     def::EPlayer winner_;
     def::EPlayer player_;
-    stack<TRecord> records_;
 
-    Zobrist zoCurr_;
-    static const Zobrist zoPlayer_;
-    static const Zobrist zoTable_[14][256];
+    MyStack<TRecord> records_;
+
+    Zobrist zoCurr_;    
 };
 
 #endif // SLIMBOARD_H
