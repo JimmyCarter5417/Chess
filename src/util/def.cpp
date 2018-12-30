@@ -14,11 +14,23 @@ bool TDelta::operator==(const TDelta& rhs) const
     return deltaRow == rhs.deltaRow && deltaCol == rhs.deltaCol;
 }
 
-TPos::TPos(int8_t row1/* = -1*/, int8_t col1/* = -1*/)
-    : row(row1)
-    , col(col1)
+TPos::TPos(int8_t r, int8_t c)
+    : row(r)
+    , col(c)
 {
 
+}
+
+TPos::TPos(const TPos& other)
+{
+    *this = other;
+}
+
+TPos& TPos::operator=(const TPos& rhs)
+{
+    row = rhs.row;
+    col = rhs.col;
+    return *this;
 }
 
 bool TPos::operator==(const TPos& rhs) const
@@ -33,7 +45,7 @@ bool TPos::operator!=(const TPos& rhs) const
 
 bool TPos::operator()() const
 {
-    return *this != g_nullPos;
+    return *this != INVALID_POS;
 }
 
 TDelta TPos::operator-(const TPos& rhs) const
@@ -46,24 +58,52 @@ TPos TPos::operator+(const TDelta& delta) const
     return {row + delta.deltaRow, col + delta.deltaCol};
 }
 
-// 切换玩家
-void def::switchPlayer(EPlayer& player)
+TMove::TMove(TPos s, TPos d)
 {
-    if (player == EP_black)
-        player = EP_red;
-    else if (player == EP_red)
-        player = EP_black;
+    src = s;
+    dst = d;
+}
+
+TMove& TMove::operator=(const TMove& rhs)
+{
+    src = rhs.src;
+    dst = rhs.dst;
+    return *this;
+}
+
+TMove::TMove(const TMove& other)
+{
+    *this = other;
+}
+
+// 切换玩家
+void def::switchPlayer(PLAYER_E& player)
+{
+    if (player == PLAYER_black)
+        player = PLAYER_red;
+    else if (player == PLAYER_red)
+        player = PLAYER_black;
     else
-        player = EP_none;
+        player = PLAYER_none;
 }
 
 // 对位玩家
-EPlayer def::getOtherPlayer(EPlayer player)
+PLAYER_E def::getEnemyPlayer(PLAYER_E player)
 {
-    if (player == EP_black)
-        return EP_red;
-    else if (player == EP_red)
-        return EP_black;
+    if (player == PLAYER_black)
+        return PLAYER_red;
+    else if (player == PLAYER_red)
+        return PLAYER_black;
     else
-        return EP_none;
+        return PLAYER_none;
+}
+
+PLAYER_E def::getOwner(ICON_E icon)
+{
+    return static_cast<PLAYER_E>(icon & def::PLAYER_MASK);
+}
+
+PIECE_E def::getPiece(ICON_E icon)
+{
+    return static_cast<PIECE_E>(icon & def::PIECE_MASK);
 }

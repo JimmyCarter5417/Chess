@@ -18,38 +18,38 @@ void NaiveBoard::init()
     snapshotMemo_.swap(tmp);// stack无clear函数
 }
 
-int NaiveBoard::getScore(EPlayer player) const
+int NaiveBoard::getScore(PLAYER_E player) const
 {
-    if (player == def::EP_black)
+    if (player == def::PLAYER_black)
         return snapshot_->upPieceSet_.score;
-    else if (player == def::EP_red)
+    else if (player == def::PLAYER_red)
         return snapshot_->downPieceSet_.score;
     else
         return 0;
 }
 
-def::EPiece NaiveBoard::getPiece(TPos pos) const
+def::ICON_E NaiveBoard::getIcon(TPos pos) const
 {
     if (!co::isValidPos(pos))
-        return def::EP_empty;
+        return def::ICON_empty;
 
-    return static_cast<def::EPiece>(snapshot_->board_[pos.row][pos.col]);
+    return static_cast<def::ICON_E>(snapshot_->board_[pos.row][pos.col]);
 }
 
-EPlayer NaiveBoard::getNextPlayer() const
+PLAYER_E NaiveBoard::getNextPlayer() const
 {
     return snapshot_->player_;
 }
 
-EPlayer NaiveBoard::getPieceOwner(TPos pos) const
+PLAYER_E NaiveBoard::getOwner(TPos pos) const
 {
-    uint8_t color = (getPiece(pos) & def::g_colorMask);
+    uint8_t color = (getIcon(pos) & def::PLAYER_MASK);
     if (color == snapshot_->blackFlag_)
-        return def::EP_black;
+        return def::PLAYER_black;
     else if (color == snapshot_->redFlag_)
-        return def::EP_red;
+        return def::PLAYER_red;
     else
-        return def::EP_none;
+        return def::PLAYER_none;
 }
 
 def::TMove NaiveBoard::getTrigger() const
@@ -83,34 +83,34 @@ void NaiveBoard::generateAllMoves(vector<def::TMove>& moves)
         for (unsigned int j = 0; j < snapshot_->board_.front().size(); j++)
         {
             TPos src = {i, j};
-            EPlayer player = getNextPlayer();
+            PLAYER_E player = getNextPlayer();
 
-            if (getPieceOwner(src) != player)
+            if (getOwner(src) != player)
                 continue;
 
             const unordered_set<TDelta>* pDeltas = nullptr;
 
-            switch (getPiece(src) & def::g_pieceMask)
+            switch (getIcon(src) & def::PIECE_MASK)
             {
-            case def::g_king:
+            case def::PIECE_king:
                 pDeltas = &getValidKingDelta(player);
                 break;
-            case def::g_advisor:
+            case def::PIECE_advisor:
                 pDeltas = &getValidAdvisorDelta(player);
                 break;
-            case def::g_bishop:
+            case def::PIECE_bishop:
                 pDeltas = &getValidBishopDelta(player);
                 break;
-            case def::g_knight:
+            case def::PIECE_knight:
                 pDeltas = &getValidKnightDelta(player);
                 break;
-            case def::g_rook:
+            case def::PIECE_rook:
                 pDeltas = &getValidRookDelta(player);
                 break;
-            case def::g_cannon:
+            case def::PIECE_cannon:
                 pDeltas = &getValidCannonDelta(player);
                 break;
-            case def::g_pawn:
+            case def::PIECE_pawn:
                 pDeltas = &getValidPawnDelta(player);
                 break;
             default:
@@ -136,7 +136,7 @@ void NaiveBoard::generateAllMoves(vector<def::TMove>& moves)
     }
 }
 
-bool NaiveBoard::isValidKingPos(TPos pos, EPlayer player) const
+bool NaiveBoard::isValidKingPos(TPos pos, PLAYER_E player) const
 {
     static const unordered_set<TPos> upPos =
     {
@@ -152,12 +152,12 @@ bool NaiveBoard::isValidKingPos(TPos pos, EPlayer player) const
         {9, 3}, {9, 4}, {9, 5}
     };
 
-    return player == def::EP_black ?
+    return player == def::PLAYER_black ?
            upPos.find(pos) != upPos.end() :
            downPos.find(pos) != downPos.end();
 }
 
-bool NaiveBoard::isValidAdvisorPos(TPos pos, EPlayer player) const
+bool NaiveBoard::isValidAdvisorPos(TPos pos, PLAYER_E player) const
 {
     static const unordered_set<TPos> upPos =
     {
@@ -173,12 +173,12 @@ bool NaiveBoard::isValidAdvisorPos(TPos pos, EPlayer player) const
         {9, 3}, {9, 5}
     };
 
-    return player == def::EP_black ?
+    return player == def::PLAYER_black ?
            upPos.find(pos) != upPos.end() :
            downPos.find(pos) != downPos.end();
 }
 
-bool NaiveBoard::isValidBishopPos(TPos pos, EPlayer player) const
+bool NaiveBoard::isValidBishopPos(TPos pos, PLAYER_E player) const
 {
     static const unordered_set<TPos> upPos =
     {
@@ -194,29 +194,29 @@ bool NaiveBoard::isValidBishopPos(TPos pos, EPlayer player) const
         {9, 2}, {9, 6}
     };    
 
-    return player == def::EP_black ?
+    return player == def::PLAYER_black ?
            upPos.find(pos) != upPos.end() :
            downPos.find(pos) != downPos.end();
 }
 
-bool NaiveBoard::isValidKnightPos(TPos pos, EPlayer player) const
+bool NaiveBoard::isValidKnightPos(TPos pos, PLAYER_E player) const
 {
     return co::isValidPos(pos);
 }
 
-bool NaiveBoard::isValidRookPos(TPos pos, EPlayer player) const
+bool NaiveBoard::isValidRookPos(TPos pos, PLAYER_E player) const
 {
     return co::isValidPos(pos);
 }
 
-bool NaiveBoard::isValidCannonPos(TPos pos, EPlayer player) const
+bool NaiveBoard::isValidCannonPos(TPos pos, PLAYER_E player) const
 {
     return co::isValidPos(pos);
 }
 
-bool NaiveBoard::isValidPawnPos(TPos pos, EPlayer player) const
+bool NaiveBoard::isValidPawnPos(TPos pos, PLAYER_E player) const
 {
-    if (player == def::EP_black)
+    if (player == def::PLAYER_black)
     {
         return ((pos.row == 3 || pos.row == 4) && (pos.col % 2 == 0)) ||
                (pos.row >= 5 && pos.row <= 9 && pos.col >= 0 && pos.col <= 8);
@@ -228,7 +228,7 @@ bool NaiveBoard::isValidPawnPos(TPos pos, EPlayer player) const
     }   
 }
 
-const unordered_set<TDelta>& NaiveBoard::getValidKingDelta(EPlayer player) const
+const unordered_set<TDelta>& NaiveBoard::getValidKingDelta(PLAYER_E player) const
 {
     static const unordered_set<TDelta> deltas =
     {
@@ -241,7 +241,7 @@ const unordered_set<TDelta>& NaiveBoard::getValidKingDelta(EPlayer player) const
     return deltas;
 }
 
-const unordered_set<TDelta>& NaiveBoard::getValidAdvisorDelta(EPlayer player) const
+const unordered_set<TDelta>& NaiveBoard::getValidAdvisorDelta(PLAYER_E player) const
 {
     static const unordered_set<TDelta> deltas =
     {
@@ -254,7 +254,7 @@ const unordered_set<TDelta>& NaiveBoard::getValidAdvisorDelta(EPlayer player) co
     return deltas;
 }
 
-const unordered_set<TDelta>& NaiveBoard::getValidBishopDelta(EPlayer player) const
+const unordered_set<TDelta>& NaiveBoard::getValidBishopDelta(PLAYER_E player) const
 {
     static const unordered_set<TDelta> deltas =
     {
@@ -266,7 +266,7 @@ const unordered_set<TDelta>& NaiveBoard::getValidBishopDelta(EPlayer player) con
 
     return deltas;
 }
-const unordered_set<TDelta>& NaiveBoard::getValidKnightDelta(EPlayer player) const
+const unordered_set<TDelta>& NaiveBoard::getValidKnightDelta(PLAYER_E player) const
 {
     static const unordered_set<TDelta> deltas =
     {
@@ -282,7 +282,7 @@ const unordered_set<TDelta>& NaiveBoard::getValidKnightDelta(EPlayer player) con
 
     return deltas;
 }
-const unordered_set<TDelta>& NaiveBoard::getValidRookDelta(EPlayer player) const
+const unordered_set<TDelta>& NaiveBoard::getValidRookDelta(PLAYER_E player) const
 {
     static const unordered_set<TDelta> deltas =
     {
@@ -295,7 +295,7 @@ const unordered_set<TDelta>& NaiveBoard::getValidRookDelta(EPlayer player) const
 
     return deltas;
 }
-const unordered_set<TDelta>& NaiveBoard::getValidCannonDelta(EPlayer player) const
+const unordered_set<TDelta>& NaiveBoard::getValidCannonDelta(PLAYER_E player) const
 {
     static const unordered_set<TDelta> deltas =
     {
@@ -308,7 +308,7 @@ const unordered_set<TDelta>& NaiveBoard::getValidCannonDelta(EPlayer player) con
 
     return deltas;
 }
-const unordered_set<TDelta>& NaiveBoard::getValidPawnDelta(EPlayer player) const
+const unordered_set<TDelta>& NaiveBoard::getValidPawnDelta(PLAYER_E player) const
 {
     static const unordered_set<TDelta> upDeltas =
     {
@@ -324,53 +324,53 @@ const unordered_set<TDelta>& NaiveBoard::getValidPawnDelta(EPlayer player) const
         { 0,  1},
     };    
 
-    return player == def::EP_black ? upDeltas : downDeltas;
+    return player == def::PLAYER_black ? upDeltas : downDeltas;
 }
 
 // 单格
-bool NaiveBoard::isValidKingDelta(TDelta delta, EPlayer player) const
+bool NaiveBoard::isValidKingDelta(TDelta delta, PLAYER_E player) const
 {
     const unordered_set<TDelta>& deltas = getValidKingDelta(player);
     return deltas.find(delta) != deltas.end();
 }
 
 // 单格对角线
-bool NaiveBoard::isValidAdvisorDelta(TDelta delta, EPlayer player) const
+bool NaiveBoard::isValidAdvisorDelta(TDelta delta, PLAYER_E player) const
 {
     const unordered_set<TDelta>& deltas = getValidAdvisorDelta(player);
     return deltas.find(delta) != deltas.end();
 }
 
 // 田字
-bool NaiveBoard::isValidBishopDelta(TDelta delta, EPlayer player) const
+bool NaiveBoard::isValidBishopDelta(TDelta delta, PLAYER_E player) const
 {
     const unordered_set<TDelta>& deltas = getValidBishopDelta(player);
     return deltas.find(delta) != deltas.end();
 }
 
 // 日字
-bool NaiveBoard::isValidKnightDelta(TDelta delta, EPlayer player) const
+bool NaiveBoard::isValidKnightDelta(TDelta delta, PLAYER_E player) const
 {
     const unordered_set<TDelta>& deltas = getValidKnightDelta(player);
     return deltas.find(delta) != deltas.end();
 }
 
 // 共线
-bool NaiveBoard::isValidRookDelta(TDelta delta, EPlayer player) const
+bool NaiveBoard::isValidRookDelta(TDelta delta, PLAYER_E player) const
 {
     const unordered_set<TDelta>& deltas = getValidRookDelta(player);
     return deltas.find(delta) != deltas.end();
 }
 
 // 共线
-bool NaiveBoard::isValidCannonDelta(TDelta delta, EPlayer player) const
+bool NaiveBoard::isValidCannonDelta(TDelta delta, PLAYER_E player) const
 {
     const unordered_set<TDelta>& deltas = getValidCannonDelta(player);
     return deltas.find(delta) != deltas.end();
 }
 
 // 前、左、右
-bool NaiveBoard::isValidPawnDelta(TDelta delta, EPlayer player) const
+bool NaiveBoard::isValidPawnDelta(TDelta delta, PLAYER_E player) const
 {
     const unordered_set<TDelta>& deltas = getValidPawnDelta(player);
     return deltas.find(delta) != deltas.end();
@@ -395,14 +395,14 @@ bool NaiveBoard::isValidBishopRule(TMove move) const
     TPos buddyPos = {(move.src.row + move.dst.row) / 2, (move.src.col + move.dst.col) / 2};
 
     // 不能塞象眼
-    return getPiece(buddyPos) == def::EP_empty;
+    return getIcon(buddyPos) == def::ICON_empty;
 }
 
 // 不再检查pos及delta，默认前面已检查
 bool NaiveBoard::isValidKnightRule(TMove move) const
 {    
     // 计算马腿位置
-    TPos buddyPos = def::g_nullPos;
+    TPos buddyPos = def::INVALID_POS;
     TDelta delta = move.dst - move.src;
     if (delta == TDelta(-1, 2) || delta == TDelta(1, 2))
         buddyPos = {move.src.row, move.src.col + 1};
@@ -414,7 +414,7 @@ bool NaiveBoard::isValidKnightRule(TMove move) const
         buddyPos = {move.src.row + 1, move.src.col};
 
     // 不能蹩马腿
-    return getPiece(buddyPos) == def::EP_empty;
+    return getIcon(buddyPos) == def::ICON_empty;
 }
 
 // 不再检查pos及delta，默认前面已检查
@@ -427,7 +427,7 @@ bool NaiveBoard::isValidRookRule(TMove move) const
         int end = std::max(move.src.col, move.dst.col) - 1;
         while (cur <= end)
         {
-            if (def::EP_empty != getPiece({move.src.row, cur}))
+            if (def::ICON_empty != getIcon({move.src.row, cur}))
                 return false;
 
             cur++;
@@ -439,7 +439,7 @@ bool NaiveBoard::isValidRookRule(TMove move) const
         int end = std::max(move.src.row, move.dst.row) - 1;
         while (cur <= end)
         {
-            if (def::EP_empty != getPiece({cur, move.src.col}))
+            if (def::ICON_empty != getIcon({cur, move.src.col}))
                 return false;
 
             cur++;
@@ -452,7 +452,7 @@ bool NaiveBoard::isValidRookRule(TMove move) const
 // 不再检查pos及delta，默认前面已检查
 bool NaiveBoard::isValidCannonRule(TMove move) const
 { 
-    if (getPiece(move.dst) == def::EP_empty)// 目的位置为空，则中间不能有棋子
+    if (getIcon(move.dst) == def::ICON_empty)// 目的位置为空，则中间不能有棋子
     {
         if (move.src.row == move.dst.row)// 同一行
         {
@@ -460,7 +460,7 @@ bool NaiveBoard::isValidCannonRule(TMove move) const
             int end = std::max(move.src.col, move.dst.col) - 1;
             while (cur <= end)
             {
-                if (def::EP_empty != getPiece({move.src.row, cur}))
+                if (def::ICON_empty != getIcon({move.src.row, cur}))
                     return false;
 
                 cur++;
@@ -474,7 +474,7 @@ bool NaiveBoard::isValidCannonRule(TMove move) const
             int end = std::max(move.src.row, move.dst.row) - 1;
             while (cur <= end)
             {
-                if (def::EP_empty != getPiece({cur, move.src.col}))
+                if (def::ICON_empty != getIcon({cur, move.src.col}))
                     return false;
 
                 cur++;
@@ -492,7 +492,7 @@ bool NaiveBoard::isValidCannonRule(TMove move) const
             int end = std::max(move.src.col, move.dst.col) - 1;
             while (cur <= end)
             {
-                if (def::EP_empty != getPiece({move.src.row, cur}))
+                if (def::ICON_empty != getIcon({move.src.row, cur}))
                 {
                     if (flag)
                         return false;
@@ -512,7 +512,7 @@ bool NaiveBoard::isValidCannonRule(TMove move) const
             int end = std::max(move.src.row, move.dst.row) - 1;
             while (cur <= end)
             {
-                if (def::EP_empty != getPiece({cur, move.src.col}))
+                if (def::ICON_empty != getIcon({cur, move.src.col}))
                 {
                     if (flag)
                         return false;
@@ -533,7 +533,7 @@ bool NaiveBoard::isValidCannonRule(TMove move) const
 // 不再检查pos及delta，默认前面已检查
 bool NaiveBoard::isValidPawnRule(TMove move) const
 {
-    uint8_t color = (getPiece(move.src) & def::g_colorMask);
+    uint8_t color = (getIcon(move.src) & def::PLAYER_MASK);
     if (color == snapshot_->blackFlag_)
     {
         if (move.src.row <= 4)// 未过河，只能向前走一步，row加一
@@ -548,73 +548,73 @@ bool NaiveBoard::isValidPawnRule(TMove move) const
     return true;
 }
 
-bool NaiveBoard::isValidKingMove(TMove move, EPlayer player) const
+bool NaiveBoard::isValidKingMove(TMove move, PLAYER_E player) const
 {
    //检查输入
-    if (!isPiece(move.src, def::g_king))
+    if (!isPiece(move.src, def::PIECE_king))
         return false;
 
     return isValidMove(move, player, &NaiveBoard::isValidKingPos, &NaiveBoard::isValidKingDelta, &NaiveBoard::isValidKingRule);
 }
 
-bool NaiveBoard::isValidKnightMove(TMove move, EPlayer player) const
+bool NaiveBoard::isValidKnightMove(TMove move, PLAYER_E player) const
 {    
     //检查输入
-    if (!isPiece(move.src, def::g_knight))
+    if (!isPiece(move.src, def::PIECE_knight))
         return false;
 
     return isValidMove(move, player, &NaiveBoard::isValidKnightPos, &NaiveBoard::isValidKnightDelta, &NaiveBoard::isValidKnightRule);
 }
 
-bool NaiveBoard::isValidBishopMove(TMove move, EPlayer player) const
+bool NaiveBoard::isValidBishopMove(TMove move, PLAYER_E player) const
 {   
     //检查输入
-    if (!isPiece(move.src, def::g_bishop))
+    if (!isPiece(move.src, def::PIECE_bishop))
         return false;
 
     return isValidMove(move, player, &NaiveBoard::isValidBishopPos, &NaiveBoard::isValidBishopDelta, &NaiveBoard::isValidBishopRule);
 }
 
-bool NaiveBoard::isValidAdvisorMove(TMove move, EPlayer player) const
+bool NaiveBoard::isValidAdvisorMove(TMove move, PLAYER_E player) const
 {
     //检查输入
-    if (!isPiece(move.src, def::g_advisor))
+    if (!isPiece(move.src, def::PIECE_advisor))
         return false;
 
     return isValidMove(move, player, &NaiveBoard::isValidAdvisorPos, &NaiveBoard::isValidAdvisorDelta, &NaiveBoard::isValidAdvisorRule);
 }
 
-bool NaiveBoard::isValidRookMove(TMove move, EPlayer player) const
+bool NaiveBoard::isValidRookMove(TMove move, PLAYER_E player) const
 { 
     //检查输入
-    if (!isPiece(move.src, def::g_rook))
+    if (!isPiece(move.src, def::PIECE_rook))
         return false;
 
     return isValidMove(move, player, &NaiveBoard::isValidRookPos, &NaiveBoard::isValidRookDelta, &NaiveBoard::isValidRookRule);
 }
 
-bool NaiveBoard::isValidCannonMove(TMove move, EPlayer player) const
+bool NaiveBoard::isValidCannonMove(TMove move, PLAYER_E player) const
 {   
     //检查输入
-    if (!isPiece(move.src, def::g_cannon))
+    if (!isPiece(move.src, def::PIECE_cannon))
         return false;
 
     return isValidMove(move, player, &NaiveBoard::isValidCannonPos, &NaiveBoard::isValidCannonDelta, &NaiveBoard::isValidCannonRule);
 }
 
-bool NaiveBoard::isValidPawnMove(TMove move, EPlayer player) const
+bool NaiveBoard::isValidPawnMove(TMove move, PLAYER_E player) const
 {
     //检查输入
-    if (!isPiece(move.src, def::g_pawn))
+    if (!isPiece(move.src, def::PIECE_pawn))
         return false;
 
     return isValidMove(move, player, &NaiveBoard::isValidPawnPos, &NaiveBoard::isValidPawnDelta, &NaiveBoard::isValidPawnRule);
 }
 
-bool NaiveBoard::isValidMove(TMove move, EPlayer player, PosFunc isValidPos, DeltaFunc isValidDelta, RuleFunc isValidRule) const
+bool NaiveBoard::isValidMove(TMove move, PLAYER_E player, PosFunc isValidPos, DeltaFunc isValidDelta, RuleFunc isValidRule) const
 {
-    EPlayer srcOwner = getPieceOwner(move.src);
-    EPlayer dstOwner = getPieceOwner(move.dst);
+    PLAYER_E srcOwner = getOwner(move.src);
+    PLAYER_E dstOwner = getOwner(move.dst);
     // 确认原位置棋子属于应走棋的玩家
     if (player != srcOwner)
         return false;
@@ -649,39 +649,39 @@ bool NaiveBoard::isValidMove(TMove move, EPlayer player, PosFunc isValidPos, Del
 
 bool NaiveBoard::isPiece(TPos pos, int piece) const
 {
-    return piece == (getPiece(pos) & def::g_pieceMask);
+    return piece == (getIcon(pos) & def::PIECE_MASK);
 }
 
 bool NaiveBoard::isKing(TPos pos) const
 {
-    return isPiece(pos, def::g_king);
+    return isPiece(pos, def::PIECE_king);
 }
 
 bool NaiveBoard::isDefensivePiece(TPos pos) const
 {
-    return isPiece(pos, def::g_advisor) || isPiece(pos, def::g_bishop);
+    return isPiece(pos, def::PIECE_advisor) || isPiece(pos, def::PIECE_bishop);
 }
 
 bool NaiveBoard::isAttactivePiece(TPos pos) const
 {
-    return isPiece(pos, def::g_knight) || isPiece(pos, def::g_rook) || isPiece(pos, def::g_cannon) || isPiece(pos, def::g_pawn);
+    return isPiece(pos, def::PIECE_knight) || isPiece(pos, def::PIECE_rook) || isPiece(pos, def::PIECE_cannon) || isPiece(pos, def::PIECE_pawn);
 }
 
-bool NaiveBoard::isValidMove(TMove move, EPlayer player) const
+bool NaiveBoard::isValidMove(TMove move, PLAYER_E player) const
 {
-    typedef bool (NaiveBoard::*MoveFunc)(TMove move, EPlayer player) const;
+    typedef bool (NaiveBoard::*MoveFunc)(TMove move, PLAYER_E player) const;
     static std::unordered_map<int, MoveFunc> allMoveFunc =
     {
-        {def::g_king,    &NaiveBoard::isValidKingMove},
-        {def::g_advisor, &NaiveBoard::isValidAdvisorMove},
-        {def::g_bishop,  &NaiveBoard::isValidBishopMove},
-        {def::g_knight,  &NaiveBoard::isValidKnightMove},
-        {def::g_rook,    &NaiveBoard::isValidRookMove},
-        {def::g_cannon,  &NaiveBoard::isValidCannonMove},
-        {def::g_pawn,    &NaiveBoard::isValidPawnMove},
+        {def::PIECE_king,    &NaiveBoard::isValidKingMove},
+        {def::PIECE_advisor, &NaiveBoard::isValidAdvisorMove},
+        {def::PIECE_bishop,  &NaiveBoard::isValidBishopMove},
+        {def::PIECE_knight,  &NaiveBoard::isValidKnightMove},
+        {def::PIECE_rook,    &NaiveBoard::isValidRookMove},
+        {def::PIECE_cannon,  &NaiveBoard::isValidCannonMove},
+        {def::PIECE_pawn,    &NaiveBoard::isValidPawnMove},
     };    
 
-    std::unordered_map<int, MoveFunc>::iterator itr = allMoveFunc.find(getPiece(move.src) & def::g_pieceMask);
+    std::unordered_map<int, MoveFunc>::iterator itr = allMoveFunc.find(getIcon(move.src) & def::PIECE_MASK);
     if (itr == allMoveFunc.end())
         return false;
 
@@ -704,28 +704,28 @@ uint8_t NaiveBoard::makeMove(TMove move)
     // 自杀？
     if (isSuicide(move, snapshot_->player_))
     {
-        ret |= board::EMR_suicide;// 设置SUICIDE位
+        ret |= board::MOVE_RET_suicide;// 设置SUICIDE位
         return ret;
     }
 
-    ret = board::EMR_ok;// 可以走棋
+    ret = board::MOVE_RET_ok;// 可以走棋
 
-    if (getPiece(move.dst) != def::EP_empty)
-        ret |= board::EMR_eat;// 吃子
+    if (getIcon(move.dst) != def::ICON_empty)
+        ret |= board::MOVE_RET_eat;// 吃子
 
     saveSnapshot();// 保存快照
     updateSnapshot(move, snapshot_->player_);// 更新快照
 
     // 将军？
-    EPlayer player = def::getOtherPlayer(snapshot_->player_);// player已切换，需要切回来
+    PLAYER_E player = def::getEnemyPlayer(snapshot_->player_);// player已切换，需要切回来
     if (check(player))
     {
-        ret |= board::EMR_check;// 设置OK位/CHECK位
+        ret |= board::MOVE_RET_check;// 设置OK位/CHECK位
 
         // 将死？
         if (checkmate(player))
         {
-            if (player == def::EP_black)
+            if (player == def::PLAYER_black)
             {
                 snapshot_->upPieceSet_.score = INT_MAX;
                 snapshot_->downPieceSet_.score = INT_MIN;
@@ -735,7 +735,7 @@ uint8_t NaiveBoard::makeMove(TMove move)
                 snapshot_->upPieceSet_.score = INT_MIN;
                 snapshot_->downPieceSet_.score = INT_MAX;
             }
-            ret |= board::EMR_dead;// 设置DEAD位
+            ret |= board::MOVE_RET_dead;// 设置DEAD位
         }
     }
 
@@ -744,17 +744,17 @@ uint8_t NaiveBoard::makeMove(TMove move)
 }
 
 // 前提是isValidMove(prevPos, currPos, player) && !isSuicide(prevPos, currPos, player)
-bool NaiveBoard::updateSnapshot(TMove move, EPlayer player)
+bool NaiveBoard::updateSnapshot(TMove move, PLAYER_E player)
 {
-    NaiveBoard::TPieceSet& activePieceSet = (player == def::EP_black ? snapshot_->upPieceSet_ : snapshot_->downPieceSet_);// 走棋一方
-    NaiveBoard::TPieceSet& passivePieceSet = (player == def::EP_black ? snapshot_->downPieceSet_ : snapshot_->upPieceSet_);// 对方
+    NaiveBoard::TPieceSet& activePieceSet = (player == def::PLAYER_black ? snapshot_->upPieceSet_ : snapshot_->downPieceSet_);// 走棋一方
+    NaiveBoard::TPieceSet& passivePieceSet = (player == def::PLAYER_black ? snapshot_->downPieceSet_ : snapshot_->upPieceSet_);// 对方
 
     // 更新双方分数
-    uint8_t srcPiece = (getPiece(move.src) & def::g_pieceMask);
-    uint8_t dstPiece = (getPiece(move.dst) & def::g_pieceMask);
+    uint8_t srcPiece = (getIcon(move.src) & def::PIECE_MASK);
+    uint8_t dstPiece = (getIcon(move.dst) & def::PIECE_MASK);
 
     activePieceSet.score += getValue(srcPiece, move.dst, player) - getValue(srcPiece, move.src, player);
-    passivePieceSet.score -= getValue(dstPiece, move.dst, def::getOtherPlayer(player));
+    passivePieceSet.score -= getValue(dstPiece, move.dst, def::getEnemyPlayer(player));
 
     // 由prevPos更新activePieceSet
     if (isKing(move.src))
@@ -787,7 +787,7 @@ bool NaiveBoard::updateSnapshot(TMove move, EPlayer player)
     }
 
     snapshot_->board_[move.dst.row][move.dst.col] = snapshot_->board_[move.src.row][move.src.col];// 移动原棋子至当前位置
-    snapshot_->board_[move.src.row][move.src.col] = def::EP_empty;// 删除原位置棋子
+    snapshot_->board_[move.src.row][move.src.col] = def::ICON_empty;// 删除原位置棋子
 
     def::switchPlayer(snapshot_->player_);// 切换玩家
 
@@ -808,7 +808,7 @@ bool NaiveBoard::undoMakeMove()
     return loadSnapshot();// 读取上一个快照
 }
 
-bool NaiveBoard::isSuicide(TMove move, EPlayer player)
+bool NaiveBoard::isSuicide(TMove move, PLAYER_E player)
 {
     // 不能越界
     if (!co::isValidPos(move.src) || !co::isValidPos(move.dst))
@@ -823,10 +823,10 @@ bool NaiveBoard::isSuicide(TMove move, EPlayer player)
 }
 
 // 检查player是否将对方
-bool NaiveBoard::check(EPlayer player)
+bool NaiveBoard::check(PLAYER_E player)
 {
-    NaiveBoard::TPieceSet& activePieceSet = (player == def::EP_black ? snapshot_->upPieceSet_ : snapshot_->downPieceSet_);// 将军一方
-    NaiveBoard::TPieceSet& passivePieceSet = (player == def::EP_black ? snapshot_->downPieceSet_ : snapshot_->upPieceSet_);// 对方
+    NaiveBoard::TPieceSet& activePieceSet = (player == def::PLAYER_black ? snapshot_->upPieceSet_ : snapshot_->downPieceSet_);// 将军一方
+    NaiveBoard::TPieceSet& passivePieceSet = (player == def::PLAYER_black ? snapshot_->downPieceSet_ : snapshot_->upPieceSet_);// 对方
 
     TPos kingPos = passivePieceSet.king;
     unordered_set<TPos>& attackers = activePieceSet.attackers;
@@ -841,15 +841,15 @@ bool NaiveBoard::check(EPlayer player)
 }
 
 // 检查player是否把对方将死
-bool NaiveBoard::checkmate(EPlayer player)
+bool NaiveBoard::checkmate(PLAYER_E player)
 {
     // 默认对方已处于被将军状态，不再检查
-    EPlayer otherPlayer = def::getOtherPlayer(player);
-    NaiveBoard::TPieceSet& activePieceSet = (player == def::EP_black ? snapshot_->upPieceSet_ : snapshot_->downPieceSet_);// 将军一方
-    NaiveBoard::TPieceSet& passivePieceSet = (player == def::EP_black ? snapshot_->downPieceSet_ : snapshot_->upPieceSet_);// 对方
+    PLAYER_E otherPlayer = def::getEnemyPlayer(player);
+    NaiveBoard::TPieceSet& activePieceSet = (player == def::PLAYER_black ? snapshot_->upPieceSet_ : snapshot_->downPieceSet_);// 将军一方
+    NaiveBoard::TPieceSet& passivePieceSet = (player == def::PLAYER_black ? snapshot_->downPieceSet_ : snapshot_->upPieceSet_);// 对方
 
     // 检查
-    auto handleCheckmate = [this](TPos pos, const unordered_set<TDelta>& deltas, EPlayer player)
+    auto handleCheckmate = [this](TPos pos, const unordered_set<TDelta>& deltas, PLAYER_E player)
     {
         for (TDelta delta: deltas)
         {
@@ -870,12 +870,12 @@ bool NaiveBoard::checkmate(EPlayer player)
     // 尝试移动防御棋子
     for (TPos pos: passivePieceSet.defenders)
     {
-        switch (getPiece(pos) & def::g_pieceMask)
+        switch (getIcon(pos) & def::PIECE_MASK)
         {
-        case def::g_advisor:
+        case def::PIECE_advisor:
             pDeltas = &getValidAdvisorDelta(otherPlayer);
             break;
-        case def::g_bishop:
+        case def::PIECE_bishop:
             pDeltas = &getValidBishopDelta(otherPlayer);
             break;
         default:
@@ -889,18 +889,18 @@ bool NaiveBoard::checkmate(EPlayer player)
     // 尝试移动进攻棋子
     for (TPos pos: passivePieceSet.attackers)
     {
-        switch (getPiece(pos) & def::g_pieceMask)
+        switch (getIcon(pos) & def::PIECE_MASK)
         {
-        case def::g_knight:
+        case def::PIECE_knight:
             pDeltas = &getValidKnightDelta(otherPlayer);
             break;
-        case def::g_rook:
+        case def::PIECE_rook:
             pDeltas = &getValidRookDelta(otherPlayer);
             break;
-        case def::g_cannon:
+        case def::PIECE_cannon:
             pDeltas = &getValidCannonDelta(otherPlayer);
             break;
-        case def::g_pawn:
+        case def::PIECE_pawn:
             pDeltas = &getValidPawnDelta(otherPlayer);
             break;
         default:
@@ -923,7 +923,7 @@ bool NaiveBoard::isKingMeeting() const
     int end = std::max(snapshot_->upPieceSet_.king.row, snapshot_->downPieceSet_.king.row) - 1;
     while (start <= end)
     {
-        if (snapshot_->board_[start][snapshot_->upPieceSet_.king.col] != def::EP_empty)
+        if (snapshot_->board_[start][snapshot_->upPieceSet_.king.col] != def::ICON_empty)
             return false;
 
         start++;
@@ -959,7 +959,7 @@ bool NaiveBoard::loadSnapshot()
     return bool(snapshot_);
 }
 
-int NaiveBoard::getValue(uint8_t piece, TPos pos, EPlayer player) const
+int NaiveBoard::getValue(uint8_t piece, TPos pos, PLAYER_E player) const
 {
     static const int downValueMap[7][10][9] =
     {
@@ -1049,16 +1049,16 @@ int NaiveBoard::getValue(uint8_t piece, TPos pos, EPlayer player) const
         }
     };
 
-    if (piece == def::g_empty || player == def::EP_none || !co::isValidPos(pos))
+    if (piece == def::PIECE_empty || player == def::PLAYER_none || !co::isValidPos(pos))
         return 0;
 
-    if (player == def::EP_black)// 转换坐标
+    if (player == def::PLAYER_black)// 转换坐标
         pos = co::getRotatePos(pos);
 
     return downValueMap[piece - 1][pos.row][pos.col];// piece需要减一
 }
 
-int NaiveBoard::minimax(int depth, def::EPlayer maxPlayer, TMove& move)
+int NaiveBoard::minimax(int depth, def::PLAYER_E maxPlayer, TMove& move)
 {
     int score = getScore(maxPlayer);
     if (depth == 0 || score == INT_MAX || score == INT_MIN)
@@ -1071,7 +1071,7 @@ int NaiveBoard::minimax(int depth, def::EPlayer maxPlayer, TMove& move)
     int minRes = INT_MAX;
     for (int i = 0; i < moves.size(); i++)
     {
-        if (makeMove(moves[i]) & board::EMR_ok)
+        if (makeMove(moves[i]) & board::MOVE_RET_ok)
         {
             def::TMove nextMove;
             int score = minimax(depth - 1, maxPlayer, nextMove);
@@ -1099,7 +1099,7 @@ int NaiveBoard::minimax(int depth, def::EPlayer maxPlayer, TMove& move)
     return getNextPlayer() == maxPlayer ? maxRes : minRes;
 }
 
-int NaiveBoard::alphabeta(int depth, def::EPlayer maxPlayer, int alpha, int beta, TMove& move)
+int NaiveBoard::alphabeta(int depth, def::PLAYER_E maxPlayer, int alpha, int beta, TMove& move)
 {
     int score = getScore(maxPlayer);
     if (depth == 0 || score == INT_MAX || score == INT_MIN)
@@ -1110,7 +1110,7 @@ int NaiveBoard::alphabeta(int depth, def::EPlayer maxPlayer, int alpha, int beta
 
     for (int i = 0; i < moves.size(); i++)
     {
-        if (makeMove(moves[i]) & board::EMR_ok)
+        if (makeMove(moves[i]) & board::MOVE_RET_ok)
         {
             TMove nextMove;
             int score = alphabeta(depth - 1, maxPlayer, alpha, beta, nextMove);

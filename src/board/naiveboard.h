@@ -11,7 +11,7 @@
 #include <memory>
 #include <stack>
 
-using def::EPlayer;
+using def::PLAYER_E;
 using def::TPos;
 using def::TDelta;
 using def::TMove;
@@ -30,10 +30,10 @@ public:
     virtual uint8_t makeMove(def::TMove move);              // 指定走法走棋,返回EMoveRet的组合
     virtual bool undoMakeMove();                            // 悔棋
 
-    virtual int getScore(def::EPlayer player) const;        // 获取当前局面下的玩家分数
-    virtual def::EPiece getPiece(def::TPos pos) const;      // 获取某一位置的棋子
-    virtual def::EPlayer getNextPlayer() const;             // 获取下一走棋玩家
-    virtual def::EPlayer getPieceOwner(def::TPos pos) const;// 获取pos棋子所属玩家
+    virtual int getScore(def::PLAYER_E player) const;        // 获取当前局面下的玩家分数
+    virtual def::ICON_E getIcon(def::TPos pos) const;      // 获取某一位置的棋子
+    virtual def::PLAYER_E getNextPlayer() const;             // 获取下一走棋玩家
+    virtual def::PLAYER_E getOwner(def::TPos pos) const;// 获取pos棋子所属玩家
     virtual def::TMove getTrigger() const;                  // 表示该snapshot是由trigger的两个位置移动产生的，用于绘制select图标
 
 protected:
@@ -44,6 +44,13 @@ protected:
         int score;
         unordered_set<TPos> defenders;
         unordered_set<TPos> attackers;
+
+        TPieceSet()
+            : king(def::INVALID_POS)
+            , score(0)
+        {
+
+        }
 
         void swap(TPieceSet& other)
         {
@@ -60,7 +67,7 @@ protected:
         friend class NaiveBoard;
 
         vector<vector<uint8_t>> board_;// 棋盘
-        EPlayer player_;// 下一步要走棋的玩家
+        PLAYER_E player_;// 下一步要走棋的玩家
 
         TPieceSet upPieceSet_;// 上方玩家棋子集合
         TPieceSet downPieceSet_;// 下方玩家棋子集合
@@ -91,7 +98,7 @@ protected:
 
             // 初始化snapshot
             board_ = initialBoard;
-            player_ = def::EP_red;// 下方先走
+            player_ = def::PLAYER_red;// 下方先走
             // 上方棋子集合
             upPieceSet_.king = {0, 4};
             upPieceSet_.score = 888;
@@ -141,12 +148,10 @@ protected:
                 {6, 8},
             };
 
-            blackFlag_   = def::g_blackFlag;// 默认上面为黑色
-            redFlag_ = def::g_redFlag;// 默认下面为红色
+            blackFlag_ = def::PLAYER_black; // 默认上面为黑色
+            redFlag_   = def::PLAYER_red;   // 默认下面为红色
 
-            trigger_ = {def::g_nullPos, def::g_nullPos};// 起始局面无先前走棋
-
-
+            trigger_ = {def::INVALID_POS, def::INVALID_POS};// 起始局面无先前走棋
         }
 
         Snapshot(const Snapshot& other)
@@ -201,28 +206,28 @@ protected:
     };
 
     // 对于player来说，从prevPos到currPos是否合法
-    bool isValidMove(TMove move, EPlayer player) const;
+    bool isValidMove(TMove move, PLAYER_E player) const;
 
-    typedef bool (NaiveBoard::*PosFunc)(TPos pos, EPlayer player) const;// 判断位置是否合法
-    typedef bool (NaiveBoard::*DeltaFunc)(TDelta delta, EPlayer player) const;// 判断偏移量是否合法
+    typedef bool (NaiveBoard::*PosFunc)(TPos pos, PLAYER_E player) const;// 判断位置是否合法
+    typedef bool (NaiveBoard::*DeltaFunc)(TDelta delta, PLAYER_E player) const;// 判断偏移量是否合法
     typedef bool (NaiveBoard::*RuleFunc)(TMove move) const;// 棋子特定的规则
-    bool isValidMove(TMove move, EPlayer player, PosFunc isValidPos, DeltaFunc isValidDelta, RuleFunc isValidRule) const;
+    bool isValidMove(TMove move, PLAYER_E player, PosFunc isValidPos, DeltaFunc isValidDelta, RuleFunc isValidRule) const;
 
-    bool isValidKingPos(TPos pos, EPlayer player) const;
-    bool isValidAdvisorPos(TPos pos, EPlayer player) const;
-    bool isValidBishopPos(TPos pos,def:: EPlayer player) const;
-    bool isValidKnightPos(TPos pos, EPlayer player) const;
-    bool isValidRookPos(TPos pos, EPlayer player) const;
-    bool isValidCannonPos(TPos pos, EPlayer player) const;
-    bool isValidPawnPos(TPos pos, EPlayer player) const;
+    bool isValidKingPos(TPos pos, PLAYER_E player) const;
+    bool isValidAdvisorPos(TPos pos, PLAYER_E player) const;
+    bool isValidBishopPos(TPos pos,def:: PLAYER_E player) const;
+    bool isValidKnightPos(TPos pos, PLAYER_E player) const;
+    bool isValidRookPos(TPos pos, PLAYER_E player) const;
+    bool isValidCannonPos(TPos pos, PLAYER_E player) const;
+    bool isValidPawnPos(TPos pos, PLAYER_E player) const;
 
-    bool isValidKingDelta(TDelta delta, EPlayer player) const;
-    bool isValidAdvisorDelta(TDelta delta, EPlayer player) const;
-    bool isValidBishopDelta(TDelta delta, EPlayer player) const;
-    bool isValidKnightDelta(TDelta delta, EPlayer player) const;
-    bool isValidRookDelta(TDelta delta, EPlayer player) const;
-    bool isValidCannonDelta(TDelta delta, EPlayer player) const;
-    bool isValidPawnDelta(TDelta delta, EPlayer player) const;
+    bool isValidKingDelta(TDelta delta, PLAYER_E player) const;
+    bool isValidAdvisorDelta(TDelta delta, PLAYER_E player) const;
+    bool isValidBishopDelta(TDelta delta, PLAYER_E player) const;
+    bool isValidKnightDelta(TDelta delta, PLAYER_E player) const;
+    bool isValidRookDelta(TDelta delta, PLAYER_E player) const;
+    bool isValidCannonDelta(TDelta delta, PLAYER_E player) const;
+    bool isValidPawnDelta(TDelta delta, PLAYER_E player) const;
 
     // 不再检查pos及delta，默认前面已检查
     bool isValidKingRule(TMove move) const;
@@ -233,29 +238,29 @@ protected:
     bool isValidCannonRule(TMove move) const;
     bool isValidPawnRule(TMove move) const;
 
-    bool isValidKingMove(TMove move, EPlayer player) const;
-    bool isValidAdvisorMove(TMove move, EPlayer player) const;
-    bool isValidBishopMove(TMove move, EPlayer player) const;
-    bool isValidKnightMove(TMove move, EPlayer player) const;
-    bool isValidRookMove(TMove move, EPlayer player) const;
-    bool isValidCannonMove(TMove move, EPlayer player) const;
-    bool isValidPawnMove(TMove move, EPlayer player) const;
+    bool isValidKingMove(TMove move, PLAYER_E player) const;
+    bool isValidAdvisorMove(TMove move, PLAYER_E player) const;
+    bool isValidBishopMove(TMove move, PLAYER_E player) const;
+    bool isValidKnightMove(TMove move, PLAYER_E player) const;
+    bool isValidRookMove(TMove move, PLAYER_E player) const;
+    bool isValidCannonMove(TMove move, PLAYER_E player) const;
+    bool isValidPawnMove(TMove move, PLAYER_E player) const;
 
-    const unordered_set<TDelta>& getValidKingDelta(EPlayer player) const;
-    const unordered_set<TDelta>& getValidAdvisorDelta(EPlayer player) const;
-    const unordered_set<TDelta>& getValidBishopDelta(EPlayer player) const;
-    const unordered_set<TDelta>& getValidKnightDelta(EPlayer player) const;
-    const unordered_set<TDelta>& getValidRookDelta(EPlayer player) const;
-    const unordered_set<TDelta>& getValidCannonDelta(EPlayer player) const;
-    const unordered_set<TDelta>& getValidPawnDelta(EPlayer player) const;
+    const unordered_set<TDelta>& getValidKingDelta(PLAYER_E player) const;
+    const unordered_set<TDelta>& getValidAdvisorDelta(PLAYER_E player) const;
+    const unordered_set<TDelta>& getValidBishopDelta(PLAYER_E player) const;
+    const unordered_set<TDelta>& getValidKnightDelta(PLAYER_E player) const;
+    const unordered_set<TDelta>& getValidRookDelta(PLAYER_E player) const;
+    const unordered_set<TDelta>& getValidCannonDelta(PLAYER_E player) const;
+    const unordered_set<TDelta>& getValidPawnDelta(PLAYER_E player) const;
 
-    int getValue(uint8_t piece, TPos pos, EPlayer player) const;
+    int getValue(uint8_t piece, TPos pos, PLAYER_E player) const;
 
-    bool check(EPlayer player);
-    bool checkmate(EPlayer player);
+    bool check(PLAYER_E player);
+    bool checkmate(PLAYER_E player);
 
-    bool isSuicide(TMove move, EPlayer player);
-    bool updatePieceSet(TMove move, EPlayer player);
+    bool isSuicide(TMove move, PLAYER_E player);
+    bool updatePieceSet(TMove move, PLAYER_E player);
 
     inline bool isPiece(TPos pos, int piece) const;// 判断pos位置是否为特定棋子（不分颜色）
     inline bool isKing(TPos pos) const;
@@ -267,12 +272,12 @@ protected:
     shared_ptr<Snapshot> createSnapshot();
     bool saveSnapshot();
     bool loadSnapshot();
-    bool updateSnapshot(TMove move, EPlayer player);
+    bool updateSnapshot(TMove move, PLAYER_E player);
 
     void generateAllMoves(vector<def::TMove>& moves);// 生成当前局面所有合法走法
 
-    int minimax(int depth, def::EPlayer maxPlayer, TMove& move);
-    int alphabeta(int depth, def::EPlayer maxPlayer, int alpha, int beta, TMove& move);
+    int minimax(int depth, def::PLAYER_E maxPlayer, TMove& move);
+    int alphabeta(int depth, def::PLAYER_E maxPlayer, int alpha, int beta, TMove& move);
 
 private:
     shared_ptr<Snapshot> snapshot_;

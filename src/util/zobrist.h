@@ -87,8 +87,10 @@ public:
         dwLock1 ^= zobr1.dwLock1 ^ zobr2.dwLock1;
     }
 
+
+    uint32_t dwKey;// todo: 要改成私有
+
 private:
-    uint32_t dwKey;
     uint32_t dwLock0;
     uint32_t dwLock1;
 };

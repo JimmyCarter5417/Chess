@@ -18,37 +18,37 @@ class QPixmap;
 class ResMgr
 {
 public:    
-    enum EPieceSkin
+    enum ICON_SKIN_E
     {
-        EPS_comic,
-        EPS_delicate,
-        EPS_polish,
-        EPS_wood,
+        ICON_SKIN_comic,
+        ICON_SKIN_delicate,
+        ICON_SKIN_polish,
+        ICON_SKIN_wood,
 
-        EPS_end
+        ICON_SKIN_end
     };
 
-    enum EBgSkin
+    enum BG_SKIN_E
     {
-        EBS_canvas,
-        EBS_drops,
-        EBS_green,
-        EBS_sheet,
-        EBS_skeleton,
-        EBS_stone,
-        EBS_wood,
+        BG_SKIN_canvas,
+        BG_SKIN_drops,
+        BG_SKIN_green,
+        BG_SKIN_sheet,
+        BG_SKIN_skeleton,
+        BG_SKIN_stone,
+        BG_SKIN_wood,
 
-        EBS_end
+        BG_SKIN_end
     };
 
     static ResMgr* getInstance();
     ~ResMgr();
 
-    bool loadPieceSkin(EPieceSkin skin);
-    bool loadBgSkin(EBgSkin skin);
+    bool loadIconSkin(ICON_SKIN_E skin);
+    bool loadBgSkin(BG_SKIN_E skin);
 
     shared_ptr<QPixmap> getBg();
-    shared_ptr<QPixmap> getPiece(def::EPiece piece);
+    shared_ptr<QPixmap> getIcon(def::ICON_E icon);
 
     void playBgm();
     void stopBgm();
@@ -58,13 +58,13 @@ private:
     ResMgr();
 
 private:
-    unordered_map<int, shared_ptr<QPixmap>> pieces_;
+    unordered_map<int, shared_ptr<QPixmap>> icons_;
     shared_ptr<QPixmap> bg_;
-    shared_ptr<QMediaPlaylist> playlist_;
-    shared_ptr<QMediaPlayer> player_;
+    shared_ptr<QMediaPlaylist> mediaPlayList_;
+    shared_ptr<QMediaPlayer> mediaPlayer_;
 
     bool initBg_;
-    bool initPieces_;
+    bool isInitIcons_;
 };
 
 #endif // RESMGR_H

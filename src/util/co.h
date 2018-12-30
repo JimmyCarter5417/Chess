@@ -11,7 +11,7 @@ namespace co
 
     const def::TClientCo g_boardLeftTopCo = {36, 59};
     const def::TSize g_boardSize = {521, 577};
-    const def::TSize g_pieceSize = {56, 56};
+    const def::TSize g_iconSize = {56, 56};
 
     inline bool isValidPos(def::TPos pos)
     {
@@ -26,14 +26,14 @@ namespace co
 
     inline def::TPos clientCo2Pos(def::TClientCo clientCo)
     {
-        return {(clientCo.y - g_boardLeftTopCo.y + g_pieceSize.height / 2) / g_pieceSize.height,
-                (clientCo.x - g_boardLeftTopCo.x + g_pieceSize.width / 2) / g_pieceSize.width};
+        return {(clientCo.y - g_boardLeftTopCo.y + g_iconSize.height / 2) / g_iconSize.height,
+                (clientCo.x - g_boardLeftTopCo.x + g_iconSize.width / 2) / g_iconSize.width};
     }
 
     inline def::TClientCo pos2ClientCo(def::TPos pos)
     {
-        return {g_boardLeftTopCo.x + g_pieceSize.width * pos.col - g_pieceSize.width / 2,
-                g_boardLeftTopCo.y + g_pieceSize.height * pos.row - g_pieceSize.height / 2};
+        return {g_boardLeftTopCo.x + g_iconSize.width * pos.col - g_iconSize.width / 2,
+                g_boardLeftTopCo.y + g_iconSize.height * pos.row - g_iconSize.height / 2};
     }    
 }
 

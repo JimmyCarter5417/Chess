@@ -121,7 +121,7 @@ void Chess::on_canvasBgAction_triggered(bool checked)
 {
     if (checked)
     {
-        palette_->loadBgSkin(ResMgr::EBS_canvas);
+        palette_->loadBgSkin(ResMgr::BG_SKIN_canvas);
     }
 }
 
@@ -129,7 +129,7 @@ void Chess::on_dropsBgAction_triggered(bool checked)
 {
     if (checked)
     {
-        palette_->loadBgSkin(ResMgr::EBS_drops);
+        palette_->loadBgSkin(ResMgr::BG_SKIN_drops);
     }
 }
 
@@ -137,7 +137,7 @@ void Chess::on_greenBgAction_triggered(bool checked)
 {
     if (checked)
     {
-        palette_->loadBgSkin(ResMgr::EBS_green);
+        palette_->loadBgSkin(ResMgr::BG_SKIN_green);
     }
 }
 
@@ -145,7 +145,7 @@ void Chess::on_sheetBgAction_triggered(bool checked)
 {
     if (checked)
     {
-        palette_->loadBgSkin(ResMgr::EBS_sheet);
+        palette_->loadBgSkin(ResMgr::BG_SKIN_sheet);
     }
 }
 
@@ -153,7 +153,7 @@ void Chess::on_skeletonBgAction_triggered(bool checked)
 {
     if (checked)
     {
-        palette_->loadBgSkin(ResMgr::EBS_skeleton);
+        palette_->loadBgSkin(ResMgr::BG_SKIN_skeleton);
     }
 }
 
@@ -161,7 +161,7 @@ void Chess::on_stoneBgAction_triggered(bool checked)
 {
     if (checked)
     {
-        palette_->loadBgSkin(ResMgr::EBS_stone);
+        palette_->loadBgSkin(ResMgr::BG_SKIN_stone);
     }
 }
 
@@ -169,7 +169,7 @@ void Chess::on_woodBgAction_triggered(bool checked)
 {
     if (checked)
     {
-        palette_->loadBgSkin(ResMgr::EBS_wood);
+        palette_->loadBgSkin(ResMgr::BG_SKIN_wood);
     }
 }
 
@@ -177,7 +177,7 @@ void Chess::on_comicPieceAction_triggered(bool checked)
 {
     if (checked)
     {
-        palette_->loadPieceSkin(ResMgr::EPS_comic);
+        palette_->loadIconSkin(ResMgr::ICON_SKIN_comic);
     }
 }
 
@@ -185,7 +185,7 @@ void Chess::on_delicatePieceAction_triggered(bool checked)
 {
     if (checked)
     {
-        palette_->loadPieceSkin(ResMgr::EPS_delicate);
+        palette_->loadIconSkin(ResMgr::ICON_SKIN_delicate);
     }
 }
 
@@ -193,7 +193,7 @@ void Chess::on_polishPieceAction_triggered(bool checked)
 {
     if (checked)
     {
-        palette_->loadPieceSkin(ResMgr::EPS_polish);
+        palette_->loadIconSkin(ResMgr::ICON_SKIN_polish);
     }
 }
 
@@ -201,7 +201,7 @@ void Chess::on_woodPieceAction_triggered(bool checked)
 {
     if (checked)
     {
-        palette_->loadPieceSkin(ResMgr::EPS_wood);
+        palette_->loadIconSkin(ResMgr::ICON_SKIN_wood);
     }
 }
 

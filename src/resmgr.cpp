@@ -20,7 +20,7 @@ ResMgr* ResMgr::getInstance()
 
 ResMgr::ResMgr()
     : initBg_(false)
-    , initPieces_(false)
+    , isInitIcons_(false)
 {
 
 }
@@ -30,71 +30,71 @@ ResMgr::~ResMgr()
 
 }
 
-bool ResMgr::loadPieceSkin(EPieceSkin skin)
+bool ResMgr::loadIconSkin(ICON_SKIN_E skin)
 {
-    static unordered_map<int, string> allPieceSkinInfo =
+    static unordered_map<int, string> allIconSkinInfo =
     {
-        {ResMgr::EPS_comic,    ":/pic/piece/comic/res/pic/piece/comic/"},
-        {ResMgr::EPS_delicate, ":/pic/piece/delicate/res/pic/piece/delicate/"},
-        {ResMgr::EPS_polish,   ":/pic/piece/polish/res/pic/piece/polish/"},
-        {ResMgr::EPS_wood,     ":/pic/piece/wood/res/pic/piece/wood/"},
+        {ResMgr::ICON_SKIN_comic,    ":/pic/icon/comic/res/pic/icon/comic/"},
+        {ResMgr::ICON_SKIN_delicate, ":/pic/icon/delicate/res/pic/icon/delicate/"},
+        {ResMgr::ICON_SKIN_polish,   ":/pic/icon/polish/res/pic/icon/polish/"},
+        {ResMgr::ICON_SKIN_wood,     ":/pic/icon/wood/res/pic/icon/wood/"},
     };
 
-    static unordered_map<int, string> allPieceInfo =
+    static unordered_map<int, string> allIconInfo =
     {
-        {def::EP_empty,        "OO.GIF"},
+        {def::ICON_empty,        "OO.GIF"},
 
-        {def::EP_redKing,      "RK.GIF"},
-        {def::EP_redAdvisor,   "RA.GIF"},
-        {def::EP_redBishop,    "RB.GIF"},
-        {def::EP_redKnight,    "RN.GIF"},
-        {def::EP_redRook,      "RR.GIF"},
-        {def::EP_redCannon,    "RC.GIF"},
-        {def::EP_redPawn,      "RP.GIF"},
+        {def::ICON_redKing,      "RK.GIF"},
+        {def::ICON_redAdvisor,   "RA.GIF"},
+        {def::ICON_redBishop,    "RB.GIF"},
+        {def::ICON_redKnight,    "RN.GIF"},
+        {def::ICON_redRook,      "RR.GIF"},
+        {def::ICON_redCannon,    "RC.GIF"},
+        {def::ICON_redPawn,      "RP.GIF"},
 
-        {def::EP_blackKing,    "BK.GIF"},
-        {def::EP_blackAdvisor, "BA.GIF"},
-        {def::EP_blackBishop,  "BB.GIF"},
-        {def::EP_blackKnight,  "BN.GIF"},
-        {def::EP_blackRook,    "BR.GIF"},
-        {def::EP_blackCannon,  "BC.GIF"},
-        {def::EP_blackPawn,    "BP.GIF"},
+        {def::ICON_blackKing,    "BK.GIF"},
+        {def::ICON_blackAdvisor, "BA.GIF"},
+        {def::ICON_blackBishop,  "BB.GIF"},
+        {def::ICON_blackKnight,  "BN.GIF"},
+        {def::ICON_blackRook,    "BR.GIF"},
+        {def::ICON_blackCannon,  "BC.GIF"},
+        {def::ICON_blackPawn,    "BP.GIF"},
 
-        {def::EP_select,       "OOS.GIF"},
+        {def::ICON_select,       "OOS.GIF"},
     };
 
-    unordered_map<int, string>::iterator itr = allPieceSkinInfo.find(skin);
-    if (itr == allPieceSkinInfo.end())
+    unordered_map<int, string>::iterator itr = allIconSkinInfo.find(skin);
+    if (itr == allIconSkinInfo.end())
         return false;
 
     //初始化棋子
-    for (std::pair<const int, string>& pieceInfo: allPieceInfo)
+    for (std::pair<const int, string>& iconInfo: allIconInfo)
     {
-        def::EPiece pieceType = static_cast<def::EPiece>(pieceInfo.first);
+        def::ICON_E iconType = static_cast<def::ICON_E>(iconInfo.first);
 
-        if (!pieces_[pieceType])
-            pieces_[pieceType] = std::make_shared<QPixmap>();
+        if (!icons_[iconType])
+            icons_[iconType] = std::make_shared<QPixmap>();
 
-        string path = allPieceSkinInfo[skin] + pieceInfo.second;
-        if (!pieces_[pieceType]->load(QString(path.c_str())))
+        string path = allIconSkinInfo[skin] + iconInfo.second;
+        if (!icons_[iconType]->load(QString(path.c_str())))
             return false;
     }
 
-    initPieces_ = true;
+    isInitIcons_ = true;
     return true;
 }
 
-bool ResMgr::loadBgSkin(EBgSkin skin)
+bool ResMgr::loadBgSkin(BG_SKIN_E skin)
 {
     static unordered_map<int, string> allBgSkinInfo =
     {
-        {ResMgr::EBS_canvas,   ":/pic/bg/res/pic/bg/CANVAS.GIF"},
-        {ResMgr::EBS_drops,    ":/pic/bg/res/pic/bg/DROPS.GIF"},
-        {ResMgr::EBS_green,    ":/pic/bg/res/pic/bg/GREEN.GIF"},
-        {ResMgr::EBS_sheet,    ":/pic/bg/res/pic/bg/SHEET.GIF"},
-        {ResMgr::EBS_skeleton, ":/pic/bg/res/pic/bg/SKELETON.GIF"},
-        {ResMgr::EBS_stone,    ":/pic/bg/res/pic/bg/STONE.GIF"},
-        {ResMgr::EBS_wood,     ":/pic/bg/res/pic/bg/WOOD.GIF"}
+        {ResMgr::BG_SKIN_canvas,   ":/pic/bg/res/pic/bg/CANVAS.GIF"},
+        {ResMgr::BG_SKIN_drops,    ":/pic/bg/res/pic/bg/DROPS.GIF"},
+        {ResMgr::BG_SKIN_green,    ":/pic/bg/res/pic/bg/GREEN.GIF"},
+        {ResMgr::BG_SKIN_sheet,    ":/pic/bg/res/pic/bg/SHEET.GIF"},
+        {ResMgr::BG_SKIN_skeleton, ":/pic/bg/res/pic/bg/SKELETON.GIF"},
+        {ResMgr::BG_SKIN_stone,    ":/pic/bg/res/pic/bg/STONE.GIF"},
+        {ResMgr::BG_SKIN_wood,     ":/pic/bg/res/pic/bg/WOOD.GIF"}
     };
 
     unordered_map<int, string>::iterator itr = allBgSkinInfo.find(skin);
@@ -114,48 +114,48 @@ bool ResMgr::loadBgSkin(EBgSkin skin)
 shared_ptr<QPixmap> ResMgr::getBg()
 {
     if (!initBg_)
-        loadBgSkin(ResMgr::EBS_wood);
+        loadBgSkin(ResMgr::BG_SKIN_wood);
 
     return bg_;
 }
 
-shared_ptr<QPixmap> ResMgr::getPiece(def::EPiece piece)
+shared_ptr<QPixmap> ResMgr::getIcon(def::ICON_E icon)
 {
-    if (!initPieces_)
-        loadPieceSkin(ResMgr::EPS_wood);
+    if (!isInitIcons_)
+        loadIconSkin(ResMgr::ICON_SKIN_wood);
 
-    return pieces_[piece];
+    return icons_[icon];
 }
 
 void ResMgr::playBgm()
 {
-    QString path = QCoreApplication::applicationDirPath() + "/pal.mp3";
+    QString path = QCoreApplication::applicationDirPath() + "/bgm.mp3";
     if (!QFile(path).exists())// 文件不存在，则直接返回
         return;
 
-    if (!player_)
+    if (!mediaPlayer_)
     {
-        player_ = std::make_shared<QMediaPlayer>();
+        mediaPlayer_ = std::make_shared<QMediaPlayer>();
 
-        if (!playlist_)
+        if (!mediaPlayList_)
         {
-            playlist_ = std::make_shared<QMediaPlaylist>();
-            playlist_->addMedia(QUrl::fromLocalFile(path));
-            playlist_->setCurrentIndex(1);
-            playlist_->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
+            mediaPlayList_ = std::make_shared<QMediaPlaylist>();
+            mediaPlayList_->addMedia(QUrl::fromLocalFile(path));
+            mediaPlayList_->setCurrentIndex(1);
+            mediaPlayList_->setPlaybackMode(QMediaPlaylist::CurrentItemInLoop);
         }
 
-        player_->setPlaylist(playlist_.get());
-        player_->setVolume(50);
+        mediaPlayer_->setPlaylist(mediaPlayList_.get());
+        mediaPlayer_->setVolume(50);
     }
 
-    player_->play();
+    mediaPlayer_->play();
 }
 
 void ResMgr::stopBgm()
 {
-    if (player_)
-        player_->stop();
+    if (mediaPlayer_)
+        mediaPlayer_->stop();
 }
 
 void ResMgr::playSound(const string& name)

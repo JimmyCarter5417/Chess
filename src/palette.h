@@ -34,16 +34,16 @@ public:
     void bgm(bool on);
     void run();
 
-    void loadBgSkin(ResMgr::EBgSkin skin);
-    void loadPieceSkin(ResMgr::EPieceSkin skin);
+    void loadBgSkin(ResMgr::BG_SKIN_E skin);
+    void loadIconSkin(ResMgr::ICON_SKIN_E skin);
 
 protected:
-    void initLabel();
-    void initPieces();
+    void initLabels();
+    void initIcons();
 
     void drawBg();
-    void drawPieces();
-    void drawPiece(TPos pos);
+    void drawIcons();
+    void drawIcon(TPos pos);
 
     void drawSelect(TMove move);
     uint8_t makeMove(TMove move);
@@ -56,16 +56,15 @@ private:
     ResMgr* resMgr_;
     shared_ptr<board::IBoard> board_;
 
-    //shared_ptr<QLabel> bg_;
     QLabel* bg_;
     shared_ptr<QLabel> prevSelect_;
     shared_ptr<QLabel> currSelect_;
-    vector<vector<shared_ptr<QLabel>>> pieces_;
+    vector<vector<shared_ptr<QLabel>>> icons_;
 
     TPos prevPos_;
 
-    shared_ptr<QMediaPlaylist> playlist_;
-    shared_ptr<QMediaPlayer> player_;
+    shared_ptr<QMediaPlaylist> mediaPlayList_;
+    shared_ptr<QMediaPlayer> mediaPlayer_;
 };
 
 #endif // PALETTE_H

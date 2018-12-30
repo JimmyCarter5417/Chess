@@ -48,9 +48,9 @@ public:
         return data_.empty();
     }
 
-    void swap(const MyStack& other)
+    void swap(MyStack& other)
     {
-        data_.swap(other);
+        data_.swap(other.data_);
     }
 
 private:
