@@ -39,10 +39,12 @@ namespace def
         TPos src;
         TPos dst;
 
-        TMove(TPos s, TPos d);
-        TMove& operator=(const TMove& rhs);
+        TMove(const TPos& s, const TPos& d);
         TMove(const TMove& other);
+        TMove& operator=(const TMove& rhs);
     };
+
+    const TMove INVALID_MOVE = {INVALID_POS, INVALID_POS};  // 无效走法
 
     // 屏幕坐标
     struct TClientCo
@@ -106,8 +108,9 @@ namespace def
     void switchPlayer(PLAYER_E& player);       // 切换玩家
     PLAYER_E getEnemyPlayer(PLAYER_E player);  // 对位玩家
 
-    PLAYER_E getOwner(ICON_E icon);
-    PIECE_E getPiece(ICON_E icon);
+    PLAYER_E extractOwner(ICON_E icon);
+    PIECE_E extractPiece(ICON_E icon);
+    ICON_E synthesisIcon(PLAYER_E player, PIECE_E piece);
 }
 
 

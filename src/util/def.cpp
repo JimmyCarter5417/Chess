@@ -58,10 +58,18 @@ TPos TPos::operator+(const TDelta& delta) const
     return {row + delta.deltaRow, col + delta.deltaCol};
 }
 
-TMove::TMove(TPos s, TPos d)
+TMove::TMove(const TPos& s, const TPos& d)
+    : src(s)
+    , dst(d)
 {
-    src = s;
-    dst = d;
+
+}
+
+TMove::TMove(const TMove& other)
+    : src(other.src)
+    , dst(other.dst)
+{
+
 }
 
 TMove& TMove::operator=(const TMove& rhs)
@@ -69,11 +77,6 @@ TMove& TMove::operator=(const TMove& rhs)
     src = rhs.src;
     dst = rhs.dst;
     return *this;
-}
-
-TMove::TMove(const TMove& other)
-{
-    *this = other;
 }
 
 // 切换玩家
@@ -98,12 +101,17 @@ PLAYER_E def::getEnemyPlayer(PLAYER_E player)
         return PLAYER_none;
 }
 
-PLAYER_E def::getOwner(ICON_E icon)
+PLAYER_E def::extractOwner(ICON_E icon)
 {
     return static_cast<PLAYER_E>(icon & def::PLAYER_MASK);
 }
 
-PIECE_E def::getPiece(ICON_E icon)
+PIECE_E def::extractPiece(ICON_E icon)
 {
     return static_cast<PIECE_E>(icon & def::PIECE_MASK);
+}
+
+ICON_E def::synthesisIcon(PLAYER_E player, PIECE_E piece)
+{
+    return static_cast<ICON_E>(player | piece);
 }

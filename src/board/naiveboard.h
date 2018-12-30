@@ -80,6 +80,7 @@ protected:
 
     public:
         Snapshot()
+            : trigger_(def::INVALID_POS, def::INVALID_POS)
         {
             static const vector<vector<uint8_t>> initialBoard = {
                      /* edge            mid            edge */
@@ -150,11 +151,10 @@ protected:
 
             blackFlag_ = def::PLAYER_black; // 默认上面为黑色
             redFlag_   = def::PLAYER_red;   // 默认下面为红色
-
-            trigger_ = {def::INVALID_POS, def::INVALID_POS};// 起始局面无先前走棋
         }
 
         Snapshot(const Snapshot& other)
+            : trigger_(other.trigger_)
         {
             board_ = other.board_;
             player_ = other.player_;
@@ -162,7 +162,7 @@ protected:
             downPieceSet_ = other.downPieceSet_;
             blackFlag_ = other.blackFlag_;
             redFlag_ = other.redFlag_;
-            trigger_ = other.trigger_;
+            // trigger_ = other.trigger_;
         }
 
         // 赋值运算符的现代写法

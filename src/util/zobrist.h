@@ -68,6 +68,11 @@ public:
         dwLock1 = rc4.NextLong();
     }
 
+    uint32_t getKey()
+    {
+        return dwKey;
+    }
+
     void clear()     // 用零填充Zobrist
     {
         dwKey = dwLock0 = dwLock1 = 0;
@@ -87,10 +92,8 @@ public:
         dwLock1 ^= zobr1.dwLock1 ^ zobr2.dwLock1;
     }
 
-
-    uint32_t dwKey;// todo: 要改成私有
-
 private:
+    uint32_t dwKey;
     uint32_t dwLock0;
     uint32_t dwLock1;
 };

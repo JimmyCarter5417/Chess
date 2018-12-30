@@ -232,6 +232,9 @@
    </property>
   </action>
   <action name="rotateAction">
+   <property name="checkable">
+    <bool>true</bool>
+   </property>
    <property name="text">
     <string>翻转</string>
    </property>

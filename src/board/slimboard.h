@@ -8,7 +8,6 @@
 #include <vector>
 #include <stack>
 
-using def::TPos;
 using std::vector;
 using std::stack;
 
@@ -22,10 +21,10 @@ public:
     virtual uint8_t makeMove(def::TMove move);              // 指定走法走棋,返回EMoveRet的组合
     virtual bool undoMakeMove();                            // 悔棋
 
-    virtual int getScore(def::PLAYER_E player) const;        // 获取当前局面下的玩家分数
-    virtual def::ICON_E getIcon(def::TPos pos) const;      // 获取某一位置的棋子
-    virtual def::PLAYER_E getNextPlayer() const;             // 获取下一走棋玩家
-    virtual def::PLAYER_E getOwner(def::TPos pos) const;// 获取pos棋子所属玩家
+    virtual int getScore(def::PLAYER_E player) const;       // 获取当前局面下的玩家分数
+    virtual def::ICON_E getIcon(def::TPos pos) const;       // 获取某一位置的棋子
+    virtual def::PLAYER_E getOwner(def::TPos pos) const;    // 获取pos棋子所属玩家
+    virtual def::PLAYER_E getNextPlayer() const;            // 获取下一走棋玩家
     virtual def::TMove getTrigger() const;                  // 表示该snapshot是由trigger的两个位置移动产生的，用于绘制select图标
 
 protected:
@@ -80,12 +79,12 @@ protected:
     inline uint8_t getKnightLeg(uint8_t src, uint8_t dst) const;
     inline uint8_t getBishopEye(uint8_t src, uint8_t dst) const;
 
-    inline TPos toPos(uint8_t idx) const;
-    inline uint8_t toIndex(TPos pos) const;
+    inline def::TPos toPos(uint8_t idx) const;
+    inline uint8_t toIndex(def::TPos pos) const;
 
-    inline uint8_t getMoveSrc(uint16_t move) const;
-    inline uint8_t getMoveDst(uint16_t move) const;
-    inline uint16_t getMove(uint8_t src, uint8_t dst) const;
+    inline uint8_t extractSrc(uint16_t move) const;
+    inline uint8_t extractDst(uint16_t move) const;
+    inline uint16_t synthesisMove(uint8_t src, uint8_t dst) const;
 
     inline uint8_t findKing(def::PLAYER_E player) const;
 
@@ -101,16 +100,17 @@ private:
         uint16_t key;      // 走棋前局面的校验码
 
         TRecord(uint16_t Move, uint8_t Capture, bool Check, uint16_t Key)
+            : move(Move)
+            , capture(Capture)
+            , check(Check)
+            , key(Key)
         {
-            move = Move;
-            capture = Capture;
-            check = Check;
-            key = Key;
+
         }
     };
 
 private:
-    uint8_t board_[256];
+    uint8_t  board_[256];
     uint16_t cache_[65536];
 
     int distance_;

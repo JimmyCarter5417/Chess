@@ -109,19 +109,33 @@ void Palette::drawIcons()
     }
 }
 
-// 将board的pos位置棋子绘制到palette上
+// 将board的pos位置棋子绘制到palette上，pos为翻转前的逻辑坐标
 void Palette::drawIcon(TPos pos)
-{
+{    
     if (shared_ptr<QPixmap> pic = resMgr_->getIcon(board_->getIcon(pos)))
         icons_[pos.row][pos.col]->setPixmap(*pic.get());
 
-    def::TClientCo clientCo = co::pos2ClientCo(pos);
-    icons_[pos.row][pos.col]->move(clientCo.x, clientCo.y);
+    TPos clientPos = pos;
+    // 翻转
+    if (rotate_)
+    {
+        clientPos = co::getRotatePos(clientPos);
+    }
+
+    def::TClientCo clientCo = co::pos2ClientCo(clientPos);
+    icons_[pos.row][pos.col]->move(clientCo.x, clientCo.y); // 此处是翻转的关键
 }
 
-// 绘制选择图标，包括走棋前后两个位置
+// 绘制选择图标，包括走棋前后两个位置，pos为翻转前的逻辑坐标
 void Palette::drawSelect(TMove move)
 {
+    // 翻转
+    if (rotate_)
+    {
+        move.src = co::getRotatePos(move.src);
+        move.dst = co::getRotatePos(move.dst);
+    }
+    
     if (co::isValidPos(move.src))
     {
         prevSelect_->show();
@@ -148,7 +162,7 @@ void Palette::drawSelect(TMove move)
 }
 
 uint8_t Palette::makeMove(TMove move)
-{
+{    
     uint8_t ret = board_->makeMove(move);
 
     if (ret & board::MOVE_RET_ok)
@@ -162,15 +176,14 @@ uint8_t Palette::makeMove(TMove move)
 
 void Palette::rotate(bool on)
 {
-    /*if (board_->rotate())
-    {
-        drawIcons();
-        // 重绘select
-        std::pair<TPos, TPos> trigger = board_->getTrigger();
-        drawSelect(trigger.first, trigger.second);
-    }*/
     // 旋转功能只在UI交互上有用，对内部数据处理来说只会徒增混乱，所以由UI自己处理
     rotate_ = on;
+
+    drawIcons();
+    // 重绘select
+    TMove trigger = board_->getTrigger();
+    drawSelect(trigger);
+
 }
 
 void Palette::undo()
@@ -179,8 +192,8 @@ void Palette::undo()
     {
         drawIcons();
         // 重绘select
-        TMove move = board_->getTrigger();
-        drawSelect({move.src, move.dst});
+        TMove trigger = board_->getTrigger();
+        drawSelect(trigger);
     }
 }
 
@@ -195,8 +208,15 @@ void Palette::run()
     }
 }
 
+// currPos是屏幕上的pos，需要翻转
 void Palette::click(TPos currPos)
 {
+    // 翻转
+    if (rotate_)
+    {
+        currPos = co::getRotatePos(currPos);
+    }
+
     if (prevPos_ == def::INVALID_POS)
     {
         // 若prevPos_为无效位置，且新位置棋子属于下一步走棋的玩家，则更新prevPos_，并显示当前选择的棋子

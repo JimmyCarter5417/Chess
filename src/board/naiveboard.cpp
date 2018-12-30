@@ -63,7 +63,7 @@ uint8_t NaiveBoard::autoMove()
     int beta = INT_MAX;
     int score = 0;
     int depth = 3;
-    TMove move;
+    TMove move = def::INVALID_MOVE;
 
     score = minimax(depth, getNextPlayer(), move);
    // debug::printBoard(snapshot_->board_);
@@ -1073,7 +1073,7 @@ int NaiveBoard::minimax(int depth, def::PLAYER_E maxPlayer, TMove& move)
     {
         if (makeMove(moves[i]) & board::MOVE_RET_ok)
         {
-            def::TMove nextMove;
+            def::TMove nextMove = def::INVALID_MOVE;
             int score = minimax(depth - 1, maxPlayer, nextMove);
             undoMakeMove();
 
@@ -1112,7 +1112,7 @@ int NaiveBoard::alphabeta(int depth, def::PLAYER_E maxPlayer, int alpha, int bet
     {
         if (makeMove(moves[i]) & board::MOVE_RET_ok)
         {
-            TMove nextMove;
+            TMove nextMove = def::INVALID_MOVE;
             int score = alphabeta(depth - 1, maxPlayer, alpha, beta, nextMove);
             undoMakeMove();
 

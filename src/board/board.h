@@ -24,10 +24,10 @@ namespace board
         virtual uint8_t makeMove(def::TMove move) = 0;              // 指定走法走棋,返回EMoveRet的组合
         virtual bool undoMakeMove() = 0;                            // 悔棋
 
-        virtual int getScore(def::PLAYER_E player) const = 0;        // 获取当前局面下的玩家分数
-        virtual def::ICON_E getIcon(def::TPos pos) const = 0;      // 获取某一位置的棋子
-        virtual def::PLAYER_E getNextPlayer() const = 0;             // 获取下一走棋玩家
-        virtual def::PLAYER_E getOwner(def::TPos pos) const = 0;// 获取pos棋子所属玩家
+        virtual int getScore(def::PLAYER_E player) const = 0;       // 获取当前局面下的玩家分数
+        virtual def::ICON_E getIcon(def::TPos pos) const = 0;       // 获取某一位置的棋子
+        virtual def::PLAYER_E getOwner(def::TPos pos) const = 0;    // 获取pos棋子所属玩家
+        virtual def::PLAYER_E getNextPlayer() const = 0;            // 获取下一走棋玩家
         virtual def::TMove getTrigger() const = 0;                  // 表示该snapshot是由trigger的两个位置移动产生的，用于绘制select图标
     };
 }
