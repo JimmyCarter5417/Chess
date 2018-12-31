@@ -19,13 +19,16 @@ static const int g_maxDepth        = 32;   // 最大递归深度
 static const Zobrist g_zoPlayer;
 static const Zobrist g_zoTable[14][256];
 
+static int g_cnt = 0;
+
 
 SlimBoard::SlimBoard()
 {
 
 }
 
-void SlimBoard::init()// 开局
+// 开局
+void SlimBoard::init()
 {
     static const uint8_t initBoard[256] = {
       0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,
@@ -49,9 +52,8 @@ void SlimBoard::init()// 开局
     // 初始化棋盘
     memcpy(board_, initBoard, sizeof(board_));
     memset(cache_, 0, sizeof(cache_));
-
+    // 递归层数
     distance_ = 0;
-
     // 双王起始位置
     redKingIdx_ = 199;
     blackKingIdx_ = 55;
@@ -78,13 +80,18 @@ void SlimBoard::initScore()
         def::PLAYER_E owner = getOwner(i);
 
         if (owner == def::PLAYER_black)
+        {
             blackScore_ += getValue(icon, i);
+        }
         else if (owner == def::PLAYER_red)
+        {
             redScore_ += getValue(icon, i);
+        }
     }
 }
 
-bool SlimBoard::undoMakeMove()// 悔棋
+// 悔棋
+bool SlimBoard::undoMakeMove()
 {
     if (records_.empty())
     {
@@ -102,47 +109,49 @@ bool SlimBoard::undoMakeMove()// 悔棋
     return true;
 }
 
-uint8_t SlimBoard::autoMove()// 电脑计算走棋
+// 电脑计算走棋
+uint8_t SlimBoard::autoMove()
 {
-    /*int depth = 3;
+    int depth = 7;
+    uint16_t move;
 
-    uint16_t nextMove1;
-    int a = minimax(depth, player_, &nextMove1);
-
-    uint16_t nextMove2;
-    int b = negamax(depth, &nextMove2);
-
-    uint16_t nextMove3;
-    int c = alphabeta(depth, player_, INT_MIN, INT_MAX, &nextMove3);
-
-    uint16_t nextMove4;
-    int d = alphabetaWithNega(depth, -g_scoreCheckmate, g_scoreCheckmate, &nextMove4);*/
-
-    uint16_t move = fullSearch();
+//    int a = minimax(depth, player_, &move);
+//
+//    int b = negamax(depth, &move);
+//
+//    int c = alphabeta(depth, player_, INT_MIN, INT_MAX, &move);
+//
+    int d = alphabetaWithNega(depth, -g_scoreCheckmate, g_scoreCheckmate, &move);
+//
+//    move = fullSearch();
 
     return makeMove(move);
 }
 
+// 相对于player的评估函数
 int SlimBoard::evaluate(def::PLAYER_E player) const
 {
     return (player == def::PLAYER_red) ? (redScore_ - blackScore_) : (blackScore_ - redScore_);
 }
 
+// 极小化极大值算法
 int SlimBoard::minimax(int depth, def::PLAYER_E maxPlayer, uint16_t* pNextMove)
 {
-    if (depth == 0 || winner_ != def::PLAYER_none)      
-        return evaluate(maxPlayer);// 评价函数是相对于极大方的
+    if (depth == 0 || winner_ != def::PLAYER_none) // 达到最深递归限制，或找到胜利方法，则停止搜索
+    {
+        return evaluate(maxPlayer); // 评价函数是相对于 极大方 的
+    }
 
     vector<uint16_t> moves;
     generateAllMoves(moves);
 
-    if (player_ == maxPlayer)// 极大节点
+    if (getNextPlayer() == maxPlayer) // 极大节点
     {
         int maxScore = INT_MIN;
 
         for (uint16_t move: moves)
         {
-            if (board::MOVE_RET_ok & makeMove(move))// move可能导致自杀
+            if (makeMove(move) & board::MOVE_RET_ok) // move可能导致自杀
             {
                 int val = minimax(depth - 1, maxPlayer, nullptr);
                 undoMakeMove();
@@ -152,20 +161,22 @@ int SlimBoard::minimax(int depth, def::PLAYER_E maxPlayer, uint16_t* pNextMove)
                     maxScore = val;
 
                     if (pNextMove != nullptr)
+                    {
                         *pNextMove = move;
+                    }
                 }
             }
         }
 
         return maxScore;
     }
-    else// 极小节点
+    else // 极小节点
     {
         int minScore = INT_MAX;
 
         for (uint16_t move: moves)
         {
-            if (board::MOVE_RET_ok & makeMove(move))// move可能导致自杀
+            if (makeMove(move) & board::MOVE_RET_ok) // move可能导致自杀
             {
                 int val = minimax(depth - 1, maxPlayer, nullptr);
                 undoMakeMove();
@@ -175,7 +186,9 @@ int SlimBoard::minimax(int depth, def::PLAYER_E maxPlayer, uint16_t* pNextMove)
                     minScore = val;
 
                     if (pNextMove != nullptr)
+                    {
                         *pNextMove = move;
+                    }
                 }
             }
         }
@@ -184,18 +197,22 @@ int SlimBoard::minimax(int depth, def::PLAYER_E maxPlayer, uint16_t* pNextMove)
     }
 }
 
+// 负极大值算法
 int SlimBoard::negamax(int depth, uint16_t* pNextMove)
 {
     if (depth == 0 || winner_ != def::PLAYER_none)
-        return evaluate(player_);// 评价函数是相对于当前玩家的
+    {
+        return evaluate(getNextPlayer()); // 评价函数是相对于 当前玩家 的
+    }
 
     vector<uint16_t> moves;
     generateAllMoves(moves);
 
     int maxScore = INT_MIN;
+
     for (uint16_t move: moves)
     {
-        if (board::MOVE_RET_ok & makeMove(move))// move可能导致自杀
+        if (makeMove(move) & board::MOVE_RET_ok) // move可能导致自杀
         {
             int val = -negamax(depth - 1, nullptr);
             undoMakeMove();
@@ -205,7 +222,9 @@ int SlimBoard::negamax(int depth, uint16_t* pNextMove)
                 maxScore = val;
 
                 if (pNextMove != nullptr)
+                {
                     *pNextMove = move;
+                }
             }
         }
     }
@@ -213,34 +232,39 @@ int SlimBoard::negamax(int depth, uint16_t* pNextMove)
     return maxScore;
 }
 
+// alpha-bata剪枝算法
 int SlimBoard::alphabeta(int depth, def::PLAYER_E maxPlayer, int alpha, int beta, uint16_t* pNextMove)
 {
     if (depth == 0 || winner_ != def::PLAYER_none)
-        return evaluate(maxPlayer);// 评价函数是相对于极大方的
+    {
+        return evaluate(maxPlayer); // 评价函数是相对于 极大方 的
+    }
 
     vector<uint16_t> moves;
     generateAllMoves(moves);
 
-    if (player_ == maxPlayer)// 极大节点
+    if (player_ == maxPlayer) // 极大节点
     {
         int maxScore = alpha;
 
         for (uint16_t move: moves)
         {
-            if (board::MOVE_RET_ok & makeMove(move))
+            if (makeMove(move) & board::MOVE_RET_ok)
             {
                 int val = alphabeta(depth - 1, maxPlayer, maxScore, beta, nullptr);
                 undoMakeMove();
 
-                if (val > maxScore)// 本层为极大节点，取各子节点最大值
+                if (val > maxScore) // 本层为极大节点，取各子节点最大值
                 {
                     maxScore = val;
 
                     if (pNextMove != nullptr)
+                    {
                         *pNextMove = move;
+                    }
                 }
 
-                if (maxScore >= beta)// beta剪枝：对于上层极小节点来说，希望寻找其子节点最小值，本层maxScore一旦大于beta，即可忽略
+                if (maxScore >= beta) // beta剪枝：对于上层极小节点来说，希望寻找其子节点最小值，本层maxScore一旦大于beta，即可忽略
                 {
                     break;
                 }
@@ -249,26 +273,28 @@ int SlimBoard::alphabeta(int depth, def::PLAYER_E maxPlayer, int alpha, int beta
 
         return maxScore;
     }
-    else// 极小节点
+    else // 极小节点
     {
         int minScore = beta;
 
         for (uint16_t move: moves)
         {
-            if (board::MOVE_RET_ok & makeMove(move))
+            if (makeMove(move) & board::MOVE_RET_ok)
             {
                 int val = alphabeta(depth - 1, maxPlayer, alpha, minScore, nullptr);
                 undoMakeMove();
 
-                if (val < minScore)// 本层为极小节点，取各子节点最小值
+                if (val < minScore) // 本层为极小节点，取各子节点最小值
                 {
                     minScore = val;
 
                     if (pNextMove != nullptr)
+                    {
                         *pNextMove = move;
+                    }
                 }
 
-                if (alpha >= minScore)// alpha剪枝：对于上层极大节点来说，希望寻找其子节点最大值，本层alpha一旦大于minScore，即可忽略
+                if (alpha >= minScore) // alpha剪枝：对于上层极大节点来说，希望寻找其子节点最大值，本层alpha一旦大于minScore，即可忽略
                 {
                     break;
                 }
@@ -281,10 +307,13 @@ int SlimBoard::alphabeta(int depth, def::PLAYER_E maxPlayer, int alpha, int beta
     return 0;
 }
 
+// alpha-bata剪枝与负极大值算法相结合
 int SlimBoard::alphabetaWithNega(int depth, int alpha, int beta, uint16_t* pNextMove)
 {
-    if (depth == 0 || winner_ != def::PLAYER_none)       
-        return evaluate(player_);// 评价函数是相对于当前玩家的
+    if (depth == 0 || winner_ != def::PLAYER_none)
+    {
+        return evaluate(player_); // 评价函数是相对于 当前玩家 的
+    }
 
     vector<uint16_t> moves;
     generateAllMoves(moves);
@@ -293,7 +322,7 @@ int SlimBoard::alphabetaWithNega(int depth, int alpha, int beta, uint16_t* pNext
 
     for (uint16_t move: moves)
     {
-        if (board::MOVE_RET_ok & makeMove(move))
+        if (makeMove(move) & board::MOVE_RET_ok)
         {
             int val = -alphabetaWithNega(depth - 1, -beta, -maxScore, nullptr);
             undoMakeMove();
@@ -303,11 +332,15 @@ int SlimBoard::alphabetaWithNega(int depth, int alpha, int beta, uint16_t* pNext
                 maxScore = val;
 
                 if (pNextMove != nullptr)
+                {
                     *pNextMove = move;
+                }
             }
 
-            if (val >= beta)// beta剪枝
+            if (val >= beta) // beta剪枝
+            {
                 break;
+            }
         }
     }
 
@@ -319,18 +352,22 @@ uint16_t SlimBoard::fullSearch()
 {
     uint16_t move = 0;
 
-    memset(cache_, 0, 65536 * sizeof (uint16_t));
+    memset(cache_, 0, sizeof(cache_));
     clock_t start = clock();
 
     for (int i = 1; i <= g_maxDepth; i++)
     {
         int score = alphabetaWithNegaSearch(i, -g_scoreCheckmate, g_scoreCheckmate, &move);
 
-        if (score > g_scoreWin || score < -g_scoreWin)// 将死对方或被对方将死
+        if (score > g_scoreWin || score < -g_scoreWin) // 将死对方或被对方将死
+        {
             break;
+        }
 
-        if (clock() - start > CLOCKS_PER_SEC)
+        if ((clock() - start) > CLOCKS_PER_SEC)
+        {
             break;
+        }
     }
 
     return move;
@@ -357,49 +394,59 @@ int SlimBoard::quiescentSearch(int alpha, int beta)
     {
         generateAllMoves(moves);
         std::sort(moves.begin(), moves.end(), // 将生成的走法按照历史走法的分值排序，得分高表示之前浅层递归已经记录过的走法，被排到最前
-                  [this](uint16_t v1, uint16_t v2)// 因为相同局面浅一些的搜索可能会更适合剪枝
-                    {
-                        return this->cache_[v1] >= this->cache_[v2];
-                    });
+                  [this](uint16_t v1, uint16_t v2) // 因为相同局面浅一些的搜索可能会更适合剪枝
+                  {
+                      return this->cache_[v1] >= this->cache_[v2];
+                  });
     }
     else// 否则先评估
     {
         int val = evaluate(player_);
 
-        if (val > maxScore)// 更新alpha
+        if (val > maxScore) // 更新alpha
+        {
             maxScore = val;
+        }
 
-        if (val >= beta)// beta截断
+        if (val >= beta) // beta截断
+        {
             return val;
+        }
 
-        static int MvvLva[8] = {0, 5, 1, 1, 3, 4, 3, 2};// 空 将 仕 象 马 车 炮 卒
+        static int MvvLva[8] = {0, 5, 1, 1, 3, 4, 3, 2}; // 空 将 仕 象 马 车 炮 卒
         generateAllMoves(moves);
         std::sort(moves.begin(), moves.end(), // 将生成的走法按照MvvLva逆向排序，先搜索最优吃子方法
                   [this](uint16_t v1, uint16_t v2)
-                    {
-                        return MvvLva[def::extractPiece(static_cast<def::ICON_E>(extractDst(v1)))] >=
-                               MvvLva[def::extractPiece(static_cast<def::ICON_E>(extractDst(v2)))];
-                    });
+                  {
+                      return MvvLva[def::extractPiece(static_cast<def::ICON_E>(extractDst(v1)))] >=
+                             MvvLva[def::extractPiece(static_cast<def::ICON_E>(extractDst(v2)))];
+                  });
     }
 
     // 同alpha-beta类似
     for (uint16_t move: moves)
     {
-        if (board::MOVE_RET_ok & makeMove(move))
+        if (makeMove(move) & board::MOVE_RET_ok)
         {
             int val = -quiescentSearch(-beta, -maxScore);
             undoMakeMove();
 
             if (val > maxScore)
+            {
                 maxScore = val;
+            }
 
-            if (val >= beta)// beta剪枝
+            if (val >= beta) // beta剪枝
+            {
                 break;
+            }
         }
     }
 
     if (maxScore == -g_scoreCheckmate)// 一步都走不了
+    {
         maxScore = -g_scoreCheckmate + distance_;
+    }
 
     return maxScore;
 }
@@ -407,50 +454,54 @@ int SlimBoard::quiescentSearch(int alpha, int beta)
 int SlimBoard::alphabetaWithNegaSearch(int depth, int alpha, int beta, uint16_t* pNextMove)
 {
     if (depth == 0 || winner_ != def::PLAYER_none)
-        return evaluate(player_);// 评价函数是相对于当前玩家的
+    {
+        return evaluate(player_); // 评价函数是相对于当前玩家的
+    }
 
     vector<uint16_t> moves;
     generateAllMoves(moves);
     std::sort(moves.begin(), moves.end(), // 将生成的走法按照历史走法的分值排序，得分高表示之前浅层递归已经记录过的走法，被排到最前
-              [this](uint16_t v1, uint16_t v2)// 因为相同局面浅一些的搜索可能会更适合剪枝
-                {
-                    return this->cache_[v1] >= this->cache_[v2];
-                });
+              [this](uint16_t v1, uint16_t v2) // 因为相同局面浅一些的搜索可能会更适合剪枝
+              {
+                  return this->cache_[v1] >= this->cache_[v2];
+              });
 
     int maxScore = -g_scoreCheckmate;
     uint16_t maxMove = 0;
 
     for (uint16_t move: moves)
     {
-        if (board::MOVE_RET_ok & makeMove(move))
+        if (makeMove(move) & board::MOVE_RET_ok)
         {
             int val = -alphabetaWithNegaSearch(depth - 1, -beta, -maxScore, nullptr);
             undoMakeMove();
 
-            if (val > maxScore)// pv走法 beta走法
+            if (val > maxScore) // pv走法 beta走法
             {
                 maxScore = val;
                 maxMove = move;
             }
 
-            if (val >= beta)// beta剪枝
+            if (val >= beta) // beta剪枝
             {
                 break;
             }
         }
     }
 
-    if (maxScore == -g_scoreCheckmate)// 此层无可走的棋，即被将死
+    if (maxScore == -g_scoreCheckmate) // 此层无可走的棋，即被将死
     {
-        maxScore = -g_scoreCheckmate + distance_;// 根据相对于根节点的步数给出评分
+        maxScore = -g_scoreCheckmate + distance_; // 根据相对于根节点的步数给出评分
     }
 
-    if (maxMove != 0)// 可以走棋的话，保存该最佳走法
+    if (maxMove != 0) // 可以走棋的话，保存该最佳走法
     {
-        cache_[maxMove] += depth * depth;// 层数越深，得分越低
+        cache_[maxMove] += depth * depth; // 层数越深，得分越低
 
         if (pNextMove != nullptr)
+        {
             *pNextMove = maxMove;
+        }
     }
 
     return maxScore;
@@ -507,7 +558,7 @@ uint8_t SlimBoard::makeMove(uint16_t move)
         }
     }
 
-    distance_++;// 增加与根节点的距离
+    distance_++; // 增加与根节点的距离
 
     return ret;
 }
@@ -551,11 +602,14 @@ void SlimBoard::generateAllMoves(vector<uint16_t>& moves, bool capture/* = false
 {
     moves.clear();
 
-    for (int src = 0; src < 256; src++)
+    // for (int src = 0; src < 256; src++)
+    for (int src = 51; src <= 203; src++) // 没必要搜索非法位置
     {
-        if (getOwner(src) == player_)
+        def::ICON_E icon = getIcon(src);
+
+        if (def::extractOwner(icon) == player_)
         {
-            switch (getIcon(src) & def::PIECE_MASK)
+            switch (def::extractPiece(icon))
             {
                 case def::PIECE_king:
                 {
@@ -566,7 +620,9 @@ void SlimBoard::generateAllMoves(vector<uint16_t>& moves, bool capture/* = false
                         {
                             if ((capture && getOwner(dst) == def::getEnemyPlayer(player_)) ||// 捕获对方棋子
                                 (!capture && getOwner(dst) != player_))// 不捕获的话只要不是己方棋子即可
+                            {
                                 moves.push_back(synthesisMove(src, dst));
+                            }
                         }
                     }
 
@@ -581,7 +637,9 @@ void SlimBoard::generateAllMoves(vector<uint16_t>& moves, bool capture/* = false
                         {
                             if ((capture && getOwner(dst) == def::getEnemyPlayer(player_)) ||// 捕获对方棋子
                                 (!capture && getOwner(dst) != player_))// 不捕获的话只要不是己方棋子即可
+                            {
                                 moves.push_back(synthesisMove(src, dst));
+                            }
                         }
                     }
 
@@ -597,7 +655,9 @@ void SlimBoard::generateAllMoves(vector<uint16_t>& moves, bool capture/* = false
                             dst += g_deltaAdvisor[i];// 得到象位置
                             if ((capture && getOwner(dst) == def::getEnemyPlayer(player_)) ||// 捕获对方棋子
                                 (!capture && getOwner(dst) != player_))// 不捕获的话只要不是己方棋子即可
+                            {
                                 moves.push_back(synthesisMove(src, dst));
+                            }
                         }
                     }
 
@@ -617,7 +677,9 @@ void SlimBoard::generateAllMoves(vector<uint16_t>& moves, bool capture/* = false
                                 {
                                     if ((capture && getOwner(dst) == def::getEnemyPlayer(player_)) ||// 捕获对方棋子
                                         (!capture && getOwner(dst) != player_))// 不捕获的话只要不是己方棋子即可
+                                    {
                                         moves.push_back(synthesisMove(src, dst));
+                                    }
                                 }
                             }
                         }
@@ -637,7 +699,9 @@ void SlimBoard::generateAllMoves(vector<uint16_t>& moves, bool capture/* = false
                             if (board_[dst] == 0)// 空
                             {
                                 if (!capture)// 不捕获棋子才能添加
+                                {
                                     moves.push_back(synthesisMove(src, dst));
+                                }
                             }
                             else// 非空的话，捕获或者不捕获均可添加
                             {
@@ -688,7 +752,9 @@ void SlimBoard::generateAllMoves(vector<uint16_t>& moves, bool capture/* = false
                             else// 非空的话，捕获或者不捕获均可添加
                             {
                                 if (getOwner(dst) != player_)// 非己方棋子
+                                {
                                     moves.push_back(synthesisMove(src, dst));
+                                }
 
                                 break;// 一旦搜索到非空棋子即可停止搜索
                             }
@@ -704,7 +770,9 @@ void SlimBoard::generateAllMoves(vector<uint16_t>& moves, bool capture/* = false
                     {
                         if ((capture && getOwner(dst) == def::getEnemyPlayer(player_)) ||// 捕获对方棋子
                             (!capture && getOwner(dst) != player_))// 不捕获的话只要不是己方棋子即可
+                        {
                             moves.push_back(synthesisMove(src, dst));
+                        }
                     }
 
                     if (isAnotherHalf(src, player_))// 过河后才可左右移动
@@ -716,7 +784,9 @@ void SlimBoard::generateAllMoves(vector<uint16_t>& moves, bool capture/* = false
                             {
                                 if ((capture && getOwner(dst) == def::getEnemyPlayer(player_)) ||// 捕获对方棋子
                                     (!capture && getOwner(dst) != player_))// 不捕获的话只要不是己方棋子即可
+                                {
                                     moves.push_back(synthesisMove(src, dst));
+                                }
                             }
                         }
                     }
@@ -724,7 +794,9 @@ void SlimBoard::generateAllMoves(vector<uint16_t>& moves, bool capture/* = false
                     break;
                 }
                 default:
+                {
                     break;
+                }
             }
         }
     }
@@ -1492,7 +1564,7 @@ int SlimBoard::detectRepeat(int count)
 {
     def::PLAYER_E player = def::getEnemyPlayer(player_); // 上一玩家
     bool selfPerpetualCheck = false;
-    bool otherPerpetualCheck = false;
+    bool ememyPerpetualCheck = false;
 
     for (unsigned int i = records_.size() - 1; i >= 0; ++i) // 由底向上搜索
     {
@@ -1511,13 +1583,13 @@ int SlimBoard::detectRepeat(int count)
             {
                 if (--count == 0)
                 {
-                    return 1 + (selfPerpetualCheck ? 2 : 0) + (otherPerpetualCheck ? 4 : 0);
+                    return 1 + (selfPerpetualCheck ? 2 : 0) + (ememyPerpetualCheck ? 4 : 0);
                 }
             }
         }
         else
         {
-            otherPerpetualCheck = otherPerpetualCheck && record.check;
+            ememyPerpetualCheck = ememyPerpetualCheck && record.check;
         }
 
         def::switchPlayer(player);

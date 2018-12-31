@@ -256,7 +256,7 @@ void Palette::click(TPos currPos)
             // 当前选择位置与原位置同色，才能更新prevPos_，并绘制选择框
             if (board_->getOwner(prevPos_) == board_->getOwner(currPos))
             {
-                prevPos_ = def::INVALID_POS;//不标记上次选中的位置
+                prevPos_ = def::INVALID_POS; // 不标记上次选中的位置
                 drawSelect({prevPos_, currPos});
                 prevPos_ = currPos;
             }
